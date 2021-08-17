@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Chat_Corpora_Annotator.ViewModels.Base
+namespace ChatCorporaAnnotator.ViewModels.Base
 {
     internal abstract class ViewModel : INotifyPropertyChanged
     {

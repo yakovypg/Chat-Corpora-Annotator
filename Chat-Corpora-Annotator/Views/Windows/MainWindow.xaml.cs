@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Chat_Corpora_Annotator
+namespace ChatCorporaAnnotator
 {
     public partial class MainWindow : Window
     {

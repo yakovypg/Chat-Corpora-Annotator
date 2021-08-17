@@ -1,7 +1,7 @@
-﻿using Chat_Corpora_Annotator.Infrastructure.Commands.Base;
+﻿using ChatCorporaAnnotator.Infrastructure.Commands.Base;
 using System;
 
-namespace Chat_Corpora_Annotator.Infrastructure.Commands
+namespace ChatCorporaAnnotator.Infrastructure.Commands
 {
     internal class RelayCommand : Command
     {

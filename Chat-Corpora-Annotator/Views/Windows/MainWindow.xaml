@@ -1,17 +1,402 @@
-﻿<Window x:Class="Chat_Corpora_Annotator.MainWindow"
+﻿<Window x:Class="ChatCorporaAnnotator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:vm="clr-namespace:Chat_Corpora_Annotator.ViewModels"
+        xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels"
         mc:Ignorable="d"
+        Icon="/Resources/Icons/MainWindowIcon.png"
         Title="Chat Corpora Annotator"
         Width="1350" Height="850"
-        MinWidth="540" MinHeight="340">
-    
-    <Grid>
-        
-    </Grid>
-    
+        MinWidth="702" MinHeight="442">
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <DockPanel Background="AliceBlue">
+        <Menu DockPanel.Dock="Top" Background="Transparent">
+            <Menu.Resources>
+                <Style TargetType="MenuItem">
+                    <Setter Property="FontSize" Value="13"/>
+                </Style>
+            </Menu.Resources>
+
+            <MenuItem Header="File">
+                <MenuItem Header="Index new file" Command="{Binding IndexNewFileCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_FileDownload"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                
+                <MenuItem Header="Open corpus" Command="{Binding OpenCorpusCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_FileImport"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Visualize">
+                <MenuItem Header="Plot" Command="{Binding ShowPlotCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_ProjectDiagram"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+
+                <MenuItem Header="Heatmap" Command="{Binding ShowHeatmapCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_History"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Extract" Command="{Binding ExtractFileCommand}"/>
+        </Menu>
+
+        <Grid DockPanel.Dock="Bottom" Height="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="5, 3" Orientation="Horizontal">
+                <TextBlock Margin="0, 0, 0, 0" Text="{Binding LoadedFileInfo}" Style="{StaticResource SmallCenteredTextBlock}"/>
+                
+                <TextBlock Margin="7, 0, 0, 0" Style="{StaticResource SmallCenteredTextBlock}">
+                    <Run Text="{Binding TagsetCount}"/>
+                    <Run Text="tagset"/>
+                </TextBlock>
+
+                <TextBlock Margin="7, 0, 0, 0" Style="{StaticResource SmallCenteredTextBlock}">
+                    <Run Text="{Binding SituationsCount}"/>
+                    <Run Text="situations"/>
+                </TextBlock>
+            </StackPanel>
+
+            <Menu Grid.Column="1" Margin="0, 3" Background="Transparent" Visibility="{Binding BottomMenuVisibility}">
+                <MenuItem Header="Filter by tag">
+                    <MenuItem Header="Choose tag" Command="{Binding ChooseTagForFilterCommand}"/>
+                    <MenuItem Header="Tagged only" Command="{Binding SetTaggedOnlyParamForFilterCommand}"/>
+                </MenuItem>
+
+                <MenuItem Header="Save">
+                    <MenuItem Header="Write to disk" Command="{Binding WriteFileToDiskCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_FileExport"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Save" Command="{Binding SaveFileCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Regular_Save"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+
+                <MenuItem Header="Suggester" Command="{Binding ShowSuggesterCommand}"/>
+                <MenuItem Header="Tagset Editor" Command="{Binding ShowTagsetEditorCommand}"/>
+
+                <MenuItem Header="Edit Situation">
+                    <MenuItem Header="Merge" Command="{Binding MergeSituationsCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Brands_CreativeCommonsShare"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    
+                    <MenuItem Header="Delete situation" Command="{Binding DeleteSituationCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Regular_MinusSquare"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Change tag" Command="{Binding ChangeSituationTagCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Regular_Edit"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </Grid>
+
+        <Grid Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" MinWidth="170" MaxWidth="400"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="4*"/>
+            </Grid.ColumnDefinitions>
+
+            <GridSplitter
+                Grid.Column="1"
+                Width="3">
+            </GridSplitter>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <DockPanel Grid.Column="0" Margin="0, 0, 5, 0">
+                    <DockPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource WatermarkTextBlock}" x:Key="QueryWaretmark">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Height" Value="{Binding ElementName=SearchQueryTextBox, Path=Height}"/>
+                            <Setter Property="FontSize" Value="{Binding ElementName=SearchQueryTextBox, Path=FontSize}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=SearchQueryTextBox, Path=Text}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Resources>
+
+                    <Expander DockPanel.Dock="Top" Header="Query">
+                        <Grid>
+                            <TextBox Name="SearchQueryTextBox" Margin="0, 7" Text="{Binding FinderQuery, UpdateSourceTrigger=LostFocus}"/>
+                            <UniformGrid Margin="0, 3, 0, 0">
+                                <TextBlock Text="Enter query" Style="{StaticResource QueryWaretmark}"/>
+                            </UniformGrid>
+                        </Grid>
+                    </Expander>
+
+                    <Expander DockPanel.Dock="Top" Header="Select users toggle">
+                        <ListBox
+                            Margin="0, 7"
+                            MinHeight="50"
+                            ItemsSource="{Binding CurrentUserToggles}">
+                        </ListBox>
+                    </Expander>
+
+                    <Expander DockPanel.Dock="Top" Header="Select dates toggle">
+                        <StackPanel Margin="0, 7">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="from" Height="21" Margin="3, 0, 5, 0"/>
+
+                                <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1">
+                                    <Grid Background="White">
+                                        <CheckBox
+                                            Margin="3, 0, 0, 0"
+                                            IsChecked="{Binding IsFinderStartDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                        </CheckBox>
+
+                                        <DatePicker Padding="20, 0, 0, 0"
+                                                    BorderThickness="0"
+                                                    SelectedDate="{Binding FinderStartDate, UpdateSourceTrigger=PropertyChanged}">
+
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox">
+                                                    <Setter Property="Template" Value="{DynamicResource WithoutBorderDatePickerTextBox}"/>
+                                                </Style>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
+                                    </Grid>
+                                </Border>
+                                
+                            </Grid>
+
+                            <Grid Margin="0, 3, 0, 0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="to" Height="21" Margin="3, 0, 5, 0"/>
+
+                                <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1">
+                                    <Grid Background="White">
+                                        <CheckBox
+                                            Margin="3, 0, 0, 0"
+                                            IsChecked="{Binding IsFinderEndDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                        </CheckBox>
+
+                                        <DatePicker Padding="20, 0, 0, 0"
+                                                    BorderThickness="0"
+                                                    SelectedDate="{Binding FinderEndDate, UpdateSourceTrigger=PropertyChanged}">
+
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox">
+                                                    <Setter Property="Template" Value="{DynamicResource WithoutBorderDatePickerTextBox}"/>
+                                                </Style>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
+                                    </Grid>
+                                </Border>
+                                
+                            </Grid>
+                        </StackPanel>
+                    </Expander>
+
+                    <Expander DockPanel.Dock="Top" Header="Actions" IsExpanded="True">
+                        <StackPanel Height="auto" Margin="3, 7, 0, 0">
+                            <Button Content="Clear" Style="{StaticResource BlueCircleButton}"/>
+                            <Button Content="Find" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}"/>
+                        </StackPanel>
+                    </Expander>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" MinHeight="5"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="1*" MinHeight="200"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"/>
+                        <GridSplitter Grid.Row="1" Height="3" Background="LightPink"/>
+
+                        <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1">
+                            <DockPanel Background="White">
+                                <TextBlock
+                                    Text="Tagset"
+                                    Style="{StaticResource ListTitleTextBlock}">
+                                </TextBlock>
+
+                                <ListBox BorderThickness="0"
+                                         ItemsSource="{Binding CurrentTags}"
+                                         SelectedItem="{Binding SelectedTagset}">
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                </DockPanel>
+            </ScrollViewer>
+
+            <TabControl Grid.Column="2">
+                <TabItem Header="Chat" DataContext="{Binding ChatVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <!-- Visibility="{Binding TabControlGridsVisibility}" -->
+                        <DockPanel Margin="3" Visibility="Visible">
+                            <Grid DockPanel.Dock="Top" Height="38" Margin="0, 0, 0, 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                                    Grid.Column="0"
+                                    FontSize="15"
+                                    Content="Remove tag"
+                                    Style="{StaticResource OrangeCircleButton}"
+                                    Command="{Binding RemoveTagCommand}">
+                                </Button>
+
+                                <Button
+                                    Grid.Column="2"
+                                    FontSize="15"
+                                    Content="Add tag"
+                                    Style="{StaticResource GreenCircleButton}"
+                                    Command="{Binding AddTagCommand}">
+                                </Button>
+                            </Grid>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*" MinWidth="200"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <GridSplitter
+                                    Grid.Column="1"
+                                    Width="3"
+                                    Margin="0, 0, 2, 0">
+                                </GridSplitter>
+
+                                <ListBox Grid.Column="0"
+                                         SelectionMode="Extended"
+                                         ItemsSource="{Binding CurrentChatItems}">
+
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction
+                                                PassEventArgsToCommand="True"
+                                                Command="{Binding ChangeChatSelectedItemsCommand}">
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="1*"/>
+                                        <RowDefinition Height="1.7*"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1">
+                                        <DockPanel Background="White">
+                                            <TextBlock
+                                                Text="Active dates"
+                                                Style="{StaticResource ListTitleTextBlock}">
+                                            </TextBlock>
+
+                                            <ListBox BorderThickness="0"
+                                                     ItemsSource="{Binding ActiveDates}">
+                                            </ListBox>
+                                        </DockPanel>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Margin="0, 5" BorderBrush="Gray" BorderThickness="1">
+                                        <DockPanel Background="White">
+                                            <TextBlock
+                                                Text="Situations"
+                                                Style="{StaticResource ListTitleTextBlock}">
+                                            </TextBlock>
+
+                                            <ListBox BorderThickness="0"
+                                                     ItemsSource="{Binding Situations}">
+                                            </ListBox>
+                                        </DockPanel>
+                                    </Border>
+
+                                    <Grid Grid.Row="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <Button Content="Delete" Padding="3" Style="{StaticResource BlueCircleButton}"/>
+                                            <Button Content="Merge" Padding="3" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Margin="3, 0, 0, 0">
+                                            <Button Content="Edit tag" Padding="3" Style="{StaticResource BlueCircleButton}"/>
+                                            <Button Content="Cross-Merge" Padding="3" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                
+                            </Grid>
+                            
+                        </DockPanel>
+                        
+                    </UniformGrid>
+                </TabItem>
+
+                <TabItem Header="Statistics">
+
+                </TabItem>
+
+                <TabItem Header="Concordance">
+
+                </TabItem>
+
+                <TabItem Header="N-gram Search">
+
+                </TabItem>
+
+                <TabItem Header="Keyword Analysis">
+
+                </TabItem>
+                
+            </TabControl>
+
+        </Grid>
+
+    </DockPanel>
+
 </Window>

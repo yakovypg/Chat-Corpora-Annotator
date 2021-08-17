@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Chat_Corpora_Annotator.Infrastructure.Commands.Base
+namespace ChatCorporaAnnotator.Infrastructure.Commands.Base
 {
     internal abstract class Command : ICommand
     {
