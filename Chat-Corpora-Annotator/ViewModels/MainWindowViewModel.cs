@@ -1,5 +1,8 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Data;
+using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.Views.Windows;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -10,6 +13,8 @@ namespace ChatCorporaAnnotator.ViewModels
     internal class MainWindowViewModel : ViewModel
     {
         public ChatViewModel ChatVM { get; }
+
+        public IndexFileWindow IndexFileWindow { get; set; }
 
         public ObservableCollection<object> CurrentTags { get; private set; }
         public ObservableCollection<object> CurrentUserToggles { get; private set; }
@@ -263,6 +268,36 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             if (!CanIndexNewFileCommandExecute(parameter))
                 return;
+
+            if (IndexFileWindow == null)
+            {
+                if (!DialogProvider.OpenCsvFile(out string path))
+                    return;
+
+                IndexFileWindowViewModel indexFileWindowVM;
+
+                try
+                {
+                    indexFileWindowVM = new IndexFileWindowViewModel(this, path);
+                }
+                catch
+                {
+                    new QuickMessage("Failed to upload the file.").ShowError();
+                    return;
+                }
+
+                IndexFileWindow = new IndexFileWindow(indexFileWindowVM);
+                IndexFileWindow.Show();
+                return;
+            }
+
+            if (IndexFileWindow.WindowState == WindowState.Minimized)
+                IndexFileWindow.WindowState = WindowState.Normal;
+
+            IndexFileWindow.Activate();
+            IndexFileWindow.Topmost = true;
+            IndexFileWindow.Topmost = false;
+            IndexFileWindow.Focus();
         }
 
         public ICommand OpenCorpusCommand { get; }
@@ -311,6 +346,23 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
+        #region Commands
+
+        public ICommand CloseIndexFileWindowCommand { get; }
+        public bool CanCloseIndexFileWindowCommandExecute(object parameter)
+        {
+            return IndexFileWindow != null;
+        }
+        public void OnCloseIndexFileWindowCommandExecuted(object parameter)
+        {
+            if (!CanCloseIndexFileWindowCommandExecute(parameter))
+                return;
+
+            IndexFileWindow.Close();
+        }
+
+        #endregion
+
         public MainWindowViewModel()
         {
             ChatVM = new ChatViewModel(this);
@@ -334,6 +386,8 @@ namespace ChatCorporaAnnotator.ViewModels
             MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
+
+            CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
         }
     }
 }

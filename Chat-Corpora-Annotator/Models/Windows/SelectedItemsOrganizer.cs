@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Controls;
 
-namespace ChatCorporaAnnotator.Models.Collections
+namespace ChatCorporaAnnotator.Models.Windows
 {
     internal class SelectedItemsOrganizer
     {

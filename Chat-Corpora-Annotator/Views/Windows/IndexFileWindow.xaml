@@ -1,0 +1,182 @@
+﻿<Window x:Class="ChatCorporaAnnotator.Views.Windows.IndexFileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
+        mc:Ignorable="d"
+        Title="{Binding Title}"
+        Width="500" Height="350"
+        MinWidth="300" MinHeight="250"
+        Icon="/Resources/Icons/IndexFileWindowIcon.png">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding DeactivateWindowCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Background="AliceBlue">
+        <DockPanel Margin="5">
+            <TextBlock
+                Height="20"
+                FontSize="15"
+                DockPanel.Dock="Top"
+                FontWeight="DemiBold"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Center"
+                Text="{Binding CurrentPageHint}">
+            </TextBlock>
+
+            <Grid DockPanel.Dock="Bottom">
+                <StackPanel Height="25" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource BlueCircleButton}">
+                            <Setter Property="Width" Value="110"/>
+                            <Setter Property="Margin" Value="5, 0, 0, 0"/>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Button Content="Back" Margin="0" Command="{Binding SetBackPageCommand}"/>
+                    <Button Content="Next" Command="{Binding SetNextPageCommand}"/>
+                    <Button Content="Finish" Command="{Binding FinishFileIndexingCommand}"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid Margin="0, 5">
+                <Grid Visibility="{Binding SelectDelimiterPageVisibility}">
+                    <ComboBox Width="200" SelectedIndex="0">
+                        <ComboBoxItem Content="Comma"/>
+                        <ComboBoxItem Content="Tab"/>
+                        <ComboBoxItem Content="Pipe"/>
+                        <ComboBoxItem Content="Colon"/>
+                    </ComboBox>
+                </Grid>
+
+                <Grid Visibility="{Binding SelectColumnsPageVisibility}">
+                    <ListBox ItemsSource="{Binding ColumnsCollection}">
+                    </ListBox>
+                </Grid>
+
+                <Grid Visibility="{Binding SelectSpecifiedKeysPageVisibility}">
+                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="7"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Select date column"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Select sender column"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Select text column"/>
+
+                        <ComboBox Grid.Row="0" Grid.Column="2" ItemsSource="{Binding ColumnsCollection}"/>
+                        <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding ColumnsCollection}"/>
+                        <ComboBox Grid.Row="4" Grid.Column="2" ItemsSource="{Binding ColumnsCollection}"/>
+                    </Grid>
+                </Grid>
+
+                <Grid Visibility="{Binding WaitPageVisibility}">
+                    <Grid.Resources>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" x:Key="HourglassForegroundGradient">
+                            <GradientStop Color="Orange" Offset="0"/>
+                            <GradientStop Color="BlueViolet" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Resources>
+
+                    <Border Height="180" Width="180" Opacity="0.6" CornerRadius="20" BorderThickness="8" BorderBrush="LightGreen">
+                        <Border Opacity="0.8" CornerRadius="11" BorderThickness="5" BorderBrush="DarkCyan">
+                        </Border>
+                    </Border>
+
+                    <fa:ImageAwesome Height="100"
+                                     Icon="Solid_HourglassHalf"
+                                     RenderTransformOrigin="0.5, 0.5"
+                                     Foreground="{StaticResource HourglassForegroundGradient}">
+
+                        <fa:ImageAwesome.RenderTransform>
+                            <RotateTransform x:Name="AnimatedRotateTransform" Angle="0"/>
+                        </fa:ImageAwesome.RenderTransform>
+
+                        <fa:ImageAwesome.Triggers>
+                            <EventTrigger RoutedEvent="fa:ImageAwesome.Loaded">
+
+                                <EventTrigger.Actions>
+
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Duration="0:0:5"
+                                                To="360"
+                                                RepeatBehavior="Forever"
+                                                Storyboard.TargetProperty="Angle"
+                                                Storyboard.TargetName="AnimatedRotateTransform">
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation
+                                                Duration="0:0:3"
+                                                To="BlueViolet"
+                                                AutoReverse="True"
+                                                RepeatBehavior="Forever"
+                                                Storyboard.TargetProperty="Foreground.GradientStops[0].Color">
+                                            </ColorAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation
+                                                Duration="0:0:3"
+                                                To="Orange"
+                                                AutoReverse="True"
+                                                RepeatBehavior="Forever"
+                                                Storyboard.TargetProperty="Foreground.GradientStops[1].Color">
+                                            </ColorAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+
+                        </fa:ImageAwesome.Triggers>
+
+                    </fa:ImageAwesome>
+                </Grid>
+
+                <Grid Visibility="{Binding FinishPageVisibility}">
+                    <Border Height="180" Width="180" Opacity="0.6" CornerRadius="20" BorderThickness="8" BorderBrush="LightGreen">
+                        <Border Opacity="0.8" CornerRadius="11" BorderThickness="5" BorderBrush="DarkCyan">
+                        </Border>
+                    </Border>
+
+                    <fa:ImageAwesome Height="100" Opacity="0.8" Icon="Brands_GetPocket">
+                        <fa:ImageAwesome.Foreground>
+                            <LinearGradientBrush>
+                                <GradientStop Color="#FFFFD100" Offset="0"/>
+                                <GradientStop Color="#FFFF8B00" Offset="0.5"/>
+                                <GradientStop Color="Red" Offset="1"/>
+                            </LinearGradientBrush>
+                        </fa:ImageAwesome.Foreground>
+                    </fa:ImageAwesome>
+                </Grid>
+                
+            </Grid>
+
+        </DockPanel>
+        
+    </Grid>
+
+</Window>

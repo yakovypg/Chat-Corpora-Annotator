@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using ChatCorporaAnnotator.Views.Windows;
+using System.Windows;
 
 namespace ChatCorporaAnnotator
 {

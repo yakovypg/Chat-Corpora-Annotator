@@ -1,5 +1,5 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Commands;
-using ChatCorporaAnnotator.Models.Collections;
+using ChatCorporaAnnotator.Models.Windows;
 using ChatCorporaAnnotator.ViewModels.Base;
 using System;
 using System.Collections.ObjectModel;
@@ -66,7 +66,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
         public ChatViewModel(MainWindowViewModel mainWindowVM)
         {
-            MainWindowVM = mainWindowVM ?? throw new ArgumentNullException();
+            MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             CurrentChatItems = new ObservableCollection<object>();
             ChatSelectedItems = new ObservableCollection<object>();
