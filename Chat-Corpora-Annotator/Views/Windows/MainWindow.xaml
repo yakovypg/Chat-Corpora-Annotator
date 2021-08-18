@@ -182,11 +182,6 @@
 
                                 <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1">
                                     <Grid Background="White">
-                                        <CheckBox
-                                            Margin="3, 0, 0, 0"
-                                            IsChecked="{Binding IsFinderStartDateChecked, UpdateSourceTrigger=PropertyChanged}">
-                                        </CheckBox>
-
                                         <DatePicker Padding="20, 0, 0, 0"
                                                     BorderThickness="0"
                                                     SelectedDate="{Binding FinderStartDate, UpdateSourceTrigger=PropertyChanged}">
@@ -197,6 +192,11 @@
                                                 </Style>
                                             </DatePicker.Resources>
                                         </DatePicker>
+
+                                        <CheckBox
+                                            Margin="3, 0, 0, 0"
+                                            IsChecked="{Binding IsFinderStartDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                        </CheckBox>
                                     </Grid>
                                 </Border>
                                 
@@ -212,11 +212,6 @@
 
                                 <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1">
                                     <Grid Background="White">
-                                        <CheckBox
-                                            Margin="3, 0, 0, 0"
-                                            IsChecked="{Binding IsFinderEndDateChecked, UpdateSourceTrigger=PropertyChanged}">
-                                        </CheckBox>
-
                                         <DatePicker Padding="20, 0, 0, 0"
                                                     BorderThickness="0"
                                                     SelectedDate="{Binding FinderEndDate, UpdateSourceTrigger=PropertyChanged}">
@@ -227,6 +222,11 @@
                                                 </Style>
                                             </DatePicker.Resources>
                                         </DatePicker>
+
+                                        <CheckBox
+                                            Margin="3, 0, 0, 0"
+                                            IsChecked="{Binding IsFinderEndDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                        </CheckBox>
                                     </Grid>
                                 </Border>
                                 
@@ -249,9 +249,9 @@
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"/>
-                        <GridSplitter Grid.Row="1" Height="3" Background="LightPink"/>
+                        <GridSplitter Grid.Row="1" Height="3" Background="LightPink" Visibility="{Binding CurrentTagsetVisibility}"/>
 
-                        <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1">
+                        <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1" Visibility="{Binding CurrentTagsetVisibility}">
                             <DockPanel Background="White">
                                 <TextBlock
                                     Text="Tagset"
@@ -272,8 +272,7 @@
             <TabControl Grid.Column="2">
                 <TabItem Header="Chat" DataContext="{Binding ChatVM}">
                     <UniformGrid Background="AliceBlue">
-                        <!-- Visibility="{Binding TabControlGridsVisibility}" -->
-                        <DockPanel Margin="3" Visibility="Visible">
+                        <DockPanel Margin="3" Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
                             <Grid DockPanel.Dock="Top" Height="38" Margin="0, 0, 0, 5">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>

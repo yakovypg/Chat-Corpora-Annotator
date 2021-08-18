@@ -1,5 +1,5 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
-using ChatCorporaAnnotator.Models.Windows;
+﻿using ChatCorporaAnnotator.Data.Windows;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.ViewModels.Base;
 using System;
 using System.Collections.ObjectModel;

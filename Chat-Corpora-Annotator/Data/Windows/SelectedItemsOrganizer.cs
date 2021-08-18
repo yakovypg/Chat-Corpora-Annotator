@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Windows.Controls;
 
-namespace ChatCorporaAnnotator.Models.Windows
+namespace ChatCorporaAnnotator.Data.Windows
 {
     internal class SelectedItemsOrganizer
     {
-        public void ChangeSelectedItems(IList<object> source, SelectionChangedEventArgs e)
+        public void ChangeSelectedItems<T>(IList<T> source, SelectionChangedEventArgs e)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -15,8 +15,10 @@ namespace ChatCorporaAnnotator.Models.Windows
             {
                 foreach (var item in e.RemovedItems)
                 {
-                    if (source.Contains(item))
-                        source.Remove(item);
+                    var removingItem = (T)item;
+
+                    if (source.Contains(removingItem))
+                        source.Remove(removingItem);
                 }
             }
 
@@ -24,8 +26,10 @@ namespace ChatCorporaAnnotator.Models.Windows
             {
                 foreach (var item in e.AddedItems)
                 {
-                    if (!source.Contains(item))
-                        source.Add(item);
+                    var addingItem = (T)item;
+
+                    if (!source.Contains(addingItem))
+                        source.Add(addingItem);
                 }
             }
         }

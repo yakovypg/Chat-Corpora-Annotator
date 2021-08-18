@@ -89,6 +89,17 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
+        #region FieldsVisibility
+
+        private Visibility _currentTagsetVisibility = Visibility.Hidden;
+        public Visibility CurrentTagsetVisibility
+        {
+            get => _currentTagsetVisibility;
+            set => SetValue(ref _currentTagsetVisibility, value);
+        }
+
+        #endregion
+
         #region BottomBarItems
 
         private string _loadedFileInfo = "Not loaded";
@@ -271,7 +282,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
             if (IndexFileWindow == null)
             {
-                if (!DialogProvider.OpenCsvFile(out string path))
+                if (!DialogProvider.GetCsvFilePath(out string path))
                     return;
 
                 IndexFileWindowViewModel indexFileWindowVM;
@@ -280,14 +291,15 @@ namespace ChatCorporaAnnotator.ViewModels
                 {
                     indexFileWindowVM = new IndexFileWindowViewModel(this, path);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    new QuickMessage("Failed to upload the file.").ShowError();
+                    new QuickMessage($"Failed to upload the file.\nComment: {ex.Message}").ShowError();
                     return;
                 }
 
                 IndexFileWindow = new IndexFileWindow(indexFileWindowVM);
                 IndexFileWindow.Show();
+
                 return;
             }
 

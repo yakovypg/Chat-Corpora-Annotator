@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:fa="http://schemas.fontawesome.com/icons/"
+        xmlns:ind="clr-namespace:ChatCorporaAnnotator.Models.Indexing"
         mc:Ignorable="d"
         Title="{Binding Title}"
         Width="500" Height="350"
@@ -46,17 +47,51 @@
 
             <Grid Margin="0, 5">
                 <Grid Visibility="{Binding SelectDelimiterPageVisibility}">
-                    <ComboBox Width="200" SelectedIndex="0">
-                        <ComboBoxItem Content="Comma"/>
-                        <ComboBoxItem Content="Tab"/>
-                        <ComboBoxItem Content="Pipe"/>
-                        <ComboBoxItem Content="Colon"/>
+                    <ComboBox Width="200"
+                              ItemsSource="{Binding Delimiters}"
+                              SelectedItem="{Binding SelectedDelimiter}">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding ResetFileReadedParamCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type ind:Delimiter}">
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
                     </ComboBox>
                 </Grid>
 
                 <Grid Visibility="{Binding SelectColumnsPageVisibility}">
-                    <ListBox ItemsSource="{Binding ColumnsCollection}">
+
+                    <ListBox Name="FileColumnsListBox" SelectionMode="Extended" ItemsSource="{Binding FileColumns}">
+
+                        <ListBox.InputBindings>
+                            <KeyBinding Key="S" Modifiers="Alt" Command="{Binding CheckAllColumnsCommand}"/>
+                            <KeyBinding Key="D" Modifiers="Alt" Command="{Binding UncheckAllColumnsCommand}"/>
+                        </ListBox.InputBindings>
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding FileColumnsListSelectionChangedCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type ind:FileColumn}">
+                                <CheckBox
+                                    Content="{Binding Header}"
+                                    Style="{StaticResource BoldPressingCheckBox}"
+                                    IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
+                                </CheckBox>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        
                     </ListBox>
+                    
                 </Grid>
 
                 <Grid Visibility="{Binding SelectSpecifiedKeysPageVisibility}">
@@ -79,9 +114,9 @@
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Select sender column"/>
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Select text column"/>
 
-                        <ComboBox Grid.Row="0" Grid.Column="2" ItemsSource="{Binding ColumnsCollection}"/>
-                        <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding ColumnsCollection}"/>
-                        <ComboBox Grid.Row="4" Grid.Column="2" ItemsSource="{Binding ColumnsCollection}"/>
+                        <ComboBox Grid.Row="0" Grid.Column="2" ItemsSource="{Binding SelectedFileColumns}" SelectedItem="{Binding SelectedDateColumn}"/>
+                        <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding SelectedFileColumns}" SelectedItem="{Binding SelectedSenderColumn}"/>
+                        <ComboBox Grid.Row="4" Grid.Column="2" ItemsSource="{Binding SelectedFileColumns}" SelectedItem="{Binding SelectedTextColumn}"/>
                     </Grid>
                 </Grid>
 

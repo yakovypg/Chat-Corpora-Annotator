@@ -1,4 +1,6 @@
-﻿namespace ChatCorporaAnnotator.Models.Windows
+﻿using System;
+
+namespace ChatCorporaAnnotator.Models.Windows
 {
     internal interface IPageToggler
     {
@@ -8,5 +10,8 @@
 
         void BackPage();
         void NextPage();
+
+        void SetPagesHideActions(Action[] hideActions);
+        void SetPagesShowActions(Action[] showActions);
     }
 }

@@ -4,7 +4,7 @@ namespace ChatCorporaAnnotator.Data
 {
     internal static class DialogProvider
     {
-        public static bool OpenCsvFile(out string path)
+        public static bool GetCsvFilePath(out string path)
         {
             int filterIndex = 0;
             string title = "Open a separated-value file";

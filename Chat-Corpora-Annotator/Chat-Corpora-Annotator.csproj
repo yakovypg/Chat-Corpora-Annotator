@@ -35,16 +35,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSharpTest.Net.Collections, Version=14.906.1403.1082, Culture=neutral, PublicKeyToken=06aee00cce822474, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpTest.Net.Collections.14.906.1403.1082\lib\net40\CSharpTest.Net.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="CsvParser, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SoftCircuits.CsvParser.3.0.0\lib\netstandard2.0\CsvParser.dll</HintPath>
+    </Reference>
     <Reference Include="FontAwesome5, Version=2.1.4.0, Culture=neutral, PublicKeyToken=9cfaf01297a008f8, processorArchitecture=MSIL">
       <HintPath>..\packages\FontAwesome5.2.1.4\lib\net472\FontAwesome5.dll</HintPath>
     </Reference>
     <Reference Include="FontAwesome5.Net, Version=2.1.4.0, Culture=neutral, PublicKeyToken=9cfaf01297a008f8, processorArchitecture=MSIL">
       <HintPath>..\packages\FontAwesome5.2.1.4\lib\net472\FontAwesome5.Net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -70,6 +79,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Resources\Styles\CheckBoxes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\Styles\Defaults.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -90,15 +103,22 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Data\App\AppDirectories.cs" />
     <Compile Include="Data\DialogProvider.cs" />
     <Compile Include="Infrastructure\Commands\Base\Command.cs" />
     <Compile Include="Infrastructure\Commands\RelayCommand.cs" />
-    <Compile Include="Infrastructure\Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Infrastructure\Exceptions\ProjectFolderNotCreatedException.cs" />
+    <Compile Include="Models\Indexing\Delimiter.cs" />
+    <Compile Include="Models\Indexing\FileColumn.cs" />
+    <Compile Include="Models\Indexing\IDelimiter.cs" />
+    <Compile Include="Models\Indexing\IFileColumn.cs" />
     <Compile Include="Models\Windows\IPageToggler.cs" />
     <Compile Include="Models\Windows\PageToggler.cs" />
-    <Compile Include="Models\Windows\SelectedItemsOrganizer.cs" />
+    <Compile Include="Data\Windows\SelectedItemsOrganizer.cs" />
     <Compile Include="Models\Messages\IQuickMessage.cs" />
     <Compile Include="Models\Messages\QuickMessage.cs" />
+    <Compile Include="Services\CSVReadService.cs" />
+    <Compile Include="Services\ICSVReadService.cs" />
     <Compile Include="ViewModels\Base\ViewModel.cs" />
     <Compile Include="ViewModels\ChatViewModel.cs" />
     <Compile Include="ViewModels\IndexFileWindowViewModel.cs" />
@@ -143,13 +163,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\Behaviors\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\MainWindowIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\IndexFileWindowIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IndexEngine\IndexEngine.csproj">
+      <Project>{3a58ab22-7cb7-47da-8b31-f513cc71db3a}</Project>
+      <Name>IndexEngine</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

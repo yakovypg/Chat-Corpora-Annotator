@@ -17,18 +17,9 @@
         <Setter Property="FontSize" Value="14"/>
     </Style>
 
-    <Style TargetType="CheckBox">
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="HorizontalAlignment" Value="Left"/>
-    </Style>
-
     <Style TargetType="TextBox">
         <Setter Property="Height" Value="25"/>
         <Setter Property="Padding" Value="2"/>
-        <Setter Property="FontSize" Value="14"/>
-    </Style>
-
-    <Style TargetType="RichTextBox">
         <Setter Property="FontSize" Value="14"/>
     </Style>
 
@@ -37,9 +28,10 @@
         <Setter Property="FontSize" Value="14"/>
     </Style>
 
-    <Style TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
+    <Style TargetType="CheckBox" BasedOn="{StaticResource DefaultCheckBox}">
+    </Style>
+
+    <Style TargetType="TextBlock" BasedOn="{StaticResource DefaultTextBlock}">
     </Style>
 
 </ResourceDictionary>
