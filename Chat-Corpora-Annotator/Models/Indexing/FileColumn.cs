@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Linq;
+using ChatCorporaAnnotator.Models.Indexing.Comparers;
 
 namespace ChatCorporaAnnotator.Models.Indexing
 {
     internal class FileColumn : IFileColumn, INotifyPropertyChanged
     {
+        public static bool AcceptRepeatedColumns { get; set; }
         public static ICollection<FileColumn> SelectedColumns { get; set; }
 
         public string Header { get; }
@@ -16,6 +19,9 @@ namespace ChatCorporaAnnotator.Models.Indexing
             get => _isSelected;
             set
             {
+                if (_isSelected == value)
+                    return;
+
                 _isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
 
@@ -46,8 +52,15 @@ namespace ChatCorporaAnnotator.Models.Indexing
 
         private void AddToSelectedColumns()
         {
-            if (SelectedColumns != null)
-                SelectedColumns.Add(this);
+            if (SelectedColumns == null)
+                return;
+
+            var comparer = new FileColumnEqualityComparer();
+
+            if (SelectedColumns.Contains(this, comparer) && !AcceptRepeatedColumns)
+                return;
+
+            SelectedColumns.Add(this);
         }
 
         private void RemoveFromSelectedColumns()

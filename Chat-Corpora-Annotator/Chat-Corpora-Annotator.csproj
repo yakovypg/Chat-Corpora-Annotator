@@ -120,6 +120,7 @@
     <Compile Include="Models\Chat\MessageDate.cs" />
     <Compile Include="Models\Chat\Situation.cs" />
     <Compile Include="Models\Chat\Tag.cs" />
+    <Compile Include="Models\Indexing\Comparers\FileColumnEqualityComparer.cs" />
     <Compile Include="Models\Indexing\Delimiter.cs" />
     <Compile Include="Models\Indexing\FileColumn.cs" />
     <Compile Include="Infrastructure\Enums\FileProcessingResult.cs" />

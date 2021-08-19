@@ -27,7 +27,7 @@ namespace ChatCorporaAnnotator.ViewModels
     internal class IndexFileWindowViewModel : ViewModel
     {
         private const bool HEADER_PARAM = false;
-        private const int WAIT_PAGE_TIMER_TICK_INTERVAL = 3;
+        private const int WAIT_PAGE_TIMER_TICK_INTERVAL = 3000;
 
         private readonly MainWindowViewModel _mainWindowVM;
 
@@ -262,7 +262,10 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
 
             foreach (var column in FileColumns)
-                column.IsSelected = true;
+            {
+                if (!column.IsSelected)
+                    column.IsSelected = true;
+            }
         }
 
         public ICommand UncheckAllColumnsCommand { get; }
@@ -276,7 +279,10 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
 
             foreach (var column in FileColumns)
-                column.IsSelected = false;
+            {
+                if (column.IsSelected)
+                    column.IsSelected = false;
+            }
         }
 
         public ICommand FileColumnsListSelectionChangedCommand { get; }
@@ -402,11 +408,12 @@ namespace ChatCorporaAnnotator.ViewModels
             _selectedDelimiter = Delimiters[0];
             SelectedFileColumns = new ObservableCollection<FileColumn>();
 
+            FileColumn.AcceptRepeatedColumns = false;
             FileColumn.SelectedColumns = SelectedFileColumns;
 
             _waitPageTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
-                Interval = new TimeSpan(0, 0, WAIT_PAGE_TIMER_TICK_INTERVAL)
+                Interval = new TimeSpan(0, 0, 0, 0, WAIT_PAGE_TIMER_TICK_INTERVAL)
             };
 
             _waitPageTimer.Tick += WaitPageTimerTick;
