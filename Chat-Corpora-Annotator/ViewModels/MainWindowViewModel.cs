@@ -1,5 +1,7 @@
 ﻿using ChatCorporaAnnotator.Data;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
+using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
@@ -15,6 +17,9 @@ namespace ChatCorporaAnnotator.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
+        //Used to prevent the reuse of project files.
+        public static IProject CurrentProjectInfo = null;
+
         public ChatViewModel ChatVM { get; }
         public IndexFileWindow IndexFileWindow { get; set; }
 
@@ -345,6 +350,11 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 indexFileWindowVM = new IndexFileWindowViewModel(this, path);
             }
+            catch (OneProjectOnlyException ex)
+            {
+                new QuickMessage(ex.Message).ShowInformation();
+                return;
+            }
             catch (Exception ex)
             {
                 new QuickMessage($"Failed to upload the file.\nComment: {ex.Message}").ShowError();
@@ -386,6 +396,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 ChatVM.DatesVM.SetDatesCommand?.Execute(null);
                 ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
                 ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
+                ChatVM.UsersVM.SetUsersCommand?.Execute(null);
             }
             else
             {
@@ -395,6 +406,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 ChatVM.DatesVM.ActiveDates.Clear();
                 ChatVM.SituationsVM.Situations.Clear();
                 ChatVM.MessagesVM.Messages.Clear();
+                ChatVM.UsersVM.Users.Clear();
             }
         }
 

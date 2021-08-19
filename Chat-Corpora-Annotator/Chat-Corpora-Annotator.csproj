@@ -109,10 +109,15 @@
     <Compile Include="Data\Windows\WindowFinder.cs" />
     <Compile Include="Infrastructure\Commands\Base\Command.cs" />
     <Compile Include="Infrastructure\Commands\RelayCommand.cs" />
-    <Compile Include="Infrastructure\Exceptions\ProjectFolderNotCreatedException.cs" />
-    <Compile Include="Infrastructure\Exceptions\ProjectNotCreatedException.cs" />
+    <Compile Include="Infrastructure\Exceptions\Indexing\OneProjectOnlyException.cs" />
+    <Compile Include="Infrastructure\Exceptions\Indexing\ProjectException.cs" />
+    <Compile Include="Infrastructure\Exceptions\Indexing\ProjectFolderNotCreatedException.cs" />
+    <Compile Include="Infrastructure\Exceptions\Indexing\ProjectIsInUseException.cs" />
+    <Compile Include="Infrastructure\Exceptions\Indexing\ProjectNotCreatedException.cs" />
     <Compile Include="Infrastructure\Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Models\Chat\ChatUser.cs" />
     <Compile Include="Models\Chat\IChatMessage.cs" />
+    <Compile Include="Models\Chat\IChatUser.cs" />
     <Compile Include="Models\Chat\IMessageDate.cs" />
     <Compile Include="Models\Chat\ISituation.cs" />
     <Compile Include="Models\Chat\ChatMessage.cs" />
@@ -145,6 +150,7 @@
     <Compile Include="ViewModels\Chat\MessagesViewModel.cs" />
     <Compile Include="ViewModels\Chat\SituationsViewModel.cs" />
     <Compile Include="ViewModels\Chat\TagsViewModel.cs" />
+    <Compile Include="ViewModels\Chat\UsersViewModel.cs" />
     <Compile Include="ViewModels\IndexFileWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\Windows\IndexFileWindow.xaml.cs">

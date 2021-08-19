@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ChatCorporaAnnotator.Infrastructure.Exceptions
+namespace ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing
 {
     internal class ProjectFolderNotCreatedException : ApplicationException
     {

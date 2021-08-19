@@ -62,7 +62,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             Tags = new ObservableCollection<Tag>(Tags.Concat(addingTags));
-            OnPropertyChanged(nameof(Tag));
+            OnPropertyChanged(nameof(Tags));
 
             _mainWindowVM.SetTagsetNameCommand?.Execute(ProjectInfo.Tagset);
         }

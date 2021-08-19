@@ -1,6 +1,7 @@
 ﻿using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Enums;
+using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
@@ -28,6 +29,7 @@ namespace ChatCorporaAnnotator.ViewModels
     {
         private const bool HEADER_PARAM = false;
         private const int WAIT_PAGE_TIMER_TICK_INTERVAL = 3000;
+        private const int PRIMARY_LOADING_MESSAGES_COUNT = 2000;
 
         private readonly MainWindowViewModel _mainWindowVM;
 
@@ -285,14 +287,14 @@ namespace ChatCorporaAnnotator.ViewModels
             }
         }
 
-        public ICommand FileColumnsListSelectionChangedCommand { get; }
-        public bool CanFileColumnsListSelectionChangedCommandExecute(object parameter)
+        public ICommand ChangeSelectedColumnsCommand { get; }
+        public bool CanChangeSelectedColumnsCommandExecute(object parameter)
         {
             return parameter is SelectionChangedEventArgs;
         }
-        public void OnFileColumnsListSelectionChangedCommandExecute(object parameter)
+        public void OnChangeSelectedColumnsCommandExecute(object parameter)
         {
-            if (!CanFileColumnsListSelectionChangedCommandExecute(parameter))
+            if (!CanChangeSelectedColumnsCommandExecute(parameter))
                 return;
 
             IList addedItems = (parameter as SelectionChangedEventArgs).AddedItems;
@@ -364,7 +366,12 @@ namespace ChatCorporaAnnotator.ViewModels
 
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
-            _project = new Project(filePath);
+            var project = new Project(filePath);
+
+            if (MainWindowViewModel.CurrentProjectInfo != null)
+                throw new OneProjectOnlyException("The project has already been uploaded.", project, null);
+
+            _project = project;
             _project.Initialize();
 
             InitializeFields();
@@ -375,7 +382,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
             CheckAllColumnsCommand = new RelayCommand(OnCheckAllColumnsCommandExecuted, CanCheckAllColumnsCommandExecute);
             UncheckAllColumnsCommand = new RelayCommand(OnUncheckAllColumnsCommandExecuted, CanUncheckAllColumnsCommandExecute);
-            FileColumnsListSelectionChangedCommand = new RelayCommand(OnFileColumnsListSelectionChangedCommandExecute, CanFileColumnsListSelectionChangedCommandExecute);
+            ChangeSelectedColumnsCommand = new RelayCommand(OnChangeSelectedColumnsCommandExecute, CanChangeSelectedColumnsCommandExecute);
 
             CloseWindowCommand = new RelayCommand(OnCloseWindowCommandExecuted, CanCloseWindowCommandExecute);
             DeactivateWindowCommand = new RelayCommand(OnDeactivateWindowCommandExecuted, CanDeactivateWindowCommandExecute);
@@ -514,6 +521,8 @@ namespace ChatCorporaAnnotator.ViewModels
             });
 
             _waitPageTimer.Start();
+            MainWindowViewModel.CurrentProjectInfo = _project;
+
             return EventArgs.Empty;
         }
 
@@ -553,12 +562,22 @@ namespace ChatCorporaAnnotator.ViewModels
             }
 
             if (fileProcessingResult == FileProcessingResult.Success)
-            {
-                var list = IndexHelper.LoadNDocumentsFromIndex(2000);
-                MessageContainer.Messages = list;
-            }
+                TryLoadMessagesFromIndex(PRIMARY_LOADING_MESSAGES_COUNT);
 
             _fileProcessingResult = fileProcessingResult;
+        }
+
+        private void TryLoadMessagesFromIndex(int count)
+        {
+            try
+            {
+                var list = IndexHelper.LoadNDocumentsFromIndex(count);
+                MessageContainer.Messages = list;
+            }
+            catch
+            {
+                new QuickMessage("Failed to load messages.").ShowWarning();
+            }
         }
 
         #endregion

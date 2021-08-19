@@ -166,11 +166,21 @@
                     </Expander>
 
                     <Expander DockPanel.Dock="Top" Header="Select users toggle">
-                        <ListBox
-                            Margin="0, 7"
-                            MinHeight="50"
-                            ItemsSource="{Binding CurrentUsers}">
+                        
+                        <ListBox Margin="0, 7"
+                                 MinHeight="50"
+                                 ItemsSource="{Binding ChatVM.UsersVM.Users}">
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction
+                                        PassEventArgsToCommand="True"
+                                        Command="{Binding ChatVM.UsersVM.ChangeSelectedUsersCommand}">
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </ListBox>
+                        
                     </Expander>
 
                     <Expander DockPanel.Dock="Top" Header="Select dates toggle">

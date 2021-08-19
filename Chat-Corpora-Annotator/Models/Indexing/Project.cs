@@ -1,4 +1,4 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Exceptions;
+﻿using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using System;
 using System.IO;
 

@@ -76,7 +76,7 @@
 
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding FileColumnsListSelectionChangedCommand}"/>
+                                <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding ChangeSelectedColumnsCommand}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                         

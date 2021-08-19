@@ -1,4 +1,5 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Data.Windows;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -6,6 +7,7 @@ using IndexEngine;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
@@ -60,6 +62,22 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             OnPropertyChanged(nameof(Messages));
         }
 
+        public ICommand ChangeSelectedMessagesCommand { get; }
+        public bool CanChangeSelectedMessagesCommandExecute(object parameter)
+        {
+            return parameter is SelectionChangedEventArgs;
+        }
+        public void OnChangeSelectedMessagesCommandExecute(object parameter)
+        {
+            if (!CanChangeSelectedMessagesCommandExecute(parameter))
+                return;
+
+            var eventArgs = parameter as SelectionChangedEventArgs;
+            var selectedItemsOrganizer = new SelectedItemsOrganizer();
+
+            selectedItemsOrganizer.ChangeSelectedItems(SelectedMessages, eventArgs);
+        }
+
         #endregion
 
         public MessagesViewModel()
@@ -69,6 +87,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             SetMessagesCommand = new RelayCommand(OnSetMessagesCommandExecuted, CanSetMessagesCommandExecute);
             AddMessagesCommand = new RelayCommand(OnAddMessagesCommandExecuted, CanAddMessagesCommandExecute);
+            ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);
         }
 
         private IEnumerable<ChatMessage> GetMessages()
