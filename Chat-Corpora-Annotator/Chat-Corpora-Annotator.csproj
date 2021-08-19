@@ -103,24 +103,47 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\App\AppDirectories.cs" />
     <Compile Include="Data\DialogProvider.cs" />
+    <Compile Include="Data\Imaging\BrushTransformer.cs" />
+    <Compile Include="Data\Imaging\ColorTransformer.cs" />
+    <Compile Include="Data\Windows\WindowFinder.cs" />
     <Compile Include="Infrastructure\Commands\Base\Command.cs" />
     <Compile Include="Infrastructure\Commands\RelayCommand.cs" />
     <Compile Include="Infrastructure\Exceptions\ProjectFolderNotCreatedException.cs" />
+    <Compile Include="Infrastructure\Exceptions\ProjectNotCreatedException.cs" />
+    <Compile Include="Infrastructure\Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Models\Chat\IChatMessage.cs" />
+    <Compile Include="Models\Chat\IMessageDate.cs" />
+    <Compile Include="Models\Chat\ISituation.cs" />
+    <Compile Include="Models\Chat\ChatMessage.cs" />
+    <Compile Include="Models\Chat\ITag.cs" />
+    <Compile Include="Models\Chat\MessageDate.cs" />
+    <Compile Include="Models\Chat\Situation.cs" />
+    <Compile Include="Models\Chat\Tag.cs" />
     <Compile Include="Models\Indexing\Delimiter.cs" />
     <Compile Include="Models\Indexing\FileColumn.cs" />
+    <Compile Include="Infrastructure\Enums\FileProcessingResult.cs" />
     <Compile Include="Models\Indexing\IDelimiter.cs" />
     <Compile Include="Models\Indexing\IFileColumn.cs" />
-    <Compile Include="Models\Windows\IPageToggler.cs" />
-    <Compile Include="Models\Windows\PageToggler.cs" />
+    <Compile Include="Models\Indexing\IProject.cs" />
+    <Compile Include="Models\Indexing\Project.cs" />
+    <Compile Include="Models\Windows\IPageExplorerStep.cs" />
+    <Compile Include="Models\Windows\PageExplorerStep.cs" />
+    <Compile Include="Models\Windows\IPageSwitcher.cs" />
+    <Compile Include="Models\Windows\PageSwitcher.cs" />
     <Compile Include="Data\Windows\SelectedItemsOrganizer.cs" />
     <Compile Include="Models\Messages\IQuickMessage.cs" />
     <Compile Include="Models\Messages\QuickMessage.cs" />
-    <Compile Include="Services\CSVReadService.cs" />
-    <Compile Include="Services\ICSVReadService.cs" />
+    <Compile Include="Services\CsvColumnReadService.cs" />
+    <Compile Include="Services\CsvReadService.cs" />
+    <Compile Include="Services\ICsvColumnReadService.cs" />
+    <Compile Include="Services\ICsvReadService.cs" />
     <Compile Include="ViewModels\Base\ViewModel.cs" />
-    <Compile Include="ViewModels\ChatViewModel.cs" />
+    <Compile Include="ViewModels\Chat\ChatViewModel.cs" />
+    <Compile Include="ViewModels\Chat\DatesViewModel.cs" />
+    <Compile Include="ViewModels\Chat\MessagesViewModel.cs" />
+    <Compile Include="ViewModels\Chat\SituationsViewModel.cs" />
+    <Compile Include="ViewModels\Chat\TagsViewModel.cs" />
     <Compile Include="ViewModels\IndexFileWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\Windows\IndexFileWindow.xaml.cs">
@@ -161,9 +184,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Infrastructure\Behaviors\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\Icons\MainWindowIcon.png" />
   </ItemGroup>

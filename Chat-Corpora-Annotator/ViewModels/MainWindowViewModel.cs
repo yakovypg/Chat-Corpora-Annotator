@@ -2,7 +2,10 @@
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.ViewModels.Chat;
 using ChatCorporaAnnotator.Views.Windows;
+using IndexEngine.Indexes;
+using IndexEngine.Paths;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -13,18 +16,9 @@ namespace ChatCorporaAnnotator.ViewModels
     internal class MainWindowViewModel : ViewModel
     {
         public ChatViewModel ChatVM { get; }
-
         public IndexFileWindow IndexFileWindow { get; set; }
 
-        public ObservableCollection<object> CurrentTags { get; private set; }
-        public ObservableCollection<object> CurrentUserToggles { get; private set; }
-
-        private object _selectedTagset;
-        public object SelectedTagset
-        {
-            get => _selectedTagset;
-            set => SetValue(ref _selectedTagset, value);
-        }
+        public ObservableCollection<object> CurrentUsers { get; private set; }
 
         private bool _isFileLoaded = false;
         public bool IsFileLoaded
@@ -35,9 +29,25 @@ namespace ChatCorporaAnnotator.ViewModels
                 if (!SetValue(ref _isFileLoaded, value))
                     return;
 
-                TabControlGridsVisibility = Visibility.Visible;
+                TabControlGridsVisibility = _isFileLoaded
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
+
+                BottomMenuVisibility = TabControlGridsVisibility;
+                CurrentTagsetVisibility = TabControlGridsVisibility;
             }
         }
+
+        #region SelectedItems
+
+        private object _selectedTagset;
+        public object SelectedTagset
+        {
+            get => _selectedTagset;
+            set => SetValue(ref _selectedTagset, value);
+        }
+
+        #endregion
 
         #region FinderItems
 
@@ -78,24 +88,27 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        #region TabControlItems
-
-        private Visibility _tabControlGridsVisibility = Visibility.Hidden;
-        public Visibility TabControlGridsVisibility
-        {
-            get => _tabControlGridsVisibility;
-            set => SetValue(ref _tabControlGridsVisibility, value);
-        }
-
-        #endregion
-
-        #region FieldsVisibility
+        #region ItemsVisibilities
 
         private Visibility _currentTagsetVisibility = Visibility.Hidden;
         public Visibility CurrentTagsetVisibility
         {
             get => _currentTagsetVisibility;
             set => SetValue(ref _currentTagsetVisibility, value);
+        }
+
+        private Visibility _bottomMenuVisibility = Visibility.Hidden;
+        public Visibility BottomMenuVisibility
+        {
+            get => _bottomMenuVisibility;
+            set => SetValue(ref _bottomMenuVisibility, value);
+        }
+
+        private Visibility _tabControlGridsVisibility = Visibility.Hidden;
+        public Visibility TabControlGridsVisibility
+        {
+            get => _tabControlGridsVisibility;
+            set => SetValue(ref _tabControlGridsVisibility, value);
         }
 
         #endregion
@@ -107,6 +120,13 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             get => _loadedFileInfo;
             set => SetValue(ref _loadedFileInfo, value);
+        }
+
+        private string _tagsetName = "No tagset";
+        public string TagsetName
+        {
+            get => _tagsetName;
+            set => SetValue(ref _tagsetName, value);
         }
 
         private int _messagesCount = 0;
@@ -122,13 +142,6 @@ namespace ChatCorporaAnnotator.ViewModels
             }
         }
 
-        private int _tagsetCount = 0;
-        public int TagsetCount
-        {
-            get => _tagsetCount;
-            set => SetValue(ref _tagsetCount, value);
-        }
-
         private int _situationsCount = 0;
         public int SituationsCount
         {
@@ -136,16 +149,43 @@ namespace ChatCorporaAnnotator.ViewModels
             set => SetValue(ref _situationsCount, value);
         }
 
-        private Visibility _bottomMenuVisibility = Visibility.Hidden;
-        public Visibility BottomMenuVisibility
-        {
-            get => _bottomMenuVisibility;
-            set => SetValue(ref _bottomMenuVisibility, value);
-        }
-
         #endregion
 
         #region BottomBarCommands
+
+        #region ItemsCommands
+
+        public ICommand SetTagsetNameCommand { get; }
+        public bool CanSetTagsetNameCommandExecute(object parameter)
+        {
+            return parameter != null;
+        }
+        public void OnSetTagsetNameCommandExecuted(object parameter)
+        {
+            if (!CanSetTagsetNameCommandExecute(parameter))
+                return;
+
+            TagsetName = parameter.ToString();
+        }
+
+        public ICommand UpdateSituationCountCommand { get; }
+        public bool CanUpdateSituationCountCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnUpdateSituationCountCommandExecuted(object parameter)
+        {
+            if (!CanUpdateSituationCountCommandExecute(parameter))
+                return;
+
+            int newCount = parameter is int count
+                ? count
+                : SituationIndex.GetInstance().ItemCount;
+
+            SituationsCount = newCount;
+        }
+
+        #endregion
 
         #region FilterCommands
 
@@ -270,6 +310,8 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region TopBarCommands
 
+        #region IndexFileCommands
+
         public ICommand IndexNewFileCommand { get; }
         public bool CanIndexNewFileCommandExecute(object parameter)
         {
@@ -280,36 +322,37 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanIndexNewFileCommandExecute(parameter))
                 return;
 
-            if (IndexFileWindow == null)
+            //If IndexFileWindow is active.
+            if (IndexFileWindow != null)
             {
-                if (!DialogProvider.GetCsvFilePath(out string path))
-                    return;
+                if (IndexFileWindow.WindowState == WindowState.Minimized)
+                    IndexFileWindow.WindowState = WindowState.Normal;
 
-                IndexFileWindowViewModel indexFileWindowVM;
-
-                try
-                {
-                    indexFileWindowVM = new IndexFileWindowViewModel(this, path);
-                }
-                catch (Exception ex)
-                {
-                    new QuickMessage($"Failed to upload the file.\nComment: {ex.Message}").ShowError();
-                    return;
-                }
-
-                IndexFileWindow = new IndexFileWindow(indexFileWindowVM);
-                IndexFileWindow.Show();
+                IndexFileWindow.Activate();
+                IndexFileWindow.Topmost = true;
+                IndexFileWindow.Topmost = false;
+                IndexFileWindow.Focus();
 
                 return;
             }
 
-            if (IndexFileWindow.WindowState == WindowState.Minimized)
-                IndexFileWindow.WindowState = WindowState.Normal;
+            if (!DialogProvider.GetCsvFilePath(out string path))
+                return;
 
-            IndexFileWindow.Activate();
-            IndexFileWindow.Topmost = true;
-            IndexFileWindow.Topmost = false;
-            IndexFileWindow.Focus();
+            IndexFileWindowViewModel indexFileWindowVM;
+
+            try
+            {
+                indexFileWindowVM = new IndexFileWindowViewModel(this, path);
+            }
+            catch (Exception ex)
+            {
+                new QuickMessage($"Failed to upload the file.\nComment: {ex.Message}").ShowError();
+                return;
+            }
+
+            IndexFileWindow = new IndexFileWindow(indexFileWindowVM);
+            IndexFileWindow.Show();
         }
 
         public ICommand OpenCorpusCommand { get; }
@@ -323,6 +366,42 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
         }
 
+        public ICommand FileLoadedCommand { get; }
+        public bool CanFileLoadedCommandExecute(object parameter)
+        {
+            return parameter is bool;
+        }
+        public void OnFileLoadedCommandExecuted(object parameter)
+        {
+            if (!CanFileLoadedCommandExecute(parameter))
+                return;
+
+            IsFileLoaded = (bool)parameter;
+
+            if (IsFileLoaded)
+            {
+                MessagesCount = ProjectInfo.Data.LineCount;
+
+                ChatVM.TagsVM.SetTagsCommand?.Execute(null);
+                ChatVM.DatesVM.SetDatesCommand?.Execute(null);
+                ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
+                ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
+            }
+            else
+            {
+                MessagesCount = 0;
+
+                ChatVM.TagsVM.Tags.Clear();
+                ChatVM.DatesVM.ActiveDates.Clear();
+                ChatVM.SituationsVM.Situations.Clear();
+                ChatVM.MessagesVM.Messages.Clear();
+            }
+        }
+
+        #endregion
+
+        #region PlotCommands
+
         public ICommand ShowPlotCommand { get; }
         public bool CanShowPlotCommandExecute(object parameter)
         {
@@ -334,6 +413,10 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
         }
 
+        #endregion
+
+        #region HeatmapCommands
+
         public ICommand ShowHeatmapCommand { get; }
         public bool CanShowHeatmapCommandExecute(object parameter)
         {
@@ -344,6 +427,10 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanShowHeatmapCommandExecute(parameter))
                 return;
         }
+
+        #endregion
+
+        #region ExtractFileCommands
 
         public ICommand ExtractFileCommand { get; }
         public bool CanExtractFileCommandExecute(object parameter)
@@ -358,7 +445,9 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        #region Commands
+        #endregion
+
+        #region WindowsCommands
 
         public ICommand CloseIndexFileWindowCommand { get; }
         public bool CanCloseIndexFileWindowCommandExecute(object parameter)
@@ -379,22 +468,28 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             ChatVM = new ChatViewModel(this);
 
-            CurrentTags = new ObservableCollection<object>();
-            CurrentUserToggles = new ObservableCollection<object>();
+            CurrentUsers = new ObservableCollection<object>();
 
             IndexNewFileCommand = new RelayCommand(OnIndexNewFileCommandExecuted, CanIndexNewFileCommandExecute);
             OpenCorpusCommand = new RelayCommand(OnOpenCorpusCommandExecuted, CanOpenCorpusCommandExecute);
+            FileLoadedCommand = new RelayCommand(OnFileLoadedCommandExecuted, CanFileLoadedCommandExecute);
 
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
             ExtractFileCommand = new RelayCommand(OnExtractFileCommandExecuted, CanExtractFileCommandExecute);
 
+            SetTagsetNameCommand = new RelayCommand(OnSetTagsetNameCommandExecuted, CanSetTagsetNameCommandExecute);
+            UpdateSituationCountCommand = new RelayCommand(OnUpdateSituationCountCommandExecuted, CanUpdateSituationCountCommandExecute);
+
             ChooseTagForFilterCommand = new RelayCommand(OnChooseTagForFilterCommandExecuted, CanChooseTagForFilterCommandExecute);
             SetTaggedOnlyParamForFilterCommand = new RelayCommand(OnSetTaggedOnlyParamForFilterCommandExecuted, CanSetTaggedOnlyParamForFilterCommandExecute);
+
             WriteFileToDiskCommand = new RelayCommand(OnWriteFileToDiskCommandExecuted, CanWriteFileToDiskCommandExecute);
             SaveFileCommand = new RelayCommand(OnSaveFileCommandExecuted, CanSaveFileCommandExecute);
+
             ShowSuggesterCommand = new RelayCommand(OnShowSuggesterCommandExecuted, CanShowSuggesterCommandExecute);
             ShowTagsetEditorCommand = new RelayCommand(OnShowTagsetEditorCommandExecuted, CanShowTagsetEditorCommandExecute);
+
             MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);

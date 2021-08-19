@@ -61,27 +61,30 @@
             <MenuItem Header="Extract" Command="{Binding ExtractFileCommand}"/>
         </Menu>
 
-        <Grid DockPanel.Dock="Bottom" Height="24">
+        <Grid DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Margin="5, 3" Orientation="Horizontal">
-                <TextBlock Margin="0, 0, 0, 0" Text="{Binding LoadedFileInfo}" Style="{StaticResource SmallCenteredTextBlock}"/>
-                
-                <TextBlock Margin="7, 0, 0, 0" Style="{StaticResource SmallCenteredTextBlock}">
-                    <Run Text="{Binding TagsetCount}"/>
-                    <Run Text="tagset"/>
-                </TextBlock>
 
-                <TextBlock Margin="7, 0, 0, 0" Style="{StaticResource SmallCenteredTextBlock}">
+                <TextBlock Margin="0, 0, 0, 0" Text="{Binding LoadedFileInfo}"/>
+                <TextBlock Margin="7, 0, 0, 0" Text="{Binding TagsetName}"/>
+
+                <TextBlock Margin="7, 0, 0, 0">
                     <Run Text="{Binding SituationsCount}"/>
                     <Run Text="situations"/>
                 </TextBlock>
             </StackPanel>
 
             <Menu Grid.Column="1" Margin="0, 3" Background="Transparent" Visibility="{Binding BottomMenuVisibility}">
+                <Menu.Resources>
+                    <Style TargetType="MenuItem">
+                        <Setter Property="FontSize" Value="14"/>
+                    </Style>
+                </Menu.Resources>
+                
                 <MenuItem Header="Filter by tag">
                     <MenuItem Header="Choose tag" Command="{Binding ChooseTagForFilterCommand}"/>
                     <MenuItem Header="Tagged only" Command="{Binding SetTaggedOnlyParamForFilterCommand}"/>
@@ -126,7 +129,7 @@
             </Menu>
         </Grid>
 
-        <Grid Margin="5">
+        <Grid Margin="5, 5, 5, 2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" MinWidth="170" MaxWidth="400"/>
                 <ColumnDefinition Width="auto"/>
@@ -166,7 +169,7 @@
                         <ListBox
                             Margin="0, 7"
                             MinHeight="50"
-                            ItemsSource="{Binding CurrentUserToggles}">
+                            ItemsSource="{Binding CurrentUsers}">
                         </ListBox>
                     </Expander>
 
@@ -259,7 +262,7 @@
                                 </TextBlock>
 
                                 <ListBox BorderThickness="0"
-                                         ItemsSource="{Binding CurrentTags}"
+                                         ItemsSource="{Binding ChatVM.TagsVM.Tags}"
                                          SelectedItem="{Binding SelectedTagset}">
                                 </ListBox>
                             </DockPanel>
@@ -312,7 +315,7 @@
 
                                 <ListBox Grid.Column="0"
                                          SelectionMode="Extended"
-                                         ItemsSource="{Binding CurrentChatItems}">
+                                         ItemsSource="{Binding MessagesVM.Messages}">
 
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="SelectionChanged">
@@ -339,7 +342,7 @@
                                             </TextBlock>
 
                                             <ListBox BorderThickness="0"
-                                                     ItemsSource="{Binding ActiveDates}">
+                                                     ItemsSource="{Binding DatesVM.ActiveDates}">
                                             </ListBox>
                                         </DockPanel>
                                     </Border>
@@ -352,7 +355,7 @@
                                             </TextBlock>
 
                                             <ListBox BorderThickness="0"
-                                                     ItemsSource="{Binding Situations}">
+                                                     ItemsSource="{Binding SituationsVM.Situations}">
                                             </ListBox>
                                         </DockPanel>
                                     </Border>

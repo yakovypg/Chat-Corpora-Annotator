@@ -41,7 +41,7 @@
 
                     <Button Content="Back" Margin="0" Command="{Binding SetBackPageCommand}"/>
                     <Button Content="Next" Command="{Binding SetNextPageCommand}"/>
-                    <Button Content="Finish" Command="{Binding FinishFileIndexingCommand}"/>
+                    <Button Content="Finish" Command="{Binding FinishFileIndexingCommand}" IsEnabled="{Binding FinishButtonEnabled}"/>
                 </StackPanel>
             </Grid>
 
@@ -197,10 +197,20 @@
                         </Border>
                     </Border>
 
-                    <fa:ImageAwesome Height="100" Opacity="0.8" Icon="Brands_GetPocket">
+                    <fa:ImageAwesome Height="100" Opacity="0.8" Icon="Brands_GetPocket" Visibility="{Binding SuccessfulFinishImageVisibility}">
                         <fa:ImageAwesome.Foreground>
                             <LinearGradientBrush>
                                 <GradientStop Color="#FFFFD100" Offset="0"/>
+                                <GradientStop Color="#FFFF8B00" Offset="0.5"/>
+                                <GradientStop Color="Red" Offset="1"/>
+                            </LinearGradientBrush>
+                        </fa:ImageAwesome.Foreground>
+                    </fa:ImageAwesome>
+
+                    <fa:ImageAwesome Height="100" Opacity="0.8" Icon="Solid_WindowClose" Visibility="{Binding FailedFinishImageVisibility}">
+                        <fa:ImageAwesome.Foreground>
+                            <LinearGradientBrush>
+                                <GradientStop Color="Red" Offset="0"/>
                                 <GradientStop Color="#FFFF8B00" Offset="0.5"/>
                                 <GradientStop Color="Red" Offset="1"/>
                             </LinearGradientBrush>

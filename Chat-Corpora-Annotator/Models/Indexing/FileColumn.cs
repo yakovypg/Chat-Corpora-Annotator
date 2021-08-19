@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -6,7 +6,7 @@ namespace ChatCorporaAnnotator.Models.Indexing
 {
     internal class FileColumn : IFileColumn, INotifyPropertyChanged
     {
-        public static Action<FileColumn, bool> ChangeSelectedColumnsAction { get; set; } 
+        public static ICollection<FileColumn> SelectedColumns { get; set; }
 
         public string Header { get; }
 
@@ -19,7 +19,10 @@ namespace ChatCorporaAnnotator.Models.Indexing
                 _isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
 
-                ChangeSelectedColumnsAction?.Invoke(this, value);
+                if (value)
+                    AddToSelectedColumns();
+                else
+                    RemoveFromSelectedColumns();
             }
         }
 
@@ -40,5 +43,17 @@ namespace ChatCorporaAnnotator.Models.Indexing
         }
 
         //Do not override Equals and GetHashCode. If you still decide to do this, change the method of changing the selected columns.
+
+        private void AddToSelectedColumns()
+        {
+            if (SelectedColumns != null)
+                SelectedColumns.Add(this);
+        }
+
+        private void RemoveFromSelectedColumns()
+        {
+            if (SelectedColumns != null && SelectedColumns.Contains(this))
+                SelectedColumns.Remove(this);
+        }
     }
 }

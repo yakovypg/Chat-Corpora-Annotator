@@ -3,19 +3,19 @@ using SoftCircuits.CsvParser;
 
 namespace ChatCorporaAnnotator.Services
 {
-    internal class CSVReadService : ICSVReadService
+    internal class CsvReadService : ICsvReadService
     {
         public string[] GetFields(string path, string delimiter)
         {
-            string[] allFields;
+            string[] fields;
 
             using (var parser = new TextFieldParser(path))
             {
                 parser.SetDelimiters(delimiter); //delimiter select
-                allFields = parser.ReadFields();
+                fields = parser.ReadFields();
             }
 
-            return allFields;
+            return fields;
         }
 
         public int GetLineCount(string path, bool header)

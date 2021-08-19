@@ -6,7 +6,7 @@ namespace ChatCorporaAnnotator.Infrastructure.Exceptions
     {
         public string FolderPath { get; }
 
-        public ProjectFolderNotCreatedException(string message, string folderPath = null, Exception innerException = null)
+        public ProjectFolderNotCreatedException(string message = null, string folderPath = null, Exception innerException = null)
             : base(message, innerException)
         {
             FolderPath = folderPath;

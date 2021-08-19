@@ -2,28 +2,26 @@
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.ViewModels.Base;
 using System;
-using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace ChatCorporaAnnotator.ViewModels
+namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class ChatViewModel : ViewModel
     {
-        public MainWindowViewModel MainWindowVM { get; }
+        private readonly MainWindowViewModel _mainWindowVM;
 
-        public ObservableCollection<object> CurrentChatItems { get; private set; }
-        public ObservableCollection<object> ChatSelectedItems { get; private set; }
-
-        public ObservableCollection<object> ActiveDates { get; private set; }
-        public ObservableCollection<object> Situations { get; private set; }
+        public TagsViewModel TagsVM { get; }
+        public DatesViewModel DatesVM { get; }
+        public SituationsViewModel SituationsVM { get; }
+        public MessagesViewModel MessagesVM { get; }
 
         #region TagCommands
 
         public ICommand AddTagCommand { get; }
         public bool CanAddTagCommandExecute(object parameter)
         {
-            return ChatSelectedItems.Count > 0;
+            return MessagesVM.SelectedMessages.Count > 0;
         }
         public void OnAddTagCommandExecuted(object parameter)
         {
@@ -34,7 +32,7 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand RemoveTagCommand { get; }
         public bool CanRemoveTagCommandExecute(object parameter)
         {
-            return ChatSelectedItems.Count > 0;
+            return MessagesVM.SelectedMessages.Count > 0;
         }
         public void OnRemoveTagCommandExecuted(object parameter)
         {
@@ -59,20 +57,19 @@ namespace ChatCorporaAnnotator.ViewModels
             var eventArgs = parameter as SelectionChangedEventArgs;
             var selectedItemsOrganizer = new SelectedItemsOrganizer();
 
-            selectedItemsOrganizer.ChangeSelectedItems(ChatSelectedItems, eventArgs);
+            selectedItemsOrganizer.ChangeSelectedItems(MessagesVM.SelectedMessages, eventArgs);
         }
 
         #endregion
 
         public ChatViewModel(MainWindowViewModel mainWindowVM)
         {
-            MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
+            _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
-            CurrentChatItems = new ObservableCollection<object>();
-            ChatSelectedItems = new ObservableCollection<object>();
-
-            ActiveDates = new ObservableCollection<object>();
-            Situations = new ObservableCollection<object>();
+            DatesVM = new DatesViewModel();
+            MessagesVM = new MessagesViewModel();
+            TagsVM = new TagsViewModel(_mainWindowVM);
+            SituationsVM = new SituationsViewModel(_mainWindowVM);
 
             AddTagCommand = new RelayCommand(OnAddTagCommandExecuted, CanAddTagCommandExecute);
             RemoveTagCommand = new RelayCommand(OnRemoveTagCommandExecuted, CanRemoveTagCommandExecute);

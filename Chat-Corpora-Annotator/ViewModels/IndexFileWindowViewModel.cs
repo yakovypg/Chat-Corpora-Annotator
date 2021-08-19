@@ -1,7 +1,7 @@
-﻿using ChatCorporaAnnotator.Data;
-using ChatCorporaAnnotator.Data.App;
+﻿using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
-using ChatCorporaAnnotator.Infrastructure.Exceptions;
+using ChatCorporaAnnotator.Infrastructure.Enums;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Windows;
@@ -13,45 +13,33 @@ using IndexEngine.Paths;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.ViewModels
 {
     internal class IndexFileWindowViewModel : ViewModel
     {
-        private readonly IPageToggler _pageToggler;
+        private const bool HEADER_PARAM = false;
+        private const int WAIT_PAGE_TIMER_TICK_INTERVAL = 3;
+
         private readonly MainWindowViewModel _mainWindowVM;
 
-        private string _filePath;
-        private readonly string _projectFolderPath;
+        private readonly IProject _project;
+        private IPageSwitcher _pageSwitcher;
+        private DispatcherTimer _waitPageTimer;
+
+        private bool _isFileReaded = false;
+        private FileProcessingResult _fileProcessingResult = FileProcessingResult.InProcess;
 
         public ObservableCollection<FileColumn> FileColumns { get; private set; }
         public ObservableCollection<FileColumn> SelectedFileColumns { get; private set; }
-
-        private string _title = $"Step 1 of {PagesCount}";
-        public string Title
-        {
-            get => _title;
-            set => SetValue(ref _title, value);
-        }
-
-        private bool _isFileReaded = false;
-        public bool IsFileReaded
-        {
-            get => _isFileReaded;
-            set => SetValue(ref _isFileReaded, value);
-        }
-
-        private bool _isFileProcessed = false;
-        public bool IsFileProcessed
-        {
-            get => _isFileProcessed;
-            set => SetValue(ref _isFileProcessed, value);
-        }
 
         #region Data
 
@@ -76,8 +64,9 @@ namespace ChatCorporaAnnotator.ViewModels
             "Data loaded",
         };
 
-        private static readonly int MaxToggleablePageIndex = 2;
+        private static readonly int MaxSwitchablePageIndex = 2;
         private static readonly int PagesCount = PageHints.Length;
+        private static readonly string FailedToLoadDataHint = "Failed to load data";
 
         #endregion
 
@@ -115,6 +104,13 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region PageItems
 
+        private string _title = $"Step 1 of {PagesCount}";
+        public string Title
+        {
+            get => _title;
+            set => SetValue(ref _title, value);
+        }
+
         private string _currentPageHint = PageHints[0];
         public string CurrentPageHint
         {
@@ -133,6 +129,35 @@ namespace ChatCorporaAnnotator.ViewModels
                 CurrentPageHint = PageHints[value];
                 Title = $"Step {value + 1} of {PagesCount}";
             }
+        }
+
+        #endregion
+
+        #region ButtonsEnables
+
+        private bool _finishButtonEnabled = false;
+        public bool FinishButtonEnabled
+        {
+            get => _finishButtonEnabled;
+            set => SetValue(ref _finishButtonEnabled, value);
+        }
+
+        #endregion
+
+        #region ImagesVisibilities
+
+        private Visibility _successfulFinishImageVisibility = Visibility.Visible;
+        public Visibility SuccessfulFinishImageVisibility
+        {
+            get => _successfulFinishImageVisibility;
+            set => SetValue(ref _successfulFinishImageVisibility, value);
+        }
+
+        private Visibility _failedFinishImageVisibility = Visibility.Hidden;
+        public Visibility FailedFinishImageVisibility
+        {
+            get => _failedFinishImageVisibility;
+            set => SetValue(ref _failedFinishImageVisibility, value);
         }
 
         #endregion
@@ -181,22 +206,21 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand SetBackPageCommand { get; }
         public bool CanSetBackPageCommandExecute(object parameter)
         {
-            return CurrentPageIndex > 0 && CurrentPageIndex <= MaxToggleablePageIndex;
+            return CurrentPageIndex > 0 && CurrentPageIndex <= MaxSwitchablePageIndex;
         }
         public void OnSetBackPageCommandExecuted(object parameter)
         {
             if (!CanSetBackPageCommandExecute(parameter))
                 return;
 
-            CurrentPageIndex--;
-            _pageToggler.BackPage();
+            CurrentPageIndex = _pageSwitcher.BackPage();
         }
 
         public ICommand SetNextPageCommand { get; }
         public bool CanSetNextPageCommandExecute(object parameter)
         {
             return CurrentPageIndex >= 0 &&
-                   CurrentPageIndex <= MaxToggleablePageIndex + 1 &&
+                   CurrentPageIndex <= MaxSwitchablePageIndex &&
                    IsPageDataSelected(CurrentPageIndex);
         }
         public void OnSetNextPageCommandExecuted(object parameter)
@@ -204,19 +228,21 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanSetNextPageCommandExecute(parameter))
                 return;
 
-            CurrentPageIndex++;
-            _pageToggler.NextPage();
+            CurrentPageIndex = _pageSwitcher.NextPage();
         }
 
         public ICommand FinishFileIndexingCommand { get; }
         public bool CanFinishFileIndexingCommandExecute(object parameter)
         {
-            return CurrentPageIndex == PagesCount - 1;
+            return true;
         }
         public void OnFinishFileIndexingCommandExecuted(object parameter)
         {
             if (!CanFinishFileIndexingCommandExecute(parameter))
                 return;
+
+            if (_fileProcessingResult == FileProcessingResult.Success)
+                _mainWindowVM.FileLoadedCommand?.Execute(true);
 
             CloseWindowCommand?.Execute(parameter);
         }
@@ -228,7 +254,7 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand CheckAllColumnsCommand { get; }
         public bool CanCheckAllColumnsCommandExecute(object parameter)
         {
-            return FileColumns != null && FileColumns.Count > 0;
+            return !FileColumns.IsNullOrEmpty();
         }
         public void OnCheckAllColumnsCommandExecuted(object parameter)
         {
@@ -242,7 +268,7 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand UncheckAllColumnsCommand { get; }
         public bool CanUncheckAllColumnsCommandExecute(object parameter)
         {
-            return FileColumns != null && FileColumns.Count > 0;
+            return !FileColumns.IsNullOrEmpty();
         }
         public void OnUncheckAllColumnsCommandExecuted(object parameter)
         {
@@ -282,23 +308,15 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand CloseWindowCommand { get; }
         public bool CanCloseWindowCommandExecute(object parameter)
         {
-            return Application.Current != null &&
-                   Application.Current.Windows != null &&
-                   Application.Current.Windows.Count > 0;
+            return true;
         }
         public void OnCloseWindowCommandExecuted(object parameter)
         {
             if (!CanCloseWindowCommandExecute(parameter))
                 return;
 
-            foreach (var obj in Application.Current.Windows)
-            {
-                if (obj is IndexFileWindow window)
-                {
-                    window.Close();
-                    break;
-                }
-            }
+            if (new WindowFinder().Find(typeof(IndexFileWindow)) is IndexFileWindow indexFileWindow)
+                indexFileWindow.Close();
         }
 
         public ICommand DeactivateWindowCommand { get; }
@@ -316,7 +334,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        #region Commands
+        #region FileParametersCommands
 
         public ICommand ResetFileReadedParamCommand { get; }
         public bool CanResetFileReadedParamCommandExecute(object parameter)
@@ -328,7 +346,7 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanResetFileReadedParamCommandExecute(parameter))
                 return;
 
-            IsFileReaded = false;
+            _isFileReaded = false;
         }
 
         #endregion
@@ -338,21 +356,12 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(filePath);
 
-            _filePath = filePath;
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
-            _projectFolderPath = CreateProjectFolder(filePath);
+            _project = new Project(filePath);
+            _project.Initialize();
 
-            FileColumns = null;
-            SelectedFileColumns = new ObservableCollection<FileColumn>();
-
-            FileColumn.ChangeSelectedColumnsAction = ChangeSelectedColumns;
-
-            _selectedDelimiter = Delimiters[0];
-
-            _pageToggler = new PageToggler(GetPageVisibilitySetters());
-            _pageToggler.SetPagesHideActions(GetPageHideActions());
-            _pageToggler.SetPagesShowActions(GetPageShowActions());
+            InitializeFields();
 
             SetBackPageCommand = new RelayCommand(OnSetBackPageCommandExecuted, CanSetBackPageCommandExecute);
             SetNextPageCommand = new RelayCommand(OnSetNextPageCommandExecuted, CanSetNextPageCommandExecute);
@@ -368,61 +377,7 @@ namespace ChatCorporaAnnotator.ViewModels
             ResetFileReadedParamCommand = new RelayCommand(OnResetFileReadedParamCommandExecuted, CanResetFileReadedParamCommandExecute);
         }
 
-        #region CsvMethods
-
-        private string CreateProjectFolder(string filePath)
-        {
-            string projectName = Path.GetFileNameWithoutExtension(filePath);
-            string errorMsg = "Failed to create project folder. Try opening the file again.";
-
-            return !AppDirectories.TryCreateProjectFolder(projectName, out string projectFolderPath, out ProjectFolderNotCreatedException ex)
-                ? throw new ProjectFolderNotCreatedException(errorMsg, ex.FolderPath, ex.InnerException)
-                : projectFolderPath;
-        }
-
-        private bool TryReadCsvFile(string path)
-        {
-            string[] fields = null;
-
-            try
-            {
-                var csvReader = new CSVReadService();
-                fields = csvReader.GetFields(path, SelectedDelimiter.Source);
-            }
-            catch { return false; }
-
-            if (fields == null || fields.Length == 0)
-            {
-                FileColumns = null;
-                return true;
-            }
-
-            var columns = fields.Select(t => new FileColumn(t));
-            FileColumns = new ObservableCollection<FileColumn>(columns);
-
-            OnPropertyChanged(nameof(FileColumns));
-            return true;
-        }
-
-        #endregion
-
-        #region PageDataMethods
-
-        private void ChangeSelectedColumns(FileColumn column, bool addParam)
-        {
-            if (column == null)
-                return;
-
-            if (addParam)
-            {
-                SelectedFileColumns.Add(column);
-            }
-            else
-            {
-                if (SelectedFileColumns.Contains(column))
-                    SelectedFileColumns.Remove(column);
-            }
-        }
+        #region DataMethods
 
         private bool IsPageDataSelected(int pageIndex)
         {
@@ -437,99 +392,166 @@ namespace ChatCorporaAnnotator.ViewModels
                 case 2:
                     return SelectedDateColumn != null && SelectedSenderColumn != null && SelectedTextColumn != null;
 
-                case 3:
-                    return IsFileProcessed;
-
                 default:
                     return true;
             }
         }
 
+        private void InitializeFields()
+        {
+            _selectedDelimiter = Delimiters[0];
+            SelectedFileColumns = new ObservableCollection<FileColumn>();
+
+            FileColumn.SelectedColumns = SelectedFileColumns;
+
+            _waitPageTimer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = new TimeSpan(0, 0, WAIT_PAGE_TIMER_TICK_INTERVAL)
+            };
+
+            _waitPageTimer.Tick += WaitPageTimerTick;
+
+            _pageSwitcher = new PageSwitcher(new PageExplorerStep[]
+            {
+                new PageExplorerStep("SelectDelimiterPage")
+                {
+                    Hide = LoadFileColumns,
+                    SetVisibility = t => SelectDelimiterPageVisibility = t
+                },
+                new PageExplorerStep("SelectColumnsPageVisibility")
+                {
+                    Hide = SetFieldsToProject,
+                    SetVisibility = t => SelectColumnsPageVisibility = t
+                },
+                new PageExplorerStep("SelectSpecifiedKeysPageVisibility")
+                {
+                    SetVisibility = t => SelectSpecifiedKeysPageVisibility = t
+                },
+                new PageExplorerStep("WaitPageVisibility")
+                {
+                    Show = StartIndexFileTask,
+                    SetVisibility = t => WaitPageVisibility = t
+                },
+                new PageExplorerStep("FinishPageVisibility")
+                {
+                    SetVisibility = t => FinishPageVisibility = t
+                }
+            });
+        }
+
         #endregion
 
-        #region PageVisibilityMethods
+        #region TimerMethods
 
-        private Action<Visibility>[] GetPageVisibilitySetters()
+        private void WaitPageTimerTick(object sender, EventArgs e)
         {
-            return new Action<Visibility>[]
-            {
-                t => SelectDelimiterPageVisibility = t,
-                t => SelectColumnsPageVisibility = t,
-                t => SelectSpecifiedKeysPageVisibility = t,
-                t => WaitPageVisibility = t,
-                t => FinishPageVisibility = t
-            };
-        }
-
-        private Action[] GetPageHideActions()
-        {
-            return new Action[]
-            {
-                HideSelectDelimiterPageAction
-            };
-        }
-
-        private Action[] GetPageShowActions()
-        {
-            return new Action[]
-            {
-                null,
-                null,
-                null,
-                ShowWaitPageAction
-            };
-        }
-
-        private void HideSelectDelimiterPageAction()
-        {
-            while (!IsFileReaded)
-            {
-                IsFileReaded = TryReadCsvFile(_filePath);
-
-                if (!IsFileReaded)
-                {
-                    var msgResult = new QuickMessage().ShowWarning(MessageBoxButton.YesNo);
-
-                    if (msgResult == MessageBoxResult.No)
-                    {
-                        CloseWindowCommand?.Execute(EventArgs.Empty);
-                        return;
-                    }
-
-                    string previousPath = _filePath;
-
-                    if (!DialogProvider.GetCsvFilePath(out _filePath))
-                        _filePath = previousPath;
-                }
-            }
-        }
-
-        private void ShowWaitPageAction()
-        {
-            ProjectInfo.CreateNewProject(_projectFolderPath, SelectedDateColumn.Header, SelectedSenderColumn.Header,
-                SelectedTextColumn.Header, SelectedFileColumns.Select(t => t.Header).ToList());
-
-            LuceneService.OpenNewIndex();
-
-            var reader = new CSVReadService();
-            reader.GetLineCount(_filePath, false); //i have no fucking clue what this does
-
-            var result = IndexHelper.PopulateIndex(_filePath, FileColumns.Select(t => t.Header).ToArray(), false);
-
-            LuceneService.OpenReader();
-
-            if (result != 1)
-            {
-                //error
+            if (_fileProcessingResult == FileProcessingResult.InProcess)
                 return;
+
+            FinishButtonEnabled = true;
+            CurrentPageIndex = _pageSwitcher.NextPage();
+
+            if (_fileProcessingResult == FileProcessingResult.Fail)
+            {
+                SuccessfulFinishImageVisibility = Visibility.Hidden;
+                FailedFinishImageVisibility = Visibility.Visible;
+                CurrentPageHint = FailedToLoadDataHint;
             }
 
-            var list = IndexHelper.LoadNDocumentsFromIndex(2000);
-            MessageContainer.Messages = list;
+            _waitPageTimer.Stop();
+        }
 
-            IsFileProcessed = true;
+        #endregion
 
-            SetNextPageCommand?.Execute(null);
+        #region CsvFileMethods
+
+        private CancelEventArgs SetFieldsToProject()
+        {
+            ProjectInfo.Data.SelectedFields = SelectedFileColumns.Select(t => t.Header).ToList();
+            return new CancelEventArgs(false);
+        }
+
+        private CancelEventArgs LoadFileColumns()
+        {
+            while (!_isFileReaded)
+            {
+                var columnReader = new CsvColumnReadService();
+
+                string filePath = _project.FilePath;
+                string delimiter = SelectedDelimiter.Source;
+
+                _isFileReaded = columnReader.TryGetColumns(filePath, delimiter, out FileColumn[] columns);
+
+                if (_isFileReaded)
+                {
+                    FileColumns = new ObservableCollection<FileColumn>(columns);
+                    OnPropertyChanged(nameof(FileColumns));
+
+                    return new CancelEventArgs(false);
+                }
+
+                var msgResult = new QuickMessage("Failed to parse the file. Try again?").ShowWarning(MessageBoxButton.YesNo);
+
+                if (msgResult == MessageBoxResult.No)
+                    return new CancelEventArgs(true);
+            }
+
+            return new CancelEventArgs(false);
+        }
+
+        private EventArgs StartIndexFileTask()
+        {
+            Task.Run(delegate
+            {
+                IndexFile();
+            });
+
+            _waitPageTimer.Start();
+            return EventArgs.Empty;
+        }
+
+        private void IndexFile()
+        {
+            string filePath = _project.FilePath;
+            string projectPath = _project.WorkingDirectory;
+
+            string dateColumn = SelectedDateColumn.Header;
+            string senderColumn = SelectedSenderColumn.Header;
+            string textColumn = SelectedTextColumn.Header;
+
+            var columns = FileColumns.Select(t => t.Header).ToArray();
+            var selectedColumns = SelectedFileColumns.Select(t => t.Header).ToList();
+
+            FileProcessingResult fileProcessingResult;
+
+            try
+            {
+                ProjectInfo.CreateNewProject(projectPath, dateColumn, senderColumn, textColumn, selectedColumns);
+                LuceneService.OpenNewIndex();
+
+                //Counting the number of lines is necessary here, but it is not clear why and how it works
+                var reader = new CsvReadService();
+                reader.GetLineCount(_project.FilePath, HEADER_PARAM);
+
+                int result = IndexHelper.PopulateIndex(filePath, columns, HEADER_PARAM);
+                LuceneService.OpenReader();
+
+                fileProcessingResult = result == 1
+                    ? FileProcessingResult.Success
+                    : FileProcessingResult.Fail;
+            }
+            catch
+            {
+                fileProcessingResult = FileProcessingResult.Fail;
+            }
+
+            if (fileProcessingResult == FileProcessingResult.Success)
+            {
+                var list = IndexHelper.LoadNDocumentsFromIndex(2000);
+                MessageContainer.Messages = list;
+            }
+
+            _fileProcessingResult = fileProcessingResult;
         }
 
         #endregion
