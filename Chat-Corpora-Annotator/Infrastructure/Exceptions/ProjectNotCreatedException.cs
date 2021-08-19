@@ -8,7 +8,7 @@ namespace ChatCorporaAnnotator.Infrastructure.Exceptions
         public Project Project { get; }
 
         public ProjectNotCreatedException(string message = null, Project project = null, Exception innerException = null)
-            : base (message, innerException)
+            : base(message, innerException)
         {
             Project = project;
         }
