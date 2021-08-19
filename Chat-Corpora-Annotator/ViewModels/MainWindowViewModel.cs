@@ -392,6 +392,8 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 MessagesCount = ProjectInfo.Data.LineCount;
 
+                ChatVM.UpdateChatViewCommand?.Execute(null);
+
                 ChatVM.TagsVM.SetTagsCommand?.Execute(null);
                 ChatVM.DatesVM.SetDatesCommand?.Execute(null);
                 ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);

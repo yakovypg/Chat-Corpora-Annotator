@@ -345,9 +345,10 @@
                                     Margin="0, 0, 2, 0">
                                 </GridSplitter>
 
-                                <ListBox Grid.Column="0"
-                                         SelectionMode="Extended"
-                                         ItemsSource="{Binding MessagesVM.Messages}">
+                                <ListView Grid.Column="0"
+                                          SelectionMode="Extended"
+                                          View="{Binding ChatGridView}"
+                                          ItemsSource="{Binding MessagesVM.Messages}">
 
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="SelectionChanged">
@@ -357,13 +358,7 @@
                                             </i:InvokeCommandAction>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type chat:ChatMessage}">
-                                            <TextBlock Text="{Binding ID}"/>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
+                                </ListView>
 
                                 <Grid Grid.Column="2">
                                     <Grid.RowDefinitions>
