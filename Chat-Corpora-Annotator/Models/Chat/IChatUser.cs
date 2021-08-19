@@ -2,7 +2,7 @@
 
 namespace ChatCorporaAnnotator.Models.Chat
 {
-    internal interface IChatUser
+    internal interface IChatUser : ISelectable
     {
         string Name { get; set; }
 

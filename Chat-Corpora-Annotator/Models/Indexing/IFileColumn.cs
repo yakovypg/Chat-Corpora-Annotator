@@ -1,8 +1,7 @@
 ﻿namespace ChatCorporaAnnotator.Models.Indexing
 {
-    internal interface IFileColumn
+    internal interface IFileColumn : ISelectable
     {
         string Header { get; }
-        bool IsSelected { get; set; }
     }
 }

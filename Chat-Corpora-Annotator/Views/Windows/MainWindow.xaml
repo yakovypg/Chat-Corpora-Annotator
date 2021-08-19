@@ -6,6 +6,7 @@
         xmlns:fa="http://schemas.fontawesome.com/icons/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels"
+        xmlns:chat="clr-namespace:ChatCorporaAnnotator.Models.Chat"
         mc:Ignorable="d"
         Icon="/Resources/Icons/MainWindowIcon.png"
         Title="Chat Corpora Annotator"
@@ -86,20 +87,29 @@
                 </Menu.Resources>
                 
                 <MenuItem Header="Filter by tag">
-                    <MenuItem Header="Choose tag" Command="{Binding ChooseTagForFilterCommand}"/>
-                    <MenuItem Header="Tagged only" Command="{Binding SetTaggedOnlyParamForFilterCommand}"/>
+                    <MenuItem Header="Choose tag" Command="{Binding ChooseTagForFilterCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_SearchPlus"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    
+                    <MenuItem Header="Tagged only" Command="{Binding SetTaggedOnlyParamForFilterCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_Search"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
 
                 <MenuItem Header="Save">
                     <MenuItem Header="Write to disk" Command="{Binding WriteFileToDiskCommand}">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Solid_FileExport"/>
+                            <fa:ImageAwesome Icon="Solid_Download"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
                     <MenuItem Header="Save" Command="{Binding SaveFileCommand}">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Regular_Save"/>
+                            <fa:ImageAwesome Icon="Solid_Save"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -169,6 +179,8 @@
                         
                         <ListBox Margin="0, 7"
                                  MinHeight="50"
+                                 MaxHeight="300"
+                                 SelectionMode="Extended"
                                  ItemsSource="{Binding ChatVM.UsersVM.Users}">
 
                             <i:Interaction.Triggers>
@@ -179,6 +191,16 @@
                                     </i:InvokeCommandAction>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type chat:ChatUser}">
+                                    <CheckBox
+                                        Content="{Binding Name}"
+                                        Style="{StaticResource BoldPressingCheckBox}"
+                                        IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
                         </ListBox>
                         
                     </Expander>
@@ -331,10 +353,16 @@
                                         <i:EventTrigger EventName="SelectionChanged">
                                             <i:InvokeCommandAction
                                                 PassEventArgsToCommand="True"
-                                                Command="{Binding ChangeChatSelectedItemsCommand}">
+                                                Command="{Binding MessagesVM.ChangeSelectedMessagesCommand}">
                                             </i:InvokeCommandAction>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
+
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type chat:ChatMessage}">
+                                            <TextBlock Text="{Binding ID}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
                                 </ListBox>
 
                                 <Grid Grid.Column="2">
@@ -351,8 +379,12 @@
                                                 Style="{StaticResource ListTitleTextBlock}">
                                             </TextBlock>
 
-                                            <ListBox BorderThickness="0"
-                                                     ItemsSource="{Binding DatesVM.ActiveDates}">
+                                            <ListBox BorderThickness="0" ItemsSource="{Binding DatesVM.ActiveDates}">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type chat:MessageDate}">
+                                                        <TextBlock Text="{Binding ShortDatePresenter}"/>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
                                             </ListBox>
                                         </DockPanel>
                                     </Border>
@@ -364,8 +396,12 @@
                                                 Style="{StaticResource ListTitleTextBlock}">
                                             </TextBlock>
 
-                                            <ListBox BorderThickness="0"
-                                                     ItemsSource="{Binding SituationsVM.Situations}">
+                                            <ListBox BorderThickness="0" ItemsSource="{Binding SituationsVM.Situations}">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type chat:Situation}">
+                                                        <TextBlock Text="{Binding Header}"/>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
                                             </ListBox>
                                         </DockPanel>
                                     </Border>

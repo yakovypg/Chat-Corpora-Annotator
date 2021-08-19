@@ -12,7 +12,6 @@ using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine;
 using IndexEngine.Paths;
 using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -297,16 +296,10 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanChangeSelectedColumnsCommandExecute(parameter))
                 return;
 
-            IList addedItems = (parameter as SelectionChangedEventArgs).AddedItems;
+            var eventArgs = parameter as SelectionChangedEventArgs;
+            var selectedItemOrganizer = new SelectedItemsOrganizer();
 
-            if (addedItems == null)
-                return;
-
-            foreach (var item in addedItems)
-            {
-                if (item is FileColumn addingItem && !addingItem.IsSelected)
-                    addingItem.IsSelected = true;
-            }
+            selectedItemOrganizer.SelectAddedItems<FileColumn>(eventArgs);
         }
 
         #endregion

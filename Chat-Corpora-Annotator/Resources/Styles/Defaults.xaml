@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:fa="http://schemas.fontawesome.com/icons/">
 
     <Style TargetType="GridSplitter">
         <Setter Property="Opacity" Value="0.7"/>
@@ -26,6 +27,10 @@
     <Style TargetType="ComboBox">
         <Setter Property="Height" Value="25"/>
         <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+    <Style TargetType="{x:Type fa:ImageAwesome}">
+        <Setter Property="Foreground" Value="#FF464775"/>
     </Style>
 
     <Style TargetType="CheckBox" BasedOn="{StaticResource DefaultCheckBox}">

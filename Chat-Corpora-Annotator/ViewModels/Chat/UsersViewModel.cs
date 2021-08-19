@@ -73,9 +73,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             var eventArgs = parameter as SelectionChangedEventArgs;
-            var selectedItemsOrganizer = new SelectedItemsOrganizer();
+            var selectedItemOrganizer = new SelectedItemsOrganizer();
 
-            selectedItemsOrganizer.ChangeSelectedItems(SelectedUsers, eventArgs);
+            selectedItemOrganizer.InvertAddedItemsSelection<ChatUser>(eventArgs);
         }
 
         #endregion

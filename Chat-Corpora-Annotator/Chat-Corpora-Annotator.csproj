@@ -133,6 +133,7 @@
     <Compile Include="Models\Indexing\IFileColumn.cs" />
     <Compile Include="Models\Indexing\IProject.cs" />
     <Compile Include="Models\Indexing\Project.cs" />
+    <Compile Include="Models\ISelectable.cs" />
     <Compile Include="Models\Windows\IPageExplorerStep.cs" />
     <Compile Include="Models\Windows\PageExplorerStep.cs" />
     <Compile Include="Models\Windows\IPageSwitcher.cs" />
