@@ -116,7 +116,9 @@
     <Compile Include="Infrastructure\Exceptions\Indexing\ProjectIsInUseException.cs" />
     <Compile Include="Infrastructure\Exceptions\Indexing\ProjectNotCreatedException.cs" />
     <Compile Include="Infrastructure\Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Models\Chat\ChatMessage.cs" />
     <Compile Include="Models\Chat\ChatUser.cs" />
+    <Compile Include="Models\Chat\IChatMessage.cs" />
     <Compile Include="Models\Chat\IChatUser.cs" />
     <Compile Include="Models\Chat\IMessageDate.cs" />
     <Compile Include="Models\Chat\ISituation.cs" />

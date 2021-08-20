@@ -92,11 +92,26 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         private IEnumerable<ChatUser> GetUsers()
         {
-            IEnumerable<string> userKeys = ProjectInfo.Data.UserKeys;
+            HashSet<string> userKeys = ProjectInfo.Data.UserKeys;
+            var userColors = ProjectInfo.Data.UserColors;
 
-            return userKeys.IsNullOrEmpty()
-                ? new ChatUser[0]
-                : userKeys.Select(t => new ChatUser(t));
+            if (userKeys.IsNullOrEmpty())
+                return new ChatUser[0];
+
+            if (userColors.IsNullOrEmpty())
+                return userKeys.Select(t => new ChatUser(t));
+
+            int userIndex = 0;
+            var users = new ChatUser[userKeys.Count];
+
+            foreach (string user in userKeys)
+            {
+                users[userIndex++] = userColors.TryGetValue(user, out var color)
+                    ? new ChatUser(user, color)
+                    : new ChatUser(user);
+            }
+
+            return users;
         }
     }
 }

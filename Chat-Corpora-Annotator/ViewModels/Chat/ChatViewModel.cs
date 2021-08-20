@@ -42,13 +42,19 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ChatColumns.Add(tagColumn);
 
+            Thickness tbThickness = new Thickness(5, 3, 5, 3);
+
             foreach (var field in ProjectInfo.Data.SelectedFields)
             {
                 DataTemplate columnDataTemplate = new DataTemplate(typeof(DynamicMessage));
 
                 var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
-                textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"Contents[{field}]"));
+                textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"Source.Contents[{field}]"));
                 textBlockFactory.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
+                textBlockFactory.SetValue(TextBlock.PaddingProperty, tbThickness);
+
+                if (field == ProjectInfo.SenderFieldKey)
+                    textBlockFactory.SetBinding(TextBlock.ForegroundProperty, new Binding($"SenderColor"));
 
                 columnDataTemplate.VisualTree = textBlockFactory;
 

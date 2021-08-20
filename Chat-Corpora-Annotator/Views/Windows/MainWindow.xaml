@@ -369,20 +369,11 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
 
-
                                     <DataGrid.CellStyle>
                                         <Style TargetType="DataGridCell">
                                             <Setter Property="BorderThickness" Value="0"/>
                                         </Style>
                                     </DataGrid.CellStyle>
-
-                                    <DataGrid.RowStyle>
-                                        <Style TargetType="DataGridRow">
-                                            <Setter Property="Padding" Value="0"/>
-                                            <Setter Property="Margin" Value="0"/>
-                                            <Setter Property="BorderThickness" Value="0"/>
-                                        </Style>
-                                    </DataGrid.RowStyle>
                                 </DataGrid>
 
                                 <Grid Grid.Column="2">
