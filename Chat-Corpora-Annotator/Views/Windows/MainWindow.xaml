@@ -346,14 +346,19 @@
                                     Margin="0, 0, 2, 0">
                                 </GridSplitter>
 
-                                <!--
-                                <ListView Grid.Column="0" Visibility="Hidden"
+                                <DataGrid IsReadOnly="True"
+                                          Background="White"
+                                          MinColumnWidth="50"
+                                          MaxColumnWidth="500"
+                                          SelectionUnit="FullRow"
                                           SelectionMode="Extended"
-                                          View="{Binding ChatGridView}"
-                                          ItemsSource="{Binding MessagesVM.Messages}"
-                                          VirtualizingPanel.IsVirtualizing="True"
-                                          VirtualizingPanel.IsContainerVirtualizable="True"
-                                          VirtualizingPanel.VirtualizationMode="Recycling">
+                                          GridLinesVisibility="None"
+                                          AutoGenerateColumns="False"   
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatColumns}"
+                                          ItemsSource="{Binding MessagesVM.Messages}">
 
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="SelectionChanged">
@@ -364,31 +369,6 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
 
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <VirtualizingStackPanel/>
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
-                                </ListView>
-                                -->
-
-                                <DataGrid IsReadOnly="True"
-                                          SelectionUnit="FullRow"
-                                          SelectionMode="Extended"
-                                          GridLinesVisibility="None"
-                                          AutoGenerateColumns="False"                                                                                                           
-                                          VirtualizingPanel.ScrollUnit="Item"
-                                          VirtualizingPanel.IsVirtualizing="True"
-                                          VirtualizingPanel.IsContainerVirtualizable="True"
-                                          VirtualizingPanel.VirtualizationMode="Recycling"
-                                          ItemsSource="{Binding MessagesVM.Messages}"
-                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatGataGridColumns}">
-
-                                    <DataGrid.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <VirtualizingStackPanel/>
-                                        </ItemsPanelTemplate>
-                                    </DataGrid.ItemsPanel>
 
                                     <DataGrid.CellStyle>
                                         <Style TargetType="DataGridCell">

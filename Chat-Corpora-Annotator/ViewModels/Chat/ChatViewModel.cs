@@ -13,9 +13,6 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class ChatViewModel : ViewModel
     {
-        private const double CHAT_COLUMN_MIN_WIDTH = 50;
-        private const double CHAT_COLUMN_MAX_WIDTH = 500;
-
         private readonly MainWindowViewModel _mainWindowVM;
 
         public UsersViewModel UsersVM { get; }
@@ -24,7 +21,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public TagsViewModel TagsVM { get; }
         public SituationsViewModel SituationsVM { get; }
 
-        public ObservableCollection<DataGridColumn> ChatGataGridColumns { get; private set; }
+        public ObservableCollection<DataGridColumn> ChatColumns { get; private set; }
 
         #region ChatViewCommands
 
@@ -41,11 +38,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             var tagColumn = new DataGridTextColumn()
             {
                 Header = "Tag",
-                MinWidth = CHAT_COLUMN_MIN_WIDTH,
-                MaxWidth = CHAT_COLUMN_MAX_WIDTH
             };
 
-            ChatGataGridColumns.Add(tagColumn);
+            ChatColumns.Add(tagColumn);
 
             foreach (var field in ProjectInfo.Data.SelectedFields)
             {
@@ -60,12 +55,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 var column = new DataGridTemplateColumn()
                 {
                     Header = field,
-                    MinWidth = CHAT_COLUMN_MIN_WIDTH,
-                    MaxWidth = CHAT_COLUMN_MAX_WIDTH,
                     CellTemplate = columnDataTemplate
                 };
 
-                ChatGataGridColumns.Add(column);
+                ChatColumns.Add(column);
             }
         }
 
@@ -99,15 +92,15 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public ChatViewModel(MainWindowViewModel mainWindowVM)
         {
-            ChatGataGridColumns = new System.Collections.ObjectModel.ObservableCollection<DataGridColumn>();
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             UsersVM = new UsersViewModel();
             DatesVM = new DatesViewModel();
             MessagesVM = new MessagesViewModel();
-
             TagsVM = new TagsViewModel(_mainWindowVM);
             SituationsVM = new SituationsViewModel(_mainWindowVM);
+
+            ChatColumns = new ObservableCollection<DataGridColumn>();
 
             UpdateChatViewCommand = new RelayCommand(OnUpdateChatViewCommandExecuted, CanUpdateChatViewCommandExecute);
 
