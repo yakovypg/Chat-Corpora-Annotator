@@ -1,8 +1,10 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
 using IndexEngine.Paths;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,22 +27,33 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #region ChatViewCommands
 
-        public ICommand UpdateChatViewCommand { get; }
-        public bool CanUpdateChatViewCommandExecute(object parameter)
+        public ICommand SetChatColumnsCommand { get; }
+        public bool CanSetChatColumnsCommandExecute(object parameter)
         {
             return true;
         }
-        public void OnUpdateChatViewCommandExecuted(object parameter)
+        public void OnSetChatColumnsCommandExecuted(object parameter)
         {
-            if (!CanUpdateChatViewCommandExecute(parameter))
+            if (!CanSetChatColumnsCommandExecute(parameter))
                 return;
 
-            var tagColumn = new DataGridTextColumn()
-            {
-                Header = "Tag",
-            };
+            List<string> selectedFields = parameter is List<string> fields
+                ? fields
+                : ProjectInfo.Data.SelectedFields;
 
-            ChatColumns.Add(tagColumn);
+            if (selectedFields.IsNullOrEmpty())
+                return;
+
+            if (selectedFields.Remove(ProjectInfo.TextFieldKey))
+                selectedFields.Insert(0, ProjectInfo.TextFieldKey);
+
+            if (selectedFields.Remove(ProjectInfo.DateFieldKey))
+                selectedFields.Insert(0, ProjectInfo.DateFieldKey);
+
+            if (selectedFields.Remove(ProjectInfo.SenderFieldKey))
+                selectedFields.Insert(0, ProjectInfo.SenderFieldKey);
+
+            selectedFields.Insert(0, "Tag");
 
             Thickness tbThickness = new Thickness(5, 3, 5, 3);
 
@@ -108,7 +121,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ChatColumns = new ObservableCollection<DataGridColumn>();
 
-            UpdateChatViewCommand = new RelayCommand(OnUpdateChatViewCommandExecuted, CanUpdateChatViewCommandExecute);
+            SetChatColumnsCommand = new RelayCommand(OnSetChatColumnsCommandExecuted, CanSetChatColumnsCommandExecute);
 
             AddTagCommand = new RelayCommand(OnAddTagCommandExecuted, CanAddTagCommandExecute);
             RemoveTagCommand = new RelayCommand(OnRemoveTagCommandExecuted, CanRemoveTagCommandExecute);

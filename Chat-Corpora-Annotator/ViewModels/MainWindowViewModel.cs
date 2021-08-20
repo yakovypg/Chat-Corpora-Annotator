@@ -1,4 +1,5 @@
 ﻿using ChatCorporaAnnotator.Data;
+using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Models.Indexing;
@@ -330,14 +331,7 @@ namespace ChatCorporaAnnotator.ViewModels
             //If IndexFileWindow is active.
             if (IndexFileWindow != null)
             {
-                if (IndexFileWindow.WindowState == WindowState.Minimized)
-                    IndexFileWindow.WindowState = WindowState.Normal;
-
-                IndexFileWindow.Activate();
-                IndexFileWindow.Topmost = true;
-                IndexFileWindow.Topmost = false;
-                IndexFileWindow.Focus();
-
+                new WindowInteract(IndexFileWindow).MoveToForeground();
                 return;
             }
 
@@ -392,7 +386,7 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 MessagesCount = ProjectInfo.Data.LineCount;
 
-                ChatVM.UpdateChatViewCommand?.Execute(null);
+                ChatVM.SetChatColumnsCommand?.Execute(null);
 
                 ChatVM.TagsVM.SetTagsCommand?.Execute(null);
                 ChatVM.DatesVM.SetDatesCommand?.Execute(null);
@@ -463,6 +457,20 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region WindowsCommands
 
+        public ICommand MainWindowClosingCommand { get; }
+        public bool CanMainWindowClosingCommandExecute(object parameter)
+        {
+            return IndexFileWindow != null;
+        }
+        public void OnMainWindowClosingCommandExecuted(object parameter)
+        {
+            if (!CanMainWindowClosingCommandExecute(parameter))
+                return;
+
+            CloseIndexFileWindowCommand?.Execute(null);
+            CloseMessageExplorerWindowsCommand?.Execute(null);
+        }
+
         public ICommand CloseIndexFileWindowCommand { get; }
         public bool CanCloseIndexFileWindowCommandExecute(object parameter)
         {
@@ -474,6 +482,19 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
 
             IndexFileWindow.Close();
+        }
+
+        public ICommand CloseMessageExplorerWindowsCommand { get; }
+        public bool CanCloseMessageExplorerWindowsCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnCloseMessageExplorerWindowsCommandExecuted(object parameter)
+        {
+            if (!CanCloseMessageExplorerWindowsCommandExecute(parameter))
+                return;
+
+            MessageExplorerWindowViewModel.CloseAllExplorers();
         }
 
         #endregion
@@ -508,7 +529,9 @@ namespace ChatCorporaAnnotator.ViewModels
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
 
+            MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
+            CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
         }
     }
 }

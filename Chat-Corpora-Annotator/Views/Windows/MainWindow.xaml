@@ -20,7 +20,7 @@
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding CloseIndexFileWindowCommand}"/>
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MainWindowClosingCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -86,14 +86,14 @@
                         <Setter Property="FontSize" Value="14"/>
                     </Style>
                 </Menu.Resources>
-                
+
                 <MenuItem Header="Filter by tag">
                     <MenuItem Header="Choose tag" Command="{Binding ChooseTagForFilterCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Solid_SearchPlus"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    
+
                     <MenuItem Header="Tagged only" Command="{Binding SetTaggedOnlyParamForFilterCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Solid_Search"/>
@@ -124,7 +124,7 @@
                             <fa:ImageAwesome Icon="Brands_CreativeCommonsShare"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    
+
                     <MenuItem Header="Delete situation" Command="{Binding DeleteSituationCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Regular_MinusSquare"/>
@@ -387,6 +387,7 @@
 
                                     <DataGrid.RowStyle>
                                         <Style TargetType="DataGridRow">
+                                            <EventSetter Event="PreviewMouseRightButtonDown" Handler="DataGridRow_PreviewMouseRightButtonDown"/>
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter Property="BorderThickness" Value="1"/>

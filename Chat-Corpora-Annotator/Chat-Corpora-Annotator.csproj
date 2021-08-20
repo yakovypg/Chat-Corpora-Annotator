@@ -67,6 +67,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\Windows\WindowInteract.cs" />
+    <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">
+      <DependentUpon>MessageExplorerWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Resources\ControlTemplates\Buttons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -155,6 +159,7 @@
     <Compile Include="ViewModels\Chat\UsersViewModel.cs" />
     <Compile Include="ViewModels\IndexFileWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MessageExplorerWindowViewModel.cs" />
     <Compile Include="Views\Windows\IndexFileWindow.xaml.cs">
       <DependentUpon>IndexFileWindow.xaml</DependentUpon>
     </Compile>
@@ -162,6 +167,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\Windows\MessageExplorerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -193,7 +202,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\Icons\MainWindowIcon.png" />
   </ItemGroup>
@@ -205,6 +213,9 @@
       <Project>{3a58ab22-7cb7-47da-8b31-f513cc71db3a}</Project>
       <Name>IndexEngine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\MessageExplorerWindowIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
