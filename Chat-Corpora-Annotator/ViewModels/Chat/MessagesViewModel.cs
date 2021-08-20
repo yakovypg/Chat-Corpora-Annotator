@@ -1,7 +1,6 @@
 ﻿using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
-using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
 using System.Collections.Generic;
@@ -14,8 +13,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class MessagesViewModel : ViewModel
     {
-        public ObservableCollection<ChatMessage> Messages { get; private set; }
-        public ObservableCollection<ChatMessage> SelectedMessages { get; private set; }
+        public ObservableCollection<DynamicMessage> Messages { get; private set; }
+        public ObservableCollection<DynamicMessage> SelectedMessages { get; private set; }
 
         #region Commands
 
@@ -29,7 +28,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanSetMessagesCommandExecute(parameter))
                 return;
 
-            IEnumerable<ChatMessage> newMessages = parameter is IEnumerable<ChatMessage> messages
+            IEnumerable<DynamicMessage> newMessages = parameter is IEnumerable<DynamicMessage> messages
                 ? messages
                 : GetMessages();
 
@@ -39,26 +38,26 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
             }
 
-            Messages = new ObservableCollection<ChatMessage>(newMessages);
+            Messages = new ObservableCollection<DynamicMessage>(newMessages);
             OnPropertyChanged(nameof(Messages));
         }
 
         public ICommand AddMessagesCommand { get; }
         public bool CanAddMessagesCommandExecute(object parameter)
         {
-            return parameter is IEnumerable<ChatMessage>;
+            return parameter is IEnumerable<DynamicMessage>;
         }
         public void OnAddMessagesCommandExecuted(object parameter)
         {
             if (!CanAddMessagesCommandExecute(parameter))
                 return;
 
-            IEnumerable<ChatMessage> addingMessages = parameter as IEnumerable<ChatMessage>;
+            IEnumerable<DynamicMessage> addingMessages = parameter as IEnumerable<DynamicMessage>;
 
             if (addingMessages.IsNullOrEmpty())
                 return;
 
-            Messages = new ObservableCollection<ChatMessage>(Messages.Concat(addingMessages));
+            Messages = new ObservableCollection<DynamicMessage>(Messages.Concat(addingMessages));
             OnPropertyChanged(nameof(Messages));
         }
 
@@ -82,21 +81,21 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public MessagesViewModel()
         {
-            Messages = new ObservableCollection<ChatMessage>();
-            SelectedMessages = new ObservableCollection<ChatMessage>();
+            Messages = new ObservableCollection<DynamicMessage>();
+            SelectedMessages = new ObservableCollection<DynamicMessage>();
 
             SetMessagesCommand = new RelayCommand(OnSetMessagesCommandExecuted, CanSetMessagesCommandExecute);
             AddMessagesCommand = new RelayCommand(OnAddMessagesCommandExecuted, CanAddMessagesCommandExecute);
             ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);
         }
 
-        private IEnumerable<ChatMessage> GetMessages()
+        private IEnumerable<DynamicMessage> GetMessages()
         {
             IEnumerable<DynamicMessage> messages = MessageContainer.Messages;
 
             return messages.IsNullOrEmpty()
-                ? new ChatMessage[0]
-                : messages.Select(t => new ChatMessage(t));
+                ? new DynamicMessage[0]
+                : messages;
         }
     }
 }

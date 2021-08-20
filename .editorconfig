@@ -11,3 +11,6 @@ dotnet_diagnostic.IDE0008.severity = none
 
 # IDE0008: Use explicit type
 dotnet_diagnostic.IDE0007.severity = none
+
+# IDE0008: Use explicit type
+dotnet_diagnostic.IDE0010.severity = none

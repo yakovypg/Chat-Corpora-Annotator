@@ -7,6 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels"
         xmlns:chat="clr-namespace:ChatCorporaAnnotator.Models.Chat"
+        xmlns:b="clr-namespace:ChatCorporaAnnotator.Infrastructure.Behaviors.Static"
         mc:Ignorable="d"
         Icon="/Resources/Icons/MainWindowIcon.png"
         Title="Chat Corpora Annotator"
@@ -345,10 +346,14 @@
                                     Margin="0, 0, 2, 0">
                                 </GridSplitter>
 
-                                <ListView Grid.Column="0"
+                                <!--
+                                <ListView Grid.Column="0" Visibility="Hidden"
                                           SelectionMode="Extended"
                                           View="{Binding ChatGridView}"
-                                          ItemsSource="{Binding MessagesVM.Messages}">
+                                          ItemsSource="{Binding MessagesVM.Messages}"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.IsContainerVirtualizable="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling">
 
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="SelectionChanged">
@@ -358,7 +363,47 @@
                                             </i:InvokeCommandAction>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
+
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
                                 </ListView>
+                                -->
+
+                                <DataGrid IsReadOnly="True"
+                                          SelectionUnit="FullRow"
+                                          SelectionMode="Extended"
+                                          GridLinesVisibility="None"
+                                          AutoGenerateColumns="False"                                                                                                           
+                                          VirtualizingPanel.ScrollUnit="Item"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.IsContainerVirtualizable="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          ItemsSource="{Binding MessagesVM.Messages}"
+                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatGataGridColumns}">
+
+                                    <DataGrid.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </DataGrid.ItemsPanel>
+
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                </DataGrid>
 
                                 <Grid Grid.Column="2">
                                     <Grid.RowDefinitions>

@@ -107,6 +107,7 @@
     <Compile Include="Data\Imaging\BrushTransformer.cs" />
     <Compile Include="Data\Imaging\ColorTransformer.cs" />
     <Compile Include="Data\Windows\WindowFinder.cs" />
+    <Compile Include="Infrastructure\Behaviors\Static\DataGridColumnsBehavior.cs" />
     <Compile Include="Infrastructure\Commands\Base\Command.cs" />
     <Compile Include="Infrastructure\Commands\RelayCommand.cs" />
     <Compile Include="Infrastructure\Exceptions\Indexing\OneProjectOnlyException.cs" />
@@ -116,11 +117,9 @@
     <Compile Include="Infrastructure\Exceptions\Indexing\ProjectNotCreatedException.cs" />
     <Compile Include="Infrastructure\Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Models\Chat\ChatUser.cs" />
-    <Compile Include="Models\Chat\IChatMessage.cs" />
     <Compile Include="Models\Chat\IChatUser.cs" />
     <Compile Include="Models\Chat\IMessageDate.cs" />
     <Compile Include="Models\Chat\ISituation.cs" />
-    <Compile Include="Models\Chat\ChatMessage.cs" />
     <Compile Include="Models\Chat\ITag.cs" />
     <Compile Include="Models\Chat\MessageDate.cs" />
     <Compile Include="Models\Chat\Situation.cs" />

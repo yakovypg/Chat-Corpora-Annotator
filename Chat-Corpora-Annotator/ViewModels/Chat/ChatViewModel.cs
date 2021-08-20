@@ -1,8 +1,9 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Commands;
-using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
+using IndexEngine;
 using IndexEngine.Paths;
 using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,6 +13,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class ChatViewModel : ViewModel
     {
+        private const double CHAT_COLUMN_MIN_WIDTH = 50;
+        private const double CHAT_COLUMN_MAX_WIDTH = 500;
+
         private readonly MainWindowViewModel _mainWindowVM;
 
         public UsersViewModel UsersVM { get; }
@@ -20,12 +24,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public TagsViewModel TagsVM { get; }
         public SituationsViewModel SituationsVM { get; }
 
-        private GridView _chatGridView = new GridView();
-        public GridView ChatGridView
-        {
-            get => _chatGridView;
-            private set => SetValue(ref _chatGridView, value);
-        }
+        public ObservableCollection<DataGridColumn> ChatGataGridColumns { get; private set; }
 
         #region ChatViewCommands
 
@@ -39,37 +38,35 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanUpdateChatViewCommandExecute(parameter))
                 return;
 
-            var chatView = new GridView();
-
-            var tagColumn = new GridViewColumn()
+            var tagColumn = new DataGridTextColumn()
             {
                 Header = "Tag",
-                DisplayMemberBinding = new Binding($"TagCollection.Presenter")
+                MinWidth = CHAT_COLUMN_MIN_WIDTH,
+                MaxWidth = CHAT_COLUMN_MAX_WIDTH
             };
 
-            chatView.Columns.Add(tagColumn);
+            ChatGataGridColumns.Add(tagColumn);
 
             foreach (var field in ProjectInfo.Data.SelectedFields)
             {
-                var column = new GridViewColumn()
+                DataTemplate columnDataTemplate = new DataTemplate(typeof(DynamicMessage));
+
+                var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+                textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"Contents[{field}]"));
+                textBlockFactory.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
+
+                columnDataTemplate.VisualTree = textBlockFactory;
+
+                var column = new DataGridTemplateColumn()
                 {
                     Header = field,
+                    MinWidth = CHAT_COLUMN_MIN_WIDTH,
+                    MaxWidth = CHAT_COLUMN_MAX_WIDTH,
+                    CellTemplate = columnDataTemplate
                 };
 
-                DataTemplate cardLayout = new DataTemplate(typeof(ChatMessage));
-
-                FrameworkElementFactory text = new FrameworkElementFactory(typeof(TextBlock));
-                text.SetBinding(TextBlock.TextProperty, new Binding($"Contents[{field}]"));
-                text.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
-                text.SetValue(FrameworkElement.MaxWidthProperty, 200.0);
-
-                cardLayout.VisualTree = text;
-                column.CellTemplate = cardLayout;
-
-                chatView.Columns.Add(column);
+                ChatGataGridColumns.Add(column);
             }
-
-            ChatGridView = chatView;
         }
 
         #endregion
@@ -102,6 +99,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public ChatViewModel(MainWindowViewModel mainWindowVM)
         {
+            ChatGataGridColumns = new System.Collections.ObjectModel.ObservableCollection<DataGridColumn>();
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             UsersVM = new UsersViewModel();
