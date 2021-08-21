@@ -272,8 +272,8 @@
 
                     <Expander DockPanel.Dock="Top" Header="Actions" IsExpanded="True">
                         <StackPanel Height="auto" Margin="3, 7, 0, 0">
-                            <Button Content="Clear" Style="{StaticResource BlueCircleButton}"/>
-                            <Button Content="Find" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}"/>
+                            <Button Content="Clear" Style="{StaticResource BlueCircleButton}" Command="{Binding ClearFinderCommand}"/>
+                            <Button Content="Find" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}" Command="{Binding FindMessagesCommand}"/>
                         </StackPanel>
                     </Expander>
 

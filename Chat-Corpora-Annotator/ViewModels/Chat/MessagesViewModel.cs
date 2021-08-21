@@ -62,6 +62,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             OnPropertyChanged(nameof(Messages));
         }
 
+        #endregion
+
+        #region SelectionCommands
+
         public ICommand ChangeSelectedMessagesCommand { get; }
         public bool CanChangeSelectedMessagesCommandExecute(object parameter)
         {
@@ -87,6 +91,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             SetMessagesCommand = new RelayCommand(OnSetMessagesCommandExecuted, CanSetMessagesCommandExecute);
             AddMessagesCommand = new RelayCommand(OnAddMessagesCommandExecuted, CanAddMessagesCommandExecute);
+
             ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);
         }
 

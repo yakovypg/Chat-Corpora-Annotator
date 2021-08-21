@@ -1,4 +1,5 @@
 ﻿using ChatCorporaAnnotator.Data.Imaging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -6,7 +7,7 @@ using System.Windows.Media;
 
 namespace ChatCorporaAnnotator.Models.Chat
 {
-    internal class ChatUser : IChatUser, INotifyPropertyChanged
+    internal class ChatUser : IChatUser, INotifyPropertyChanged, IComparable<ChatUser>
     {
         public static ICollection<ChatUser> SelectedUsers { get; set; }
 
@@ -48,6 +49,11 @@ namespace ChatCorporaAnnotator.Models.Chat
         {
             Name = name;
             BackgroundColor = color;
+        }
+
+        public int CompareTo(ChatUser other)
+        {
+            return other == null ? 1 : Name.CompareTo(other);
         }
 
         private void AddToSelectedUsers()

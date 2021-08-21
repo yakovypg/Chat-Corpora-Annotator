@@ -101,5 +101,23 @@ namespace ChatCorporaAnnotator.Data.Windows
                     removedItem.IsSelected = false;
             }
         }
+
+        public void SelectAll<T>(IEnumerable<T> items) where T : ISelectable
+        {
+            foreach (var item in items)
+            {
+                if (!item.IsSelected)
+                    item.IsSelected = true;
+            }
+        }
+
+        public void DeselectAll<T>(IEnumerable<T> items) where T : ISelectable
+        {
+            foreach (var item in items)
+            {
+                if (item.IsSelected)
+                    item.IsSelected = false;
+            }
+        }
     }
 }

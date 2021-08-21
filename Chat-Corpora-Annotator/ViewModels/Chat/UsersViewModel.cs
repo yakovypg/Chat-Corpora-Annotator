@@ -62,6 +62,38 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             OnPropertyChanged(nameof(Users));
         }
 
+        #endregion
+
+        #region SelectionCommands
+
+        public ICommand SelectAllUsersCommand { get; }
+        public bool CanSelectAllUsersCommandExecute(object parameter)
+        {
+            return !Users.IsNullOrEmpty();
+        }
+        public void OnSelectAllUsersCommandExecuted(object parameter)
+        {
+            if (!CanSelectAllUsersCommandExecute(parameter))
+                return;
+
+            var selectedItemsOrganizer = new SelectedItemsOrganizer();
+            selectedItemsOrganizer.SelectAll(Users);
+        }
+
+        public ICommand DeselectAllUsersCommand { get; }
+        public bool CanDeselectAllUsersCommandExecute(object parameter)
+        {
+            return !Users.IsNullOrEmpty();
+        }
+        public void OnDeselectAllUsersCommandExecuted(object parameter)
+        {
+            if (!CanDeselectAllUsersCommandExecute(parameter))
+                return;
+
+            var selectedItemsOrganizer = new SelectedItemsOrganizer();
+            selectedItemsOrganizer.DeselectAll(Users);
+        }
+
         public ICommand ChangeSelectedUsersCommand { get; }
         public bool CanChangeSelectedUsersCommandExecute(object parameter)
         {
@@ -85,8 +117,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             Users = new ObservableCollection<ChatUser>();
             SelectedUsers = new ObservableCollection<ChatUser>();
 
+            ChatUser.SelectedUsers = SelectedUsers;
+
             SetUsersCommand = new RelayCommand(OnSetUsersCommandExecuted, CanSetUsersCommandExecute);
             AddUsersCommand = new RelayCommand(OnAddUsersCommandExecuted, CanAddUsersCommandExecute);
+
+            SelectAllUsersCommand = new RelayCommand(OnSelectAllUsersCommandExecuted, CanSelectAllUsersCommandExecute);
+            DeselectAllUsersCommand = new RelayCommand(OnDeselectAllUsersCommandExecuted, CanDeselectAllUsersCommandExecute);
             ChangeSelectedUsersCommand = new RelayCommand(OnChangeSelectedUsersCommandExecute, CanChangeSelectedUsersCommandExecute);
         }
 

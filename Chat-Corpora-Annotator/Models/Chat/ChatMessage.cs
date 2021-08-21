@@ -39,5 +39,37 @@ namespace ChatCorporaAnnotator.Models.Chat
 
             Source.AddSituation(situation.Header, situation.ID);
         }
+
+        public bool TryGetSender(out string sender)
+        {
+            if (!Source.Contents.TryGetValue(ProjectInfo.SenderFieldKey, out object senderObj))
+            {
+                sender = null;
+                return false;
+            }
+
+            sender = senderObj?.ToString() ?? string.Empty;
+            return true;
+        }
+
+        public bool TryGetSentDate(out DateTime sentDate)
+        {
+            if (!Source.Contents.TryGetValue(ProjectInfo.DateFieldKey, out object dateObj))
+            {
+                sentDate = DateTime.MinValue;
+                return false;
+            }
+
+            try
+            {
+                sentDate = DateTime.Parse(dateObj.ToString());
+                return true;
+            }
+            catch
+            {
+                sentDate = DateTime.MinValue;
+                return false;
+            }
+        }
     }
 }

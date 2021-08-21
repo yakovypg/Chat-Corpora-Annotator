@@ -2,6 +2,7 @@
 using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -455,12 +456,57 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
+        #region FinderCommands
+
+        public ICommand ClearFinderCommand { get; }
+        public bool CanClearFinderCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnClearFinderCommandExecuted(object parameter)
+        {
+            if (!CanClearFinderCommandExecute(parameter))
+                return;
+
+            FinderQuery = string.Empty;
+
+            IsFinderStartDateChecked = false;
+            IsFinderEndDateChecked = false;
+            FinderStartDate = DateTime.Today;
+            FinderEndDate = DateTime.Today;
+
+            ChatVM.UsersVM.DeselectAllUsersCommand?.Execute(null);
+        }
+
+        public ICommand FindMessagesCommand { get; }
+        public bool CanFindMessagesCommandExecute(object parameter)
+        {
+            return IsFileLoaded;
+        }
+        public void OnFindMessagesCommandExecuted(object parameter)
+        {
+            if (!CanFindMessagesCommandExecute(parameter))
+                return;
+
+            //if (ChatVM.UsersVM.SelectedUsers.IsNullOrEmpty())
+            //{
+            //    ChatVM.MessagesVM.Messages.Clear();
+            //    ChatVM.MessagesVM.SelectedMessages.Clear();
+            //    return;
+            //}
+
+            //ChatVM.MessagesVM.Messages.Clear();
+            //ChatVM.MessagesVM.SelectedMessages.Clear();
+        }
+
+        #endregion
+
         #region WindowsCommands
 
         public ICommand MainWindowClosingCommand { get; }
         public bool CanMainWindowClosingCommandExecute(object parameter)
         {
-            return IndexFileWindow != null;
+            return true;
         }
         public void OnMainWindowClosingCommandExecuted(object parameter)
         {
@@ -528,6 +574,9 @@ namespace ChatCorporaAnnotator.ViewModels
             MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
+
+            ClearFinderCommand = new RelayCommand(OnClearFinderCommandExecuted, CanClearFinderCommandExecute);
+            FindMessagesCommand = new RelayCommand(OnFindMessagesCommandExecuted, CanFindMessagesCommandExecute);
 
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);

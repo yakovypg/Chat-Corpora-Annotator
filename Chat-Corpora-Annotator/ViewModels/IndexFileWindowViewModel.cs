@@ -262,11 +262,8 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanCheckAllColumnsCommandExecute(parameter))
                 return;
 
-            foreach (var column in FileColumns)
-            {
-                if (!column.IsSelected)
-                    column.IsSelected = true;
-            }
+            var selectedItemsOrganizer = new SelectedItemsOrganizer();
+            selectedItemsOrganizer.SelectAll(FileColumns);
         }
 
         public ICommand UncheckAllColumnsCommand { get; }
@@ -279,11 +276,8 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanUncheckAllColumnsCommandExecute(parameter))
                 return;
 
-            foreach (var column in FileColumns)
-            {
-                if (column.IsSelected)
-                    column.IsSelected = false;
-            }
+            var selectedItemsOrganizer = new SelectedItemsOrganizer();
+            selectedItemsOrganizer.DeselectAll(FileColumns);
         }
 
         public ICommand ChangeSelectedColumnsCommand { get; }
