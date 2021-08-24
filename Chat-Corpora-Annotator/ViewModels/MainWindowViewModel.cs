@@ -1,17 +1,18 @@
-﻿using ChatCorporaAnnotator.Data;
+﻿using ChatCorporaAnnotator.Data.Dialogs;
+using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
-using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
 using ChatCorporaAnnotator.Views.Windows;
+using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
@@ -24,8 +25,6 @@ namespace ChatCorporaAnnotator.ViewModels
 
         public ChatViewModel ChatVM { get; }
         public IndexFileWindow IndexFileWindow { get; set; }
-
-        public ObservableCollection<object> CurrentUsers { get; private set; }
 
         private bool _isFileLoaded = false;
         public bool IsFileLoaded
@@ -52,45 +51,6 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             get => _selectedTagset;
             set => SetValue(ref _selectedTagset, value);
-        }
-
-        #endregion
-
-        #region FinderItems
-
-        private string _finderQuery = string.Empty;
-        public string FinderQuery
-        {
-            get => _finderQuery;
-            set => SetValue(ref _finderQuery, value);
-        }
-
-        private bool _isFinderStartDateChecked = false;
-        public bool IsFinderStartDateChecked
-        {
-            get => _isFinderStartDateChecked;
-            set => SetValue(ref _isFinderStartDateChecked, value);
-        }
-
-        private bool _isFinderEndDateChecked = false;
-        public bool IsFinderEndDateChecked
-        {
-            get => _isFinderEndDateChecked;
-            set => SetValue(ref _isFinderEndDateChecked, value);
-        }
-
-        private DateTime _finderStartDate = DateTime.Today;
-        public DateTime FinderStartDate
-        {
-            get => _finderStartDate;
-            set => SetValue(ref _finderStartDate, value);
-        }
-
-        private DateTime _finderEndDate = DateTime.Today;
-        public DateTime FinderEndDate
-        {
-            get => _finderEndDate;
-            set => SetValue(ref _finderEndDate, value);
         }
 
         #endregion
@@ -276,43 +236,6 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        #region EditSituationsCommands
-
-        public ICommand MergeSituationsCommand { get; }
-        public bool CanMergeSituationsCommandExecute(object parameter)
-        {
-            return false;
-        }
-        public void OnMergeSituationsCommandExecuted(object parameter)
-        {
-            if (!CanMergeSituationsCommandExecute(parameter))
-                return;
-        }
-
-        public ICommand DeleteSituationCommand { get; }
-        public bool CanDeleteSituationCommandExecute(object parameter)
-        {
-            return false;
-        }
-        public void OnDeleteSituationCommandExecuted(object parameter)
-        {
-            if (!CanDeleteSituationCommandExecute(parameter))
-                return;
-        }
-
-        public ICommand ChangeSituationTagCommand { get; }
-        public bool CanChangeSituationTagCommandExecute(object parameter)
-        {
-            return false;
-        }
-        public void OnChangeSituationTagCommandExecuted(object parameter)
-        {
-            if (!CanChangeSituationTagCommandExecute(parameter))
-                return;
-        }
-
-        #endregion
-
         #endregion
 
         #region TopBarCommands
@@ -363,12 +286,31 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand OpenCorpusCommand { get; }
         public bool CanOpenCorpusCommandExecute(object parameter)
         {
-            return false;
+            return true;
         }
         public void OnOpenCorpusCommandExecuted(object parameter)
         {
             if (!CanOpenCorpusCommandExecute(parameter))
                 return;
+
+            if (!DialogProvider.GetFolderPath(out string path))
+                return;
+
+            UnloadFileData();
+
+            SituationIndex.GetInstance().UnloadData();
+            ProjectInfo.LoadProject(path);
+
+            if (!LuceneService.OpenIndex())
+            {
+                new QuickMessage("No index").ShowError();
+                return;
+            }
+
+            MessageContainer.Messages = new List<DynamicMessage>();
+            IndexInteraction.TryLoadMessagesFromIndex(2000);
+
+            FileLoadedCommand?.Execute(true);
         }
 
         public ICommand FileLoadedCommand { get; }
@@ -456,51 +398,6 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        #region FinderCommands
-
-        public ICommand ClearFinderCommand { get; }
-        public bool CanClearFinderCommandExecute(object parameter)
-        {
-            return true;
-        }
-        public void OnClearFinderCommandExecuted(object parameter)
-        {
-            if (!CanClearFinderCommandExecute(parameter))
-                return;
-
-            FinderQuery = string.Empty;
-
-            IsFinderStartDateChecked = false;
-            IsFinderEndDateChecked = false;
-            FinderStartDate = DateTime.Today;
-            FinderEndDate = DateTime.Today;
-
-            ChatVM.UsersVM.DeselectAllUsersCommand?.Execute(null);
-        }
-
-        public ICommand FindMessagesCommand { get; }
-        public bool CanFindMessagesCommandExecute(object parameter)
-        {
-            return IsFileLoaded;
-        }
-        public void OnFindMessagesCommandExecuted(object parameter)
-        {
-            if (!CanFindMessagesCommandExecute(parameter))
-                return;
-
-            //if (ChatVM.UsersVM.SelectedUsers.IsNullOrEmpty())
-            //{
-            //    ChatVM.MessagesVM.Messages.Clear();
-            //    ChatVM.MessagesVM.SelectedMessages.Clear();
-            //    return;
-            //}
-
-            //ChatVM.MessagesVM.Messages.Clear();
-            //ChatVM.MessagesVM.SelectedMessages.Clear();
-        }
-
-        #endregion
-
         #region WindowsCommands
 
         public ICommand MainWindowClosingCommand { get; }
@@ -549,8 +446,6 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             ChatVM = new ChatViewModel(this);
 
-            CurrentUsers = new ObservableCollection<object>();
-
             IndexNewFileCommand = new RelayCommand(OnIndexNewFileCommandExecuted, CanIndexNewFileCommandExecute);
             OpenCorpusCommand = new RelayCommand(OnOpenCorpusCommandExecuted, CanOpenCorpusCommandExecute);
             FileLoadedCommand = new RelayCommand(OnFileLoadedCommandExecuted, CanFileLoadedCommandExecute);
@@ -571,16 +466,15 @@ namespace ChatCorporaAnnotator.ViewModels
             ShowSuggesterCommand = new RelayCommand(OnShowSuggesterCommandExecuted, CanShowSuggesterCommandExecute);
             ShowTagsetEditorCommand = new RelayCommand(OnShowTagsetEditorCommandExecuted, CanShowTagsetEditorCommandExecute);
 
-            MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
-            DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
-            ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
-
-            ClearFinderCommand = new RelayCommand(OnClearFinderCommandExecuted, CanClearFinderCommandExecute);
-            FindMessagesCommand = new RelayCommand(OnFindMessagesCommandExecuted, CanFindMessagesCommandExecute);
-
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
+        }
+
+        private void UnloadFileData()
+        {
+            ChatVM.SituationsVM.TaggedIds.Clear();
+            ChatVM.SituationsVM.Situations.Clear();
         }
     }
 }

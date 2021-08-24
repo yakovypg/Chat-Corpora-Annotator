@@ -169,7 +169,7 @@
 
                     <Expander DockPanel.Dock="Top" Header="Query">
                         <Grid>
-                            <TextBox Name="SearchQueryTextBox" Margin="0, 7" Text="{Binding FinderQuery, UpdateSourceTrigger=LostFocus}"/>
+                            <TextBox Name="SearchQueryTextBox" Margin="0, 7" Text="{Binding ChatVM.MessageFinderVM.Query, UpdateSourceTrigger=LostFocus}"/>
                             <UniformGrid Margin="0, 3, 0, 0">
                                 <TextBlock Text="Enter query" Style="{StaticResource QueryWaretmark}"/>
                             </UniformGrid>
@@ -220,7 +220,7 @@
                                     <Grid Background="White">
                                         <DatePicker Padding="20, 0, 0, 0"
                                                     BorderThickness="0"
-                                                    SelectedDate="{Binding FinderStartDate, UpdateSourceTrigger=PropertyChanged}">
+                                                    SelectedDate="{Binding ChatVM.MessageFinderVM.StartDate, UpdateSourceTrigger=PropertyChanged}">
 
                                             <DatePicker.Resources>
                                                 <Style TargetType="DatePickerTextBox">
@@ -231,7 +231,7 @@
 
                                         <CheckBox
                                             Margin="3, 0, 0, 0"
-                                            IsChecked="{Binding IsFinderStartDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                            IsChecked="{Binding ChatVM.MessageFinderVM.IsStartDateChecked, UpdateSourceTrigger=PropertyChanged}">
                                         </CheckBox>
                                     </Grid>
                                 </Border>
@@ -250,7 +250,7 @@
                                     <Grid Background="White">
                                         <DatePicker Padding="20, 0, 0, 0"
                                                     BorderThickness="0"
-                                                    SelectedDate="{Binding FinderEndDate, UpdateSourceTrigger=PropertyChanged}">
+                                                    SelectedDate="{Binding ChatVM.MessageFinderVM.EndDate, UpdateSourceTrigger=PropertyChanged}">
 
                                             <DatePicker.Resources>
                                                 <Style TargetType="DatePickerTextBox">
@@ -261,7 +261,7 @@
 
                                         <CheckBox
                                             Margin="3, 0, 0, 0"
-                                            IsChecked="{Binding IsFinderEndDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                            IsChecked="{Binding ChatVM.MessageFinderVM.IsEndDateChecked, UpdateSourceTrigger=PropertyChanged}">
                                         </CheckBox>
                                     </Grid>
                                 </Border>
@@ -272,8 +272,18 @@
 
                     <Expander DockPanel.Dock="Top" Header="Actions" IsExpanded="True">
                         <StackPanel Height="auto" Margin="3, 7, 0, 0">
-                            <Button Content="Clear" Style="{StaticResource BlueCircleButton}" Command="{Binding ClearFinderCommand}"/>
-                            <Button Content="Find" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}" Command="{Binding FindMessagesCommand}"/>
+                            <Button
+                                Content="Clear"
+                                Style="{StaticResource BlueCircleButton}"
+                                Command="{Binding ChatVM.MessageFinderVM.ClearFinderCommand}">
+                            </Button>
+
+                            <Button
+                                Content="Find"
+                                Margin="0, 5, 0, 0"
+                                Style="{StaticResource BlueCircleButton}"
+                                Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}">
+                            </Button>
                         </StackPanel>
                     </Expander>
 

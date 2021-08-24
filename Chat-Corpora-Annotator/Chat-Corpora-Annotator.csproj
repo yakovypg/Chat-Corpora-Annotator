@@ -68,6 +68,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\Windows\WindowInteract.cs" />
+    <Compile Include="Data\Indexing\IndexInteraction.cs" />
+    <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">
       <DependentUpon>MessageExplorerWindow.xaml</DependentUpon>
     </Compile>
@@ -107,7 +109,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\DialogProvider.cs" />
+    <Compile Include="Data\Dialogs\DialogProvider.cs" />
     <Compile Include="Data\Imaging\BrushTransformer.cs" />
     <Compile Include="Data\Imaging\ColorTransformer.cs" />
     <Compile Include="Data\Windows\WindowFinder.cs" />
@@ -217,5 +219,6 @@
   <ItemGroup>
     <Resource Include="Resources\Icons\MessageExplorerWindowIcon.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

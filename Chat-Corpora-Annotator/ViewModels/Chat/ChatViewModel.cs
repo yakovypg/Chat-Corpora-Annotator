@@ -15,11 +15,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class ChatViewModel : ViewModel
     {
-        private readonly MainWindowViewModel _mainWindowVM;
+        public MainWindowViewModel MainWindowVM { get; }
 
         public UsersViewModel UsersVM { get; }
         public DatesViewModel DatesVM { get; }
         public MessagesViewModel MessagesVM { get; }
+        public MessageFinderViewModel MessageFinderVM { get; }
         public TagsViewModel TagsVM { get; }
         public SituationsViewModel SituationsVM { get; }
 
@@ -111,13 +112,15 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public ChatViewModel(MainWindowViewModel mainWindowVM)
         {
-            _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
+            MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             UsersVM = new UsersViewModel();
             DatesVM = new DatesViewModel();
             MessagesVM = new MessagesViewModel();
-            TagsVM = new TagsViewModel(_mainWindowVM);
-            SituationsVM = new SituationsViewModel(_mainWindowVM);
+
+            MessageFinderVM = new MessageFinderViewModel(this);
+            TagsVM = new TagsViewModel(MainWindowVM);
+            SituationsVM = new SituationsViewModel(MainWindowVM);
 
             ChatColumns = new ObservableCollection<DataGridColumn>();
 

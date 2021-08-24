@@ -1,4 +1,5 @@
-﻿using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Indexing;
+using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
@@ -549,22 +550,9 @@ namespace ChatCorporaAnnotator.ViewModels
             }
 
             if (fileProcessingResult == FileProcessingResult.Success)
-                TryLoadMessagesFromIndex(PRIMARY_LOADING_MESSAGES_COUNT);
+                IndexInteraction.TryLoadMessagesFromIndex(PRIMARY_LOADING_MESSAGES_COUNT);
 
             _fileProcessingResult = fileProcessingResult;
-        }
-
-        private void TryLoadMessagesFromIndex(int count)
-        {
-            try
-            {
-                var list = IndexHelper.LoadNDocumentsFromIndex(count);
-                MessageContainer.Messages = list;
-            }
-            catch
-            {
-                new QuickMessage("Failed to load messages.").ShowWarning();
-            }
         }
 
         #endregion

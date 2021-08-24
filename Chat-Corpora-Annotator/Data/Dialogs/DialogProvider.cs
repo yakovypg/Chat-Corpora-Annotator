@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace ChatCorporaAnnotator.Data
+namespace ChatCorporaAnnotator.Data.Dialogs
 {
     internal static class DialogProvider
     {

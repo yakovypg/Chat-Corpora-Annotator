@@ -18,7 +18,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public List<int> TaggedIds { get; private set; }
         public ObservableCollection<Situation> Situations { get; private set; }
 
-        #region Commands
+        #region AddingCommands
 
         public ICommand SetSituationsCommand { get; }
         public bool CanSetSituationsCommandExecute(object parameter)
@@ -70,6 +70,43 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
+        #region EditCommands
+
+        public ICommand MergeSituationsCommand { get; }
+        public bool CanMergeSituationsCommandExecute(object parameter)
+        {
+            return false;
+        }
+        public void OnMergeSituationsCommandExecuted(object parameter)
+        {
+            if (!CanMergeSituationsCommandExecute(parameter))
+                return;
+        }
+
+        public ICommand DeleteSituationCommand { get; }
+        public bool CanDeleteSituationCommandExecute(object parameter)
+        {
+            return false;
+        }
+        public void OnDeleteSituationCommandExecuted(object parameter)
+        {
+            if (!CanDeleteSituationCommandExecute(parameter))
+                return;
+        }
+
+        public ICommand ChangeSituationTagCommand { get; }
+        public bool CanChangeSituationTagCommandExecute(object parameter)
+        {
+            return false;
+        }
+        public void OnChangeSituationTagCommandExecuted(object parameter)
+        {
+            if (!CanChangeSituationTagCommandExecute(parameter))
+                return;
+        }
+
+        #endregion
+
         public SituationsViewModel(MainWindowViewModel mainWindowVM)
         {
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
@@ -79,6 +116,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             SetSituationsCommand = new RelayCommand(OnSetSituationsCommandExecuted, CanSetSituationsCommandExecute);
             AddSituationsCommand = new RelayCommand(OnAddSituationsCommandExecuted, CanAddSituationsCommandExecute);
+
+            MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
+            DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
+            ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
         }
 
         private IEnumerable<Situation> GetSituations()
