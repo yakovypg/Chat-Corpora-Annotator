@@ -122,6 +122,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
         }
 
+        public void ClearData()
+        {
+            TaggedIds.Clear();
+            Situations.Clear();
+        }
+
         private IEnumerable<Situation> GetSituations()
         {
             SituationIndex.GetInstance().ReadIndexFromDisk();

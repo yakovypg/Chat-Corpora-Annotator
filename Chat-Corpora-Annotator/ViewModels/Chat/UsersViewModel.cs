@@ -127,6 +127,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ChangeSelectedUsersCommand = new RelayCommand(OnChangeSelectedUsersCommandExecute, CanChangeSelectedUsersCommandExecute);
         }
 
+        public void ClearData()
+        {
+            Users.Clear();
+            SelectedUsers.Clear();
+        }
+
         private IEnumerable<ChatUser> GetUsers()
         {
             HashSet<string> userKeys = ProjectInfo.Data.UserKeys;

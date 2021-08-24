@@ -129,5 +129,16 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             AddTagCommand = new RelayCommand(OnAddTagCommandExecuted, CanAddTagCommandExecute);
             RemoveTagCommand = new RelayCommand(OnRemoveTagCommandExecuted, CanRemoveTagCommandExecute);
         }
+
+        public void ClearData()
+        {
+            TagsVM.ClearData();
+            DatesVM.ClearData();
+            SituationsVM.ClearData();
+            MessagesVM.ClearData();
+            UsersVM.ClearData();
+
+            ChatColumns.Clear();
+        }
     }
 }

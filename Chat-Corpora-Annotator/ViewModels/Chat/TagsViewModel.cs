@@ -78,6 +78,11 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             AddTagsCommand = new RelayCommand(OnAddTagsCommandExecuted, CanAddTagsCommandExecute);
         }
 
+        public void ClearData()
+        {
+            Tags.Clear();
+        }
+
         private IEnumerable<Tag> GetTags()
         {
             TagsetIndex.GetInstance().IndexCollection.TryGetValue(ProjectInfo.Tagset, out var tags);

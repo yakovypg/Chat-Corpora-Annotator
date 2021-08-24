@@ -70,12 +70,18 @@ namespace ChatCorporaAnnotator.Infrastructure.Behaviors.Static
 
         private static void AddColumns(IList columns)
         {
+            if (columns == null)
+                return;
+
             foreach (DataGridColumn column in columns)
                 _source.Columns.Add(column);
         }
 
         private static void RemoveColumns(IList columns)
         {
+            if (columns == null)
+                return;
+
             foreach (DataGridColumn column in columns)
                 _source.Columns.Remove(column);
         }

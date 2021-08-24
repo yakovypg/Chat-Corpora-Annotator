@@ -95,6 +95,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);
         }
 
+        public void ClearData()
+        {
+            Messages.Clear();
+            SelectedMessages.Clear();
+        }
+
         private IEnumerable<ChatMessage> GetMessages()
         {
             IEnumerable<DynamicMessage> messages = MessageContainer.Messages;

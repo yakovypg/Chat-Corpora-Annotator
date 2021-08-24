@@ -296,8 +296,6 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!DialogProvider.GetFolderPath(out string path))
                 return;
 
-            UnloadFileData();
-
             SituationIndex.GetInstance().UnloadData();
             ProjectInfo.LoadProject(path);
 
@@ -329,6 +327,7 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 MessagesCount = ProjectInfo.Data.LineCount;
 
+                ChatVM.ClearData();
                 ChatVM.SetChatColumnsCommand?.Execute(null);
 
                 ChatVM.TagsVM.SetTagsCommand?.Execute(null);
@@ -340,12 +339,7 @@ namespace ChatCorporaAnnotator.ViewModels
             else
             {
                 MessagesCount = 0;
-
-                ChatVM.TagsVM.Tags.Clear();
-                ChatVM.DatesVM.ActiveDates.Clear();
-                ChatVM.SituationsVM.Situations.Clear();
-                ChatVM.MessagesVM.Messages.Clear();
-                ChatVM.UsersVM.Users.Clear();
+                ChatVM.ClearData();
             }
         }
 
@@ -469,12 +463,6 @@ namespace ChatCorporaAnnotator.ViewModels
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
-        }
-
-        private void UnloadFileData()
-        {
-            ChatVM.SituationsVM.TaggedIds.Clear();
-            ChatVM.SituationsVM.Situations.Clear();
         }
     }
 }

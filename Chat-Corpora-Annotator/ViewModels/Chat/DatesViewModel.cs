@@ -71,6 +71,11 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             AddDatesCommand = new RelayCommand(OnAddDatesCommandExecuted, CanAddDatesCommandExecute);
         }
 
+        public void ClearData()
+        {
+            ActiveDates.Clear();
+        }
+
         private IEnumerable<MessageDate> ToMessageDates(IEnumerable<DateTime> datesCollection)
         {
             var dateSet = new HashSet<MessageDate>();
