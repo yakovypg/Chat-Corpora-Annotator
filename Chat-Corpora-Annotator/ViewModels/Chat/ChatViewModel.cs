@@ -40,7 +40,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             List<string> selectedFields = parameter is List<string> fields
                 ? fields
-                : ProjectInfo.Data.SelectedFields;
+                : new List<string>(ProjectInfo.Data.SelectedFields);
 
             if (selectedFields.IsNullOrEmpty())
                 return;

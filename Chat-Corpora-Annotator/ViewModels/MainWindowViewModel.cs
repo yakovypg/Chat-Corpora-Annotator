@@ -263,7 +263,7 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 indexFileWindowVM = new IndexFileWindowViewModel(path)
                 {
-                    FinishAction = () => ResetChatData(),
+                    FinishAction = () => FileLoaded(),
                     DeactivateAction = () => IndexFileWindow = null
                 };
             }
@@ -307,7 +307,7 @@ namespace ChatCorporaAnnotator.ViewModels
             string dirName = System.IO.Path.GetDirectoryName(path);
             ProjectInteraction.ProjectInfo = new ProjectInformation(dirName, path);
 
-            ResetChatData();
+            FileLoaded();
         }
 
         #endregion
@@ -431,15 +431,22 @@ namespace ChatCorporaAnnotator.ViewModels
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
         }
 
+        private void FileLoaded()
+        {
+            IsFileLoaded = true;
+            ResetChatData();
+        }
+
         private void ResetChatData()
         {
             ChatVM.ClearData();
             ChatVM.SetChatColumnsCommand?.Execute(null);
 
+            ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
+
             ChatVM.TagsVM.SetTagsCommand?.Execute(null);
             ChatVM.DatesVM.SetDatesCommand?.Execute(null);
             ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
-            ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
             ChatVM.UsersVM.SetUsersCommand?.Execute(null);
 
             MessagesCount = ProjectInfo.Data.LineCount;
