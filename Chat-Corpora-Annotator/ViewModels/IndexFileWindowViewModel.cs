@@ -29,9 +29,6 @@ namespace ChatCorporaAnnotator.ViewModels
     {
         private const bool HEADER_PARAM = false;
         private const int WAIT_PAGE_TIMER_TICK_INTERVAL = 3000;
-        private const int PRIMARY_LOADING_MESSAGES_COUNT = 2000;
-
-        private readonly MainWindowViewModel _mainWindowVM;
 
         private readonly IProject _project;
         private IPageSwitcher _pageSwitcher;
@@ -39,6 +36,9 @@ namespace ChatCorporaAnnotator.ViewModels
 
         private bool _isFileReaded = false;
         private FileProcessingResult _fileProcessingResult = FileProcessingResult.InProcess;
+
+        public Action FinishAction { get; set; }
+        public Action DeactivateAction { get; set; }
 
         public ObservableCollection<FileColumn> FileColumns { get; private set; }
         public ObservableCollection<FileColumn> SelectedFileColumns { get; private set; }
@@ -244,7 +244,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
 
             if (_fileProcessingResult == FileProcessingResult.Success)
-                _mainWindowVM.FileLoadedCommand?.Execute(true);
+                FinishAction?.Invoke();
 
             CloseWindowCommand?.Execute(parameter);
         }
@@ -318,14 +318,14 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand DeactivateWindowCommand { get; }
         public bool CanDeactivateWindowCommandExecute(object parameter)
         {
-            return _mainWindowVM != null;
+            return true;
         }
         public void OnDeactivateWindowCommandExecuted(object parameter)
         {
             if (!CanDeactivateWindowCommandExecute(parameter))
                 return;
 
-            _mainWindowVM.IndexFileWindow = null;
+            DeactivateAction?.Invoke();
         }
 
         #endregion
@@ -347,16 +347,14 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        public IndexFileWindowViewModel(MainWindowViewModel mainWindowVM, string filePath)
+        public IndexFileWindowViewModel(string filePath)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(filePath);
 
-            _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
-
             var project = new Project(filePath);
 
-            if (MainWindowViewModel.CurrentProjectInfo != null)
+            if (ProjectInteraction.ProjectInfo != null)
                 throw new OneProjectOnlyException("The project has already been uploaded.", project, null);
 
             _project = project;
@@ -509,7 +507,7 @@ namespace ChatCorporaAnnotator.ViewModels
             });
 
             _waitPageTimer.Start();
-            MainWindowViewModel.CurrentProjectInfo = _project;
+            ProjectInteraction.ProjectInfo = _project.GetInfo();
 
             return EventArgs.Empty;
         }
@@ -548,9 +546,6 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 fileProcessingResult = FileProcessingResult.Fail;
             }
-
-            if (fileProcessingResult == FileProcessingResult.Success)
-                IndexInteraction.TryLoadMessagesFromIndex(PRIMARY_LOADING_MESSAGES_COUNT);
 
             _fileProcessingResult = fileProcessingResult;
         }

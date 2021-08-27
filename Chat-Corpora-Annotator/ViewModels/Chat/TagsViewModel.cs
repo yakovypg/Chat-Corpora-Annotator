@@ -18,7 +18,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public ObservableCollection<Tag> Tags { get; private set; }
 
-        #region Commands
+        #region AddingCommands
 
         public ICommand SetTagsCommand { get; }
         public bool CanSetTagsCommandExecute(object parameter)

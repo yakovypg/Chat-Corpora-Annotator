@@ -6,6 +6,8 @@
         string FilePath { get; }
         string WorkingDirectory { get; }
 
+        ProjectInformation GetInfo();
+
         void Initialize();
         void Delete();
 

@@ -17,7 +17,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ObservableCollection<ChatUser> Users { get; private set; }
         public ObservableCollection<ChatUser> SelectedUsers { get; private set; }
 
-        #region Commands
+        #region AddingCommands
 
         public ICommand SetUsersCommand { get; }
         public bool CanSetUsersCommandExecute(object parameter)

@@ -16,7 +16,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
     {
         public ObservableCollection<MessageDate> ActiveDates { get; private set; }
 
-        #region Commands
+        #region AddingCommands
 
         public ICommand SetDatesCommand { get; }
         public bool CanSetDatesCommandExecute(object parameter)

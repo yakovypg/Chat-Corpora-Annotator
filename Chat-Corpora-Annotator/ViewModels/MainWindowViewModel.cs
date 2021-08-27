@@ -12,7 +12,6 @@ using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,9 +19,6 @@ namespace ChatCorporaAnnotator.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
-        //Used to prevent the reuse of project files.
-        public static IProject CurrentProjectInfo = null;
-
         public ChatViewModel ChatVM { get; }
         public IndexFileWindow IndexFileWindow { get; set; }
 
@@ -252,7 +248,6 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanIndexNewFileCommandExecute(parameter))
                 return;
 
-            //If IndexFileWindow is active.
             if (IndexFileWindow != null)
             {
                 new WindowInteract(IndexFileWindow).MoveToForeground();
@@ -266,7 +261,11 @@ namespace ChatCorporaAnnotator.ViewModels
 
             try
             {
-                indexFileWindowVM = new IndexFileWindowViewModel(this, path);
+                indexFileWindowVM = new IndexFileWindowViewModel(path)
+                {
+                    FinishAction = () => ResetChatData(),
+                    DeactivateAction = () => IndexFileWindow = null
+                };
             }
             catch (OneProjectOnlyException ex)
             {
@@ -305,42 +304,10 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
             }
 
-            MessageContainer.Messages = new List<DynamicMessage>();
-            IndexInteraction.TryLoadMessagesFromIndex(2000);
+            string dirName = System.IO.Path.GetDirectoryName(path);
+            ProjectInteraction.ProjectInfo = new ProjectInformation(dirName, path);
 
-            FileLoadedCommand?.Execute(true);
-        }
-
-        public ICommand FileLoadedCommand { get; }
-        public bool CanFileLoadedCommandExecute(object parameter)
-        {
-            return parameter is bool;
-        }
-        public void OnFileLoadedCommandExecuted(object parameter)
-        {
-            if (!CanFileLoadedCommandExecute(parameter))
-                return;
-
-            IsFileLoaded = (bool)parameter;
-
-            if (IsFileLoaded)
-            {
-                MessagesCount = ProjectInfo.Data.LineCount;
-
-                ChatVM.ClearData();
-                ChatVM.SetChatColumnsCommand?.Execute(null);
-
-                ChatVM.TagsVM.SetTagsCommand?.Execute(null);
-                ChatVM.DatesVM.SetDatesCommand?.Execute(null);
-                ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
-                ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
-                ChatVM.UsersVM.SetUsersCommand?.Execute(null);
-            }
-            else
-            {
-                MessagesCount = 0;
-                ChatVM.ClearData();
-            }
+            ResetChatData();
         }
 
         #endregion
@@ -442,7 +409,6 @@ namespace ChatCorporaAnnotator.ViewModels
 
             IndexNewFileCommand = new RelayCommand(OnIndexNewFileCommandExecuted, CanIndexNewFileCommandExecute);
             OpenCorpusCommand = new RelayCommand(OnOpenCorpusCommandExecuted, CanOpenCorpusCommandExecute);
-            FileLoadedCommand = new RelayCommand(OnFileLoadedCommandExecuted, CanFileLoadedCommandExecute);
 
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
@@ -463,6 +429,20 @@ namespace ChatCorporaAnnotator.ViewModels
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
+        }
+
+        private void ResetChatData()
+        {
+            ChatVM.ClearData();
+            ChatVM.SetChatColumnsCommand?.Execute(null);
+
+            ChatVM.TagsVM.SetTagsCommand?.Execute(null);
+            ChatVM.DatesVM.SetDatesCommand?.Execute(null);
+            ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
+            ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
+            ChatVM.UsersVM.SetUsersCommand?.Execute(null);
+
+            MessagesCount = ProjectInfo.Data.LineCount;
         }
     }
 }

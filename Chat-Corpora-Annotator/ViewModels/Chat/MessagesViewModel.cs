@@ -1,9 +1,9 @@
-﻿using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Indexing;
+using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
-using IndexEngine;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ObservableCollection<ChatMessage> Messages { get; private set; }
         public ObservableCollection<ChatMessage> SelectedMessages { get; private set; }
 
-        #region Commands
+        #region AddingCommands
 
         public ICommand SetMessagesCommand { get; }
         public bool CanSetMessagesCommandExecute(object parameter)
@@ -103,11 +103,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         private IEnumerable<ChatMessage> GetMessages()
         {
-            IEnumerable<DynamicMessage> messages = MessageContainer.Messages;
-
-            return messages.IsNullOrEmpty()
-                ? new ChatMessage[0]
-                : messages.Select(t => new ChatMessage(t));
+            return IndexInteraction.TryLoadNextMessagesFromIndex()
+                ? IndexInteraction.GetMessages()
+                : null;
         }
     }
 }

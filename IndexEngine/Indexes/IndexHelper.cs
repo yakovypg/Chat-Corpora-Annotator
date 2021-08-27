@@ -172,6 +172,55 @@ namespace IndexEngine
                 }
             }
         }
+
+        public static List<DynamicMessage> LoadPreviousDocumentsFromIndex(int count)
+        {
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+
+            for (int i = viewerReadIndex; i > count - viewerReadIndex && i >= 0; --i)
+            {
+                List<string> msgData = new List<string>();
+                Document document = LuceneService.DirReader.Document(i);
+
+                foreach (var field in ProjectInfo.Data.SelectedFields)
+                {
+                    msgData.Add(document.GetField(field).GetStringValue());
+                }
+
+                int id = document.GetField("id").GetInt32Value().Value;
+                DynamicMessage msg = new DynamicMessage(msgData, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, id);
+
+                messages.Add(msg);
+            }
+
+            viewerReadIndex -= count;
+            return messages;
+        }
+
+        public static List<DynamicMessage> LoadNextDocumentsFromIndex(int count)
+        {
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+
+            for (int i = viewerReadIndex; i < count + viewerReadIndex && i < LuceneService.DirReader.MaxDoc; ++i)
+            {
+                List<string> msgData = new List<string>();
+                Document document = LuceneService.DirReader.Document(i);
+
+                foreach (var field in ProjectInfo.Data.SelectedFields)
+                {
+                    msgData.Add(document.GetField(field).GetStringValue());
+                }
+
+                int id = document.GetField("id").GetInt32Value().Value;
+                DynamicMessage msg = new DynamicMessage(msgData, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, id);
+
+                messages.Add(msg);
+            }
+
+            viewerReadIndex += count;
+            return messages;
+        }
+
         public static List<DynamicMessage> LoadNDocumentsFromIndex(int count)
         {
             List<DynamicMessage> messages = new List<DynamicMessage>();

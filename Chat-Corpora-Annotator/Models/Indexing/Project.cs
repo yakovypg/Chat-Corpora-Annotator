@@ -19,6 +19,11 @@ namespace ChatCorporaAnnotator.Models.Indexing
                 Initialize();
         }
 
+        public ProjectInformation GetInfo()
+        {
+            return new ProjectInformation(Name, WorkingDirectory);
+        }
+
         public void Initialize()
         {
             string projectFolderPath = null;

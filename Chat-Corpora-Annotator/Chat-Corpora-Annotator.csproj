@@ -110,6 +110,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\Indexing\ProjectInteraction.cs" />
     <Compile Include="Data\Windows\WindowInteract.cs" />
     <Compile Include="Data\Indexing\IndexInteraction.cs" />
     <Compile Include="Data\WinFormsIntegration\AppEventArgs\ConcordancerEventArgs.cs" />
@@ -157,6 +158,9 @@
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\SuggesterView.cs" />
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagsetView.cs" />
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagView.cs" />
+    <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
+    <Compile Include="Models\Chat\Core\ChatCache.cs" />
+    <Compile Include="Models\Indexing\ProjectInformation.cs" />
     <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">
       <DependentUpon>MessageExplorerWindow.xaml</DependentUpon>
