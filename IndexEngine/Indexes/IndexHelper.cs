@@ -173,6 +173,11 @@ namespace IndexEngine
             }
         }
 
+        public static void ResetViewerReadIndex(int index = 0)
+        {
+            viewerReadIndex = index;
+        }
+
         public static List<DynamicMessage> LoadPreviousDocumentsFromIndex(int count)
         {
             List<DynamicMessage> messages = new List<DynamicMessage>();

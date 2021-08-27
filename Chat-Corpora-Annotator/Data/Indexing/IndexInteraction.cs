@@ -11,6 +11,11 @@ namespace ChatCorporaAnnotator.Data.Indexing
     {
         public static int LoadingMessagesCount = 100;
 
+        public static void ResetMessageReadIndex(int index = 0)
+        {
+            IndexHelper.ResetViewerReadIndex(index);
+        }
+
         public static IEnumerable<ChatMessage> GetMessages()
         {
             IEnumerable<DynamicMessage> messages = MessageContainer.Messages;
@@ -32,6 +37,9 @@ namespace ChatCorporaAnnotator.Data.Indexing
 
         public static bool TryLoadPreviousMessagesFromIndex(int count)
         {
+            if (count < 0)
+                return false;
+
             try
             {
                 var list = IndexHelper.LoadPreviousDocumentsFromIndex(count);
@@ -47,6 +55,9 @@ namespace ChatCorporaAnnotator.Data.Indexing
 
         public static bool TryLoadNextMessagesFromIndex(int count)
         {
+            if (count < 0)
+                return false;
+
             try
             {
                 var list = IndexHelper.LoadNextDocumentsFromIndex(count);

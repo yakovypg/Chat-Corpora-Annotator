@@ -1,5 +1,7 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
 using IndexEngine.Paths;
@@ -24,6 +26,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public TagsViewModel TagsVM { get; }
         public SituationsViewModel SituationsVM { get; }
 
+        public ChatScroller Scroller { get; private set; }
         public ObservableCollection<DataGridColumn> ChatColumns { get; private set; }
 
         #region ChatViewCommands
@@ -122,6 +125,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             TagsVM = new TagsViewModel(MainWindowVM);
             SituationsVM = new SituationsViewModel(MainWindowVM);
 
+            Scroller = new ChatScroller(MessagesVM.MessagesCase);
             ChatColumns = new ObservableCollection<DataGridColumn>();
 
             SetChatColumnsCommand = new RelayCommand(OnSetChatColumnsCommandExecuted, CanSetChatColumnsCommandExecute);

@@ -1,34 +1,57 @@
 ﻿using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
-using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace ChatCorporaAnnotator.Models.Chat.Core
 {
-    internal class ChatCache
+    internal class ChatCache : IChatCache, INotifyPropertyChanged
     {
-        private readonly int _currPackageIndex = 0;
+        private int _currPackageIndex = 0;
 
         private readonly List<ChatMessage> _previousPackage;
         private readonly List<ChatMessage> _currentPackage;
         private readonly List<ChatMessage> _nextPackage;
 
-        public IEnumerable<ChatMessage> CurrentPackage => _currentPackage;
+        public int CurrentPackageCapacity => _currentPackage.Count;
+
+        private IList<ChatMessage> _currentMessages;
+        public IList<ChatMessage> CurrentMessages
+        {
+            get => _currentMessages;
+            private set
+            {
+                _currentMessages = value;
+                OnPropertyChanged(nameof(CurrentMessages));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string property = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
 
         public ChatCache(IEnumerable<ChatMessage> currentPackage)
         {
-            _currentPackage = new List<ChatMessage>(currentPackage) ?? throw new ArgumentNullException(nameof(currentPackage));
+            if (currentPackage == null)
+                currentPackage = new ChatMessage[0];
 
             _previousPackage = new List<ChatMessage>();
+            _currentPackage = new List<ChatMessage>(currentPackage);
             _nextPackage = new List<ChatMessage>();
         }
 
-        public IEnumerable<ChatMessage> MoveBack()
+        public IList<ChatMessage> MoveBack(int currOffset, int retainedItems)
         {
-            if (_currPackageIndex == 0)
+            if (_currPackageIndex == 0 || _currentPackage.Count == 0)
                 return null;
 
-            if (!IndexInteraction.TryLoadPreviousMessagesFromIndex())
+            int loadingMessagesCount = IndexInteraction.LoadingMessagesCount - retainedItems;
+
+            if (!IndexInteraction.TryLoadPreviousMessagesFromIndex(loadingMessagesCount))
                 return null;
 
             var loadedMessages = IndexInteraction.GetMessages();
@@ -36,16 +59,31 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             if (loadedMessages.IsNullOrEmpty())
                 return null;
 
-            _nextPackage.Reset(_currentPackage);
-            _currentPackage.Reset(_previousPackage);
-            _previousPackage.Reset(loadedMessages);
+            var cachedMessages = _currentPackage.Skip(currOffset + retainedItems);
+            var retainedMessages = _currentPackage.Take(currOffset + retainedItems);
+            var currentMessages = _previousPackage.Concat(retainedMessages);
 
-            return CurrentPackage;
+            _previousPackage.Reset(loadedMessages);
+            _currentPackage.Reset(currentMessages);
+            _nextPackage.Reset(cachedMessages);
+
+            _currPackageIndex--;
+            CurrentMessages = _currentPackage;
+
+            return CurrentMessages;
         }
 
-        public IEnumerable<ChatMessage> MoveForward()
+        public IList<ChatMessage> MoveForward(int currOffset, int retainedItems)
         {
-            if (!IndexInteraction.TryLoadNextMessagesFromIndex())
+            if (_currentPackage.Count == 0)
+                return null;
+
+            if (_currPackageIndex == 0)
+                LoadNextPackage();
+
+            int loadingMessagesCount = IndexInteraction.LoadingMessagesCount - retainedItems;
+
+            if (!IndexInteraction.TryLoadNextMessagesFromIndex(loadingMessagesCount))
                 return null;
 
             var loadedMessages = IndexInteraction.GetMessages();
@@ -53,11 +91,46 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             if (loadedMessages.IsNullOrEmpty())
                 return null;
 
-            _nextPackage.Reset(_currentPackage);
-            _currentPackage.Reset(_previousPackage);
-            _previousPackage.Reset(loadedMessages);
+            var cachedMessages = _currentPackage.Take(currOffset - retainedItems);
+            var retainedMessages = _currentPackage.Skip(currOffset - retainedItems);
+            var currentMessages = retainedMessages.Concat(_nextPackage);
 
-            return CurrentPackage;
+            _previousPackage.Reset(cachedMessages);
+            _currentPackage.Reset(currentMessages);
+            _nextPackage.Reset(loadedMessages);
+
+            _currPackageIndex++;
+            CurrentMessages = _currentPackage;
+
+            return CurrentMessages;
+        }
+
+        public void Reset(IEnumerable<ChatMessage> currentPackage, int messageReadIndex = 0)
+        {
+            if (currentPackage == null)
+                currentPackage = new ChatMessage[0];
+
+            IndexInteraction.ResetMessageReadIndex(messageReadIndex);
+
+            _previousPackage.Clear();
+            _currentPackage.Clear();
+            _nextPackage.Clear();
+
+            _currentPackage.AddRange(currentPackage);
+            CurrentMessages = _currentPackage;
+        }
+
+        private void LoadNextPackage()
+        {
+            if (!IndexInteraction.TryLoadNextMessagesFromIndex())
+                return;
+
+            var loadedMessages = IndexInteraction.GetMessages();
+
+            if (loadedMessages.IsNullOrEmpty())
+                return;
+
+            _nextPackage.Reset(loadedMessages);
         }
     }
 }

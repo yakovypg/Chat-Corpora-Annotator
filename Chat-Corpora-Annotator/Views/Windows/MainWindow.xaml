@@ -356,7 +356,8 @@
                                     Margin="0, 0, 2, 0">
                                 </GridSplitter>
 
-                                <DataGrid IsReadOnly="True"
+                                <DataGrid Name="ChatDataGrid"
+                                          IsReadOnly="True"
                                           Background="White"
                                           MinColumnWidth="50"
                                           MaxColumnWidth="500"
@@ -367,8 +368,9 @@
                                           EnableRowVirtualization="True"
                                           EnableColumnVirtualization="True"
                                           VirtualizingPanel.VirtualizationMode="Recycling"
-                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatColumns}"
-                                          ItemsSource="{Binding MessagesVM.Messages}">
+                                          ScrollViewer.ScrollChanged="ChatDataGrid_ScrollChanged"
+                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatColumns}">
+                                    <!-- ItemsSource="{Binding MessagesVM.MessagesCase.CurrentMessages}" -->
 
                                     <DataGrid.Resources>
                                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF26A0DA"/>
@@ -397,7 +399,7 @@
 
                                     <DataGrid.RowStyle>
                                         <Style TargetType="DataGridRow">
-                                            <EventSetter Event="PreviewMouseRightButtonDown" Handler="DataGridRow_PreviewMouseRightButtonDown"/>
+                                            <EventSetter Event="PreviewMouseRightButtonDown" Handler="ChatDataGridRow_PreviewMouseRightButtonDown"/>
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter Property="BorderThickness" Value="1"/>

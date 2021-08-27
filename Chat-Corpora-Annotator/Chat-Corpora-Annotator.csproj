@@ -158,8 +158,13 @@
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\SuggesterView.cs" />
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagsetView.cs" />
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagView.cs" />
+    <Compile Include="Infrastructure\AppEventArgs\ChatScrollingEventArgs.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
     <Compile Include="Models\Chat\Core\ChatCache.cs" />
+    <Compile Include="Models\Chat\Core\ChatPresenterInfo.cs" />
+    <Compile Include="Models\Chat\Core\ChatScroller.cs" />
+    <Compile Include="Models\Chat\Core\IChatCache.cs" />
+    <Compile Include="Models\Chat\Core\IChatScroller.cs" />
     <Compile Include="Models\Indexing\ProjectInformation.cs" />
     <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">

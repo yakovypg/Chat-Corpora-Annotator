@@ -1,12 +1,11 @@
 ﻿using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
-using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
+using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -14,7 +13,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class MessagesViewModel : ViewModel
     {
-        public ObservableCollection<ChatMessage> Messages { get; private set; }
+        public ChatCache MessagesCase { get; private set; }
         public ObservableCollection<ChatMessage> SelectedMessages { get; private set; }
 
         #region AddingCommands
@@ -29,37 +28,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanSetMessagesCommandExecute(parameter))
                 return;
 
-            IEnumerable<ChatMessage> newMessages = parameter is IEnumerable<ChatMessage> messages
-                ? messages
-                : GetMessages();
-
-            if (newMessages.IsNullOrEmpty())
-            {
-                Messages.Clear();
-                return;
-            }
-
-            Messages = new ObservableCollection<ChatMessage>(newMessages);
-            OnPropertyChanged(nameof(Messages));
-        }
-
-        public ICommand AddMessagesCommand { get; }
-        public bool CanAddMessagesCommandExecute(object parameter)
-        {
-            return parameter is IEnumerable<ChatMessage>;
-        }
-        public void OnAddMessagesCommandExecuted(object parameter)
-        {
-            if (!CanAddMessagesCommandExecute(parameter))
-                return;
-
-            IEnumerable<ChatMessage> addingMessages = parameter as IEnumerable<ChatMessage>;
-
-            if (addingMessages.IsNullOrEmpty())
-                return;
-
-            Messages = new ObservableCollection<ChatMessage>(Messages.Concat(addingMessages));
-            OnPropertyChanged(nameof(Messages));
+            var messages = GetMessages();
+            MessagesCase.Reset(messages);
         }
 
         #endregion
@@ -86,18 +56,16 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public MessagesViewModel()
         {
-            Messages = new ObservableCollection<ChatMessage>();
+            MessagesCase = new ChatCache(null);
             SelectedMessages = new ObservableCollection<ChatMessage>();
 
             SetMessagesCommand = new RelayCommand(OnSetMessagesCommandExecuted, CanSetMessagesCommandExecute);
-            AddMessagesCommand = new RelayCommand(OnAddMessagesCommandExecuted, CanAddMessagesCommandExecute);
-
             ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);
         }
 
         public void ClearData()
         {
-            Messages.Clear();
+            MessagesCase.Reset(null);
             SelectedMessages.Clear();
         }
 
@@ -105,7 +73,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             return IndexInteraction.TryLoadNextMessagesFromIndex()
                 ? IndexInteraction.GetMessages()
-                : null;
+                : new ChatMessage[0];
         }
     }
 }
