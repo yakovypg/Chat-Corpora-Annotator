@@ -7,7 +7,9 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions
         public static void Reset<T>(this List<T> list, IEnumerable<T> newItems)
         {
             list.Clear();
-            list.AddRange(newItems);
+
+            if (newItems != null)
+                list.AddRange(newItems);
         }
     }
 }

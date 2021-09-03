@@ -111,6 +111,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\Indexing\ProjectInteraction.cs" />
+    <Compile Include="Data\Windows\UIHelper.cs" />
     <Compile Include="Data\Windows\WindowInteract.cs" />
     <Compile Include="Data\Indexing\IndexInteraction.cs" />
     <Compile Include="Data\WinFormsIntegration\AppEventArgs\ConcordancerEventArgs.cs" />
@@ -159,9 +160,9 @@
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagsetView.cs" />
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagView.cs" />
     <Compile Include="Infrastructure\AppEventArgs\ChatScrollingEventArgs.cs" />
+    <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
     <Compile Include="Models\Chat\Core\ChatCache.cs" />
-    <Compile Include="Models\Chat\Core\ChatPresenterInfo.cs" />
     <Compile Include="Models\Chat\Core\ChatScroller.cs" />
     <Compile Include="Models\Chat\Core\IChatCache.cs" />
     <Compile Include="Models\Chat\Core\IChatScroller.cs" />

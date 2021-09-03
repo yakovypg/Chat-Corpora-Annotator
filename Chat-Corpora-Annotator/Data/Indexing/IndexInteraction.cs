@@ -11,9 +11,25 @@ namespace ChatCorporaAnnotator.Data.Indexing
     {
         public static int LoadingMessagesCount = 100;
 
+        public static int GetMessageReadIndex()
+        {
+            return IndexHelper.GetViewerReadIndex();
+        }
+
         public static void ResetMessageReadIndex(int index = 0)
         {
             IndexHelper.ResetViewerReadIndex(index);
+        }
+
+        public static void DecreaseMessageReadIndex(int count)
+        {
+            IncreaseMessageReadIndex(count * -1);
+        }
+
+        public static void IncreaseMessageReadIndex(int count)
+        {
+            int currIndex = GetMessageReadIndex();
+            IndexHelper.ResetViewerReadIndex(currIndex + count);
         }
 
         public static IEnumerable<ChatMessage> GetMessages()
@@ -43,6 +59,10 @@ namespace ChatCorporaAnnotator.Data.Indexing
             try
             {
                 var list = IndexHelper.LoadPreviousDocumentsFromIndex(count);
+
+                if (list.IsNullOrEmpty())
+                    return false;
+
                 MessageContainer.Messages = list;
                 return true;
             }
@@ -61,6 +81,10 @@ namespace ChatCorporaAnnotator.Data.Indexing
             try
             {
                 var list = IndexHelper.LoadNextDocumentsFromIndex(count);
+
+                if (list.IsNullOrEmpty())
+                    return false;
+
                 MessageContainer.Messages = list;
                 return true;
             }

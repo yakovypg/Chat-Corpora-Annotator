@@ -19,6 +19,9 @@
     </Window.DataContext>
 
     <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MainWindowLoadedCommand}"/>
+        </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MainWindowClosingCommand}"/>
         </i:EventTrigger>
@@ -119,19 +122,19 @@
                 <MenuItem Header="Tagset Editor" Command="{Binding ShowTagsetEditorCommand}"/>
 
                 <MenuItem Header="Edit Situation">
-                    <MenuItem Header="Merge" Command="{Binding MergeSituationsCommand}">
+                    <MenuItem Header="Merge" Command="{Binding ChatVM.SituationsVM.MergeSituationsCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Brands_CreativeCommonsShare"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
-                    <MenuItem Header="Delete situation" Command="{Binding DeleteSituationCommand}">
+                    <MenuItem Header="Delete situation" Command="{Binding ChatVM.SituationsVM.DeleteSituationCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Regular_MinusSquare"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
-                    <MenuItem Header="Change tag" Command="{Binding ChangeSituationTagCommand}">
+                    <MenuItem Header="Change tag" Command="{Binding ChatVM.SituationsVM.ChangeSituationTagCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Regular_Edit"/>
                         </MenuItem.Icon>
@@ -368,9 +371,8 @@
                                           EnableRowVirtualization="True"
                                           EnableColumnVirtualization="True"
                                           VirtualizingPanel.VirtualizationMode="Recycling"
-                                          ScrollViewer.ScrollChanged="ChatDataGrid_ScrollChanged"
-                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatColumns}">
-                                    <!-- ItemsSource="{Binding MessagesVM.MessagesCase.CurrentMessages}" -->
+                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatColumns}"
+                                          ItemsSource="{Binding MessagesVM.MessagesCase.CurrentMessages}">
 
                                     <DataGrid.Resources>
                                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF26A0DA"/>

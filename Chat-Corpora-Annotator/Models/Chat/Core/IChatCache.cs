@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ChatCorporaAnnotator.Models.Chat.Core
 {
     internal interface IChatCache
     {
         int CurrentPackageCapacity { get; }
-        IList<ChatMessage> CurrentMessages { get; }
+        IList<ChatMessage> CurrentPackage { get; }
+        ObservableCollection<ChatMessage> CurrentMessages { get; }
 
-        IList<ChatMessage> MoveBack(int currOffset, int retainedItems);
-        IList<ChatMessage> MoveForward(int currOffset, int retainedItems);
+        bool MoveBack(int currOffset, int retainedItems);
+        bool MoveForward(int currOffset, int retainedItems);
 
-        void Reset(IEnumerable<ChatMessage> currentPackage, int messageReadIndex = 0);
+        void Reset();
     }
 }

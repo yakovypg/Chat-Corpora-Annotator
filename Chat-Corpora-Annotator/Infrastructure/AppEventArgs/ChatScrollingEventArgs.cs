@@ -1,17 +1,16 @@
-﻿using ChatCorporaAnnotator.Models.Chat.Core;
-using System;
+﻿using System;
 using System.Windows.Controls;
 
 namespace ChatCorporaAnnotator.Infrastructure.AppEventArgs
 {
     internal class ChatScrollingEventArgs : EventArgs
     {
-        public ChatPresenterInfo ChatInfo { get; }
+        public DataGrid ChatContainer { get; }
         public ScrollChangedEventArgs ScrollEventArgs { get; }
 
-        public ChatScrollingEventArgs(ChatPresenterInfo chatInfo, ScrollChangedEventArgs scrollEventArgs)
+        public ChatScrollingEventArgs(DataGrid chatContainer, ScrollChangedEventArgs scrollEventArgs)
         {
-            ChatInfo = chatInfo;
+            ChatContainer = chatContainer;
             ScrollEventArgs = scrollEventArgs;
         }
     }

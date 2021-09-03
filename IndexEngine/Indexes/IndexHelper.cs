@@ -173,16 +173,31 @@ namespace IndexEngine
             }
         }
 
+        public static int GetViewerReadIndex()
+        {
+            return viewerReadIndex;
+        }
+
         public static void ResetViewerReadIndex(int index = 0)
         {
             viewerReadIndex = index;
+
+            if (viewerReadIndex < 0)
+                viewerReadIndex = 0;
+
+            else if (viewerReadIndex >= LuceneService.DirReader.MaxDoc)
+                viewerReadIndex = LuceneService.DirReader.MaxDoc - 1;
         }
 
         public static List<DynamicMessage> LoadPreviousDocumentsFromIndex(int count)
         {
-            List<DynamicMessage> messages = new List<DynamicMessage>();
+            if (viewerReadIndex == 0)
+                return new List<DynamicMessage>();
 
-            for (int i = viewerReadIndex; i > count - viewerReadIndex && i >= 0; --i)
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+            int bottomEdge = Math.Max(viewerReadIndex - count, -1);
+
+            for (int i = viewerReadIndex; i > bottomEdge; --i)
             {
                 List<string> msgData = new List<string>();
                 Document document = LuceneService.DirReader.Document(i);
@@ -198,15 +213,19 @@ namespace IndexEngine
                 messages.Add(msg);
             }
 
-            viewerReadIndex -= count;
+            viewerReadIndex = Math.Max(bottomEdge, 0);
             return messages;
         }
 
         public static List<DynamicMessage> LoadNextDocumentsFromIndex(int count)
         {
-            List<DynamicMessage> messages = new List<DynamicMessage>();
+            if (viewerReadIndex == LuceneService.DirReader.MaxDoc - 1)
+                return new List<DynamicMessage>();
 
-            for (int i = viewerReadIndex; i < count + viewerReadIndex && i < LuceneService.DirReader.MaxDoc; ++i)
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+            int topEdge = Math.Min(viewerReadIndex + count, LuceneService.DirReader.MaxDoc);
+
+            for (int i = viewerReadIndex; i < topEdge; ++i)
             {
                 List<string> msgData = new List<string>();
                 Document document = LuceneService.DirReader.Document(i);
@@ -222,7 +241,7 @@ namespace IndexEngine
                 messages.Add(msg);
             }
 
-            viewerReadIndex += count;
+            viewerReadIndex = Math.Min(topEdge, LuceneService.DirReader.MaxDoc - 1);
             return messages;
         }
 

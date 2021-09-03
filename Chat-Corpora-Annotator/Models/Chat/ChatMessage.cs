@@ -30,6 +30,7 @@ namespace ChatCorporaAnnotator.Models.Chat
         public ChatMessage(DynamicMessage source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
+            Source.Contents[ProjectInfo.TextFieldKey] = Source.Id.ToString();
         }
 
         public void AddSituation(ISituation situation)
@@ -70,6 +71,16 @@ namespace ChatCorporaAnnotator.Models.Chat
                 sentDate = DateTime.MinValue;
                 return false;
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ChatMessage other && Source.Id == other.Source.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Source.Id;
         }
     }
 }

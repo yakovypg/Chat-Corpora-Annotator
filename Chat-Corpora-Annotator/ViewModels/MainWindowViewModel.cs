@@ -12,7 +12,9 @@ using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels
@@ -361,6 +363,32 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region WindowsCommands
 
+        public ICommand MainWindowLoadedCommand { get; }
+        public bool CanMainWindowLoadedCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnMainWindowLoadedCommandExecuted(object parameter)
+        {
+            if (!CanMainWindowLoadedCommandExecute(parameter))
+                return;
+
+            var window = new WindowFinder().Find(typeof(MainWindow));
+
+            if (window == null)
+                return;
+
+            var chatDataGrid = UIHelper.FindChildren<DataGrid>(window).FirstOrDefault(t => t.Name == "ChatDataGrid");
+
+            if (chatDataGrid == null)
+                return;
+
+            var scrollViewer = UIHelper.FindChildren<ScrollViewer>(chatDataGrid).FirstOrDefault();
+
+            if (scrollViewer != null)
+                scrollViewer.ScrollChanged += ChatVM.Scroller.ScrollChanged;
+        }
+
         public ICommand MainWindowClosingCommand { get; }
         public bool CanMainWindowClosingCommandExecute(object parameter)
         {
@@ -426,6 +454,7 @@ namespace ChatCorporaAnnotator.ViewModels
             ShowSuggesterCommand = new RelayCommand(OnShowSuggesterCommandExecuted, CanShowSuggesterCommandExecute);
             ShowTagsetEditorCommand = new RelayCommand(OnShowTagsetEditorCommandExecuted, CanShowTagsetEditorCommandExecute);
 
+            MainWindowLoadedCommand = new RelayCommand(OnMainWindowLoadedCommandExecuted, CanMainWindowLoadedCommandExecute);
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
@@ -442,7 +471,7 @@ namespace ChatCorporaAnnotator.ViewModels
             ChatVM.ClearData();
             ChatVM.SetChatColumnsCommand?.Execute(null);
 
-            ChatVM.MessagesVM.SetMessagesCommand?.Execute(null);
+            ChatVM.MessagesVM.MessagesCase.Reset();
 
             ChatVM.TagsVM.SetTagsCommand?.Execute(null);
             ChatVM.DatesVM.SetDatesCommand?.Execute(null);
