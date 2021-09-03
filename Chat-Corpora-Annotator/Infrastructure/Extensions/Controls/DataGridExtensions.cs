@@ -1,6 +1,7 @@
 ﻿using ChatCorporaAnnotator.Data.Windows;
 using System;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -8,6 +9,20 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions.Controls
 {
     internal static class DataGridExtensions
     {
+        public static Point GetPosition(this DataGrid dataGrid)
+        {
+            return dataGrid.PointFromScreen(new Point());
+        }
+
+        public static Point GetMirroredPosition(this DataGrid dataGrid)
+        {
+            var pos = dataGrid.PointFromScreen(new Point());
+            pos.X *= -1;
+            pos.Y *= -1;
+
+            return pos;
+        }
+
         public static void PerformActionAsync(this DataGrid dataGrid, Action action)
         {
             dataGrid.Dispatcher.BeginInvoke(DispatcherPriority.Send, action);

@@ -1,6 +1,7 @@
 ﻿using ChatCorporaAnnotator.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.Views.Windows
 {
@@ -11,12 +12,10 @@ namespace ChatCorporaAnnotator.Views.Windows
             InitializeComponent();
         }
 
-        private void ChatDataGridRow_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ChatDataGridRow_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!(sender is DataGridRow row))
-                return;
-
-            MessageExplorerWindowViewModel.OpenExplorer(row.Item);
+            if (sender is DataGridRow row)
+                MessageExplorerWindowViewModel.OpenExplorer(row.Item);
         }
     }
 }

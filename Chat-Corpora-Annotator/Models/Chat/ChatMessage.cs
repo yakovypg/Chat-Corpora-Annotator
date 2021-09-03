@@ -30,7 +30,7 @@ namespace ChatCorporaAnnotator.Models.Chat
         public ChatMessage(DynamicMessage source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
-            Source.Contents[ProjectInfo.TextFieldKey] = Source.Id.ToString();
+            //Source.Contents[ProjectInfo.TextFieldKey] = (Source.Id + 1).ToString();
         }
 
         public void AddSituation(ISituation situation)
@@ -71,6 +71,13 @@ namespace ChatCorporaAnnotator.Models.Chat
                 sentDate = DateTime.MinValue;
                 return false;
             }
+        }
+
+        public override string ToString()
+        {
+            return Source.Contents.TryGetValue(ProjectInfo.TextFieldKey, out object text)
+                ? text?.ToString()
+                : base.ToString();
         }
 
         public override bool Equals(object obj)

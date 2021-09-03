@@ -1,5 +1,6 @@
 ﻿using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -14,8 +15,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         private readonly List<ChatMessage> _currentPackage;
         private readonly List<ChatMessage> _nextPackage;
 
-        public int CurrentPackageCapacity => _currentPackage.Count;
-        public IList<ChatMessage> CurrentPackage => _currentPackage;
+        public int CurrentPackageItemsCount => _currentPackage.Count;
 
         private ObservableCollection<ChatMessage> _currentMessages;
         public ObservableCollection<ChatMessage> CurrentMessages
@@ -30,13 +30,29 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             }
         }
 
+        private int _retainedItemsCount = 1;
+        public int RetainedItemsCount
+        {
+            get => _retainedItemsCount;
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentException("The value must be greater than zero.");
+
+                _retainedItemsCount = value;
+
+                IndexInteraction.LoadingMessagesCount =
+                    IndexInteraction.DefaultLoadingMessagesCount - RetainedItemsCount;
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string property = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
 
-        public ChatCache(IEnumerable<ChatMessage> currentPackage)
+        public ChatCache(IEnumerable<ChatMessage> currentPackage, int retainedItemsCount = 1)
         {
             if (currentPackage == null)
                 currentPackage = new ChatMessage[0];
@@ -46,96 +62,66 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _previousPackage = new List<ChatMessage>();
             _currentPackage = new List<ChatMessage>(currentPackage);
             _nextPackage = new List<ChatMessage>();
+
+            RetainedItemsCount = retainedItemsCount;
         }
 
-        //public List<ChatMessage> MoveBack(int currOffset, int retainedItems)
-        //{
-        //    if (_currPackageIndex == 0 || _currentPackage.Count == 0)
-        //        return null;
-
-        //    int loadingMessagesCount = IndexInteraction.LoadingMessagesCount - retainedItems;
-
-        //    if (!IndexInteraction.TryLoadPreviousMessagesFromIndex(loadingMessagesCount))
-        //        return null;
-
-        //    var loadedMessages = IndexInteraction.GetMessages();
-
-        //    if (loadedMessages.IsNullOrEmpty())
-        //        return null;
-
-        //    var cachedMessages = _currentPackage.Skip(currOffset + retainedItems).ToArray();
-        //    var retainedMessages = _currentPackage.Take(currOffset + retainedItems).ToArray();
-        //    var currentMessages = _previousPackage.Concat(retainedMessages).ToArray();
-
-        //    _previousPackage.Reset(loadedMessages);
-        //    _currentPackage.Reset(currentMessages);
-        //    _nextPackage.Reset(cachedMessages);
-
-        //    _currPackageIndex--;
-        //    CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
-
-        //    return _currentPackage;
-        //}
-
-        public bool MoveBack(int currOffset, int retainedItems)
+        public IList<ChatMessage> MoveBack(out int pageStartIndex)
         {
-            if (_currentPackage.Count == 0 || _previousPackage.Count == 0)
-                return false;
+            pageStartIndex = 0;
 
-            _nextPackage.Reset(_currentPackage);
-            _currentPackage.Reset(_previousPackage);
+            if (_currentPackage.Count == 0 || _previousPackage.Count == 0)
+                return null;
+
+            int cachedItemsCount = RetainedItemsCount;
+
+            var nextMessages = _currentPackage.Skip(cachedItemsCount).ToArray();
+            var retainedMessages = _currentPackage.Take(cachedItemsCount).ToArray();
+            var currentMessages = _previousPackage.Concat(retainedMessages).ToArray();
+
+            _nextPackage.Reset(nextMessages);
+            _currentPackage.Reset(currentMessages);
 
             LoadPreviousPackage();
+
+            pageStartIndex = _currentPackage.Count - RetainedItemsCount;
             CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
 
-            return true;
+            return new List<ChatMessage>(currentMessages);
         }
 
-        public bool MoveForward(int currOffset, int retainedItems)
+        public IList<ChatMessage> MoveForward(out int pageStartIndex)
         {
-            if (_currentPackage.Count == 0 || _nextPackage.Count == 0)
-                return false;
+            pageStartIndex = RetainedItemsCount;
 
-            _previousPackage.Reset(_currentPackage);
-            _currentPackage.Reset(_nextPackage);
+            if (_currentPackage.Count == 0 || _nextPackage.Count == 0)
+                return null;
+
+            int cachedItemsCount = CurrentPackageItemsCount - RetainedItemsCount;
+
+            var previousMessages = _currentPackage.Take(cachedItemsCount).ToArray();
+            var retainedMessages = _currentPackage.Skip(cachedItemsCount).ToArray();
+            var currentMessages = retainedMessages.Concat(_nextPackage).ToArray();
+
+            var outputMessages = new List<ChatMessage>(currentMessages);
+
+            if (currentMessages.Length < IndexInteraction.LoadingMessagesCount)
+            {
+                int missingMessagesCount = IndexInteraction.LoadingMessagesCount - currentMessages.Length;
+                var missingMessages = previousMessages.Skip(previousMessages.Length - missingMessagesCount).ToArray();
+
+                pageStartIndex = missingMessagesCount;
+                outputMessages.InsertRange(0, missingMessages.Concat(currentMessages).ToArray());
+            }
+
+            _previousPackage.Reset(previousMessages);
+            _currentPackage.Reset(currentMessages);
 
             LoadNextPackage();
-            CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
+            CurrentMessages = new ObservableCollection<ChatMessage>(outputMessages);
 
-            return true;
+            return outputMessages;
         }
-
-        //public List<ChatMessage> MoveForward(int currOffset, int retainedItems)
-        //{
-        //    if (_currentPackage.Count == 0)
-        //        return null;
-
-        //    if (_currPackageIndex == 0)
-        //        LoadNextPackage();
-
-        //    int loadingMessagesCount = IndexInteraction.LoadingMessagesCount - retainedItems;
-
-        //    if (!IndexInteraction.TryLoadNextMessagesFromIndex(loadingMessagesCount))
-        //        return null;
-
-        //    var loadedMessages = IndexInteraction.GetMessages();
-
-        //    if (loadedMessages.IsNullOrEmpty())
-        //        return null;
-
-        //    var cachedMessages = _currentPackage.Take(currOffset - retainedItems).ToArray();
-        //    var retainedMessages = _currentPackage.Skip(currOffset - retainedItems).ToArray();
-        //    var currentMessages = retainedMessages.Concat(_nextPackage).ToArray();
-
-        //    _previousPackage.Reset(cachedMessages);
-        //    _currentPackage.Reset(currentMessages);
-        //    _nextPackage.Reset(loadedMessages);
-
-        //    _currPackageIndex++;
-        //    CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
-
-        //    return _currentPackage;
-        //}
 
         public void Reset()
         {
@@ -182,7 +168,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         {
             if (_nextPackage.Count > 0)
             {
-                int index = _nextPackage.Last().Source.Id;
+                int index = _nextPackage.Last().Source.Id + 1;
                 IndexInteraction.ResetMessageReadIndex(index);
             }
 

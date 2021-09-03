@@ -214,6 +214,8 @@ namespace IndexEngine
             }
 
             viewerReadIndex = Math.Max(bottomEdge, 0);
+
+            messages.Reverse();
             return messages;
         }
 

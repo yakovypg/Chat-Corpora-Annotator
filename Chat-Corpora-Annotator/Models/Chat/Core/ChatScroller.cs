@@ -1,27 +1,26 @@
-﻿using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
+﻿using ChatCorporaAnnotator.Data.Windows;
+using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.Models.Chat.Core
 {
     internal class ChatScroller : IChatScroller
     {
+        private const int TOP_CURSOR_DEVIATION = 45;
+        private const int BOTTOM_CURSOR_DEVIATION = 20;
+        private const int HORIZONTAL_CURSOR_DEVIATION = 12;
+        private const int RETAINED_ITEMS_COUNT = 2;
+
         private readonly ChatCache _messagesCase;
-
-        public static int EdgeDeviation = 5;
-        public static int ScrollDeviation = 2;
-        public static int RetainedItemsMultiplier = 1;
-
-        public static int VerticalCursorDeviation = 96;
-        public static int HorizontalCursorDeviation = 12;
 
         public ChatScroller(ChatCache messagesCase)
         {
             _messagesCase = messagesCase ?? throw new ArgumentNullException(nameof(messagesCase));
+            _messagesCase.RetainedItemsCount = RETAINED_ITEMS_COUNT;
         }
 
         public void ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -31,14 +30,14 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
             var scrollViewer = sender as ScrollViewer;
             var dataGrid = scrollViewer.TemplatedParent as DataGrid;
-
             var scrollArgs = new ChatScrollingEventArgs(dataGrid, e);
+
             ScrollMessages(scrollArgs);
         }
 
         public void ScrollMessages(ChatScrollingEventArgs scrollArgs)
         {
-            if (_messagesCase.CurrentPackageCapacity == 0)
+            if (_messagesCase.CurrentPackageItemsCount == 0)
                 return;
 
             ScrollChangedEventArgs e = scrollArgs.ScrollEventArgs;
@@ -47,78 +46,65 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             int viewportHeight = (int)e.ViewportHeight;
             int verticalOffset = (int)e.VerticalOffset;
 
-            if (verticalOffset == 0)
+            if (e.VerticalChange == 0)
                 return;
 
             bool isScrollPositive = e.VerticalChange > 0;
 
-            int topEdge = 3;
+            int topEdge = 0;
             int bottomEdge = extentHeight - viewportHeight;
-            int retainedItems = 5;
-            MessageBox.Show(verticalOffset + "");
 
             if (isScrollPositive && verticalOffset >= bottomEdge)
             {
-                if (!_messagesCase.MoveForward(verticalOffset, retainedItems))
-                    return;
-
-                var currMessages = _messagesCase.CurrentPackage;
+                var currMessages = _messagesCase.MoveForward(out int pageStartIndex);
 
                 if (currMessages.IsNullOrEmpty())
                     return;
 
                 scrollArgs.ChatContainer.RemoveScrollChangedEvent(ScrollChanged);
-                scrollArgs.ChatContainer.ScrollToTop();
+                scrollArgs.ChatContainer.ScrollToVerticalOffset(pageStartIndex - 1);
                 scrollArgs.ChatContainer.AddScrollChangedEventAsync(ScrollChanged);
 
-                MoveCursorToTop(scrollArgs.ChatContainer.ActualWidth,
-                    scrollArgs.ChatContainer.PointFromScreen(new Point()));
+                double actualWidth = scrollArgs.ChatContainer.ActualWidth;
+                var pos = scrollArgs.ChatContainer.GetMirroredPosition();
+
+                if (MouseInteract.IsLeftPressed)
+                    MoveCursorToTop(actualWidth, pos);
             }
             else if (!isScrollPositive && verticalOffset <= topEdge)
             {
-                if (!_messagesCase.MoveBack(verticalOffset, retainedItems))
-                    return;
-
-                var currMessages = _messagesCase.CurrentPackage;
+                var currMessages = _messagesCase.MoveBack(out int pageStartIndex);
 
                 if (currMessages.IsNullOrEmpty())
                     return;
 
                 scrollArgs.ChatContainer.RemoveScrollChangedEvent(ScrollChanged);
-                scrollArgs.ChatContainer.ScrollToBottom();
+                scrollArgs.ChatContainer.ScrollToVerticalOffset(pageStartIndex);
                 scrollArgs.ChatContainer.AddScrollChangedEventAsync(ScrollChanged);
 
-                MoveCursorToBottom(scrollArgs.ChatContainer.ActualWidth, scrollArgs.ChatContainer.ActualHeight,
-                    scrollArgs.ChatContainer.PointFromScreen(new Point()));
+                double actualWidth = scrollArgs.ChatContainer.ActualWidth;
+                double actualHeight = scrollArgs.ChatContainer.ActualHeight;
+                var pos = scrollArgs.ChatContainer.GetMirroredPosition();
+
+                if (MouseInteract.IsLeftPressed)
+                    MoveCursorToBottom(actualWidth, actualHeight, pos);
             }
         }
 
-        private void MoveCursorToTop(double actualWidth, Point position)
+        private void MoveCursorToTop(double chatWidth, Point position)
         {
-            if (Mouse.LeftButton != MouseButtonState.Pressed)
-                return;
+            int x = (int)(position.X + chatWidth - HORIZONTAL_CURSOR_DEVIATION);
+            int y = (int)(position.Y + TOP_CURSOR_DEVIATION);
 
-            var chatPos = position;
-
-            chatPos.X += actualWidth - HorizontalCursorDeviation;
-            chatPos.Y += VerticalCursorDeviation;
-
-            var cursorPos = new System.Drawing.Point((int)chatPos.X, (int)chatPos.Y);
-            System.Windows.Forms.Cursor.Position = cursorPos;
+            MouseInteract.MoveCursor(x, y);
         }
 
-        private void MoveCursorToBottom(double actualWidth, double actualHeight, Point position)
+        private void MoveCursorToBottom(double chatWidth, double chatHeight, Point position)
         {
-            if (Mouse.LeftButton != MouseButtonState.Pressed)
-                return;
+            int x = (int)(position.X + chatWidth - HORIZONTAL_CURSOR_DEVIATION);
+            int y = (int)(position.Y + chatHeight - BOTTOM_CURSOR_DEVIATION);
 
-            var chatPos = position;
-
-            chatPos.X += actualWidth - HorizontalCursorDeviation;
-            chatPos.Y += actualHeight - VerticalCursorDeviation;
-
-            var cursorPos = new System.Drawing.Point((int)chatPos.X, (int)chatPos.Y);
-            System.Windows.Forms.Cursor.Position = cursorPos;
+            MouseInteract.MoveCursor(x, y);
         }
     }
 }

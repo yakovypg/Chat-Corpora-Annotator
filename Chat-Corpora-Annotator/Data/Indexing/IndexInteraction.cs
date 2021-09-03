@@ -9,7 +9,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
 {
     internal static class IndexInteraction
     {
-        public static int LoadingMessagesCount = 100;
+        public static readonly int DefaultLoadingMessagesCount = 50;
+        public static int LoadingMessagesCount = DefaultLoadingMessagesCount;
 
         public static int GetMessageReadIndex()
         {
