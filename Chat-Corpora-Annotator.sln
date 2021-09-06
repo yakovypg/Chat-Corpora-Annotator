@@ -16,7 +16,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorLibrary", "ColorLibrar
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NounPhraseAlgorithm", "NounPhraseAlgorithm\NounPhraseAlgorithm.fsproj", "{6316656E-4B11-42CE-BA65-CDF5D079D7D8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAwesome5.Net", "FontAwesome5\src\FontAwesome5.Net\FontAwesome5.Net.csproj", "{07A24EFD-8C2B-4AFF-B6DB-468E092771C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAwesome5", "FontAwesome5\src\FontAwesome5\FontAwesome5.csproj", "{B71AC76A-E48E-4C53-9F48-596C96F9E580}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FontAwesome.Shared", "FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.shproj", "{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Subprojects", "Subprojects", "{6C84F69D-74E4-41BB-85C2-16C43FD8EE90}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FontAwesome", "FontAwesome", "{9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.projitems*{07a24efd-8c2b-4aff-b6db-468e092771c0}*SharedItemsImports = 5
+		FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.projitems*{2f36f2df-f8b2-49cb-91e7-e5c88e3a96d5}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -38,9 +52,21 @@ Global
 		{6316656E-4B11-42CE-BA65-CDF5D079D7D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6316656E-4B11-42CE-BA65-CDF5D079D7D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6316656E-4B11-42CE-BA65-CDF5D079D7D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07A24EFD-8C2B-4AFF-B6DB-468E092771C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07A24EFD-8C2B-4AFF-B6DB-468E092771C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07A24EFD-8C2B-4AFF-B6DB-468E092771C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B71AC76A-E48E-4C53-9F48-596C96F9E580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B71AC76A-E48E-4C53-9F48-596C96F9E580}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B71AC76A-E48E-4C53-9F48-596C96F9E580}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{07A24EFD-8C2B-4AFF-B6DB-468E092771C0} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
+		{B71AC76A-E48E-4C53-9F48-596C96F9E580} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
+		{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
+		{9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF} = {6C84F69D-74E4-41BB-85C2-16C43FD8EE90}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F68D240-71D4-4206-84D2-91EA13C5899F}
