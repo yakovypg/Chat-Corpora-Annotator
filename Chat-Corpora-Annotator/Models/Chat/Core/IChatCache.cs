@@ -10,8 +10,8 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         ObservableCollection<ChatMessage> CurrentMessages { get; }
 
-        IList<ChatMessage> MoveBack(out int pageStartIndex);
-        IList<ChatMessage> MoveForward(out int pageStartIndex);
+        IList<ChatMessage> MoveBack();
+        IList<ChatMessage> MoveForward();
 
         void Reset();
     }

@@ -13,7 +13,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         private const int TOP_CURSOR_DEVIATION = 45;
         private const int BOTTOM_CURSOR_DEVIATION = 20;
         private const int HORIZONTAL_CURSOR_DEVIATION = 12;
-        private const int RETAINED_ITEMS_COUNT = 2;
+        private const int RETAINED_ITEMS_COUNT = 8;
 
         private readonly ChatCache _messagesCase;
 
@@ -56,13 +56,13 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
             if (isScrollPositive && verticalOffset >= bottomEdge)
             {
-                var currMessages = _messagesCase.MoveForward(out int pageStartIndex);
+                var currMessages = _messagesCase.MoveForward();
 
                 if (currMessages.IsNullOrEmpty())
                     return;
 
                 scrollArgs.ChatContainer.RemoveScrollChangedEvent(ScrollChanged);
-                scrollArgs.ChatContainer.ScrollToVerticalOffset(pageStartIndex - 1);
+                scrollArgs.ChatContainer.ScrollToNearlyTop();
                 scrollArgs.ChatContainer.AddScrollChangedEventAsync(ScrollChanged);
 
                 double actualWidth = scrollArgs.ChatContainer.ActualWidth;
@@ -73,13 +73,13 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             }
             else if (!isScrollPositive && verticalOffset <= topEdge)
             {
-                var currMessages = _messagesCase.MoveBack(out int pageStartIndex);
+                var currMessages = _messagesCase.MoveBack();
 
                 if (currMessages.IsNullOrEmpty())
                     return;
 
                 scrollArgs.ChatContainer.RemoveScrollChangedEvent(ScrollChanged);
-                scrollArgs.ChatContainer.ScrollToVerticalOffset(pageStartIndex);
+                scrollArgs.ChatContainer.ScrollToNearlyBottom();
                 scrollArgs.ChatContainer.AddScrollChangedEventAsync(ScrollChanged);
 
                 double actualWidth = scrollArgs.ChatContainer.ActualWidth;

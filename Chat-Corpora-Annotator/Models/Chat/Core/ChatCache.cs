@@ -66,10 +66,8 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             RetainedItemsCount = retainedItemsCount;
         }
 
-        public IList<ChatMessage> MoveBack(out int pageStartIndex)
+        public IList<ChatMessage> MoveBack()
         {
-            pageStartIndex = 0;
-
             if (_currentPackage.Count == 0 || _previousPackage.Count == 0)
                 return null;
 
@@ -83,17 +81,13 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _currentPackage.Reset(currentMessages);
 
             LoadPreviousPackage();
-
-            pageStartIndex = _currentPackage.Count - RetainedItemsCount;
             CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
 
             return new List<ChatMessage>(currentMessages);
         }
 
-        public IList<ChatMessage> MoveForward(out int pageStartIndex)
+        public IList<ChatMessage> MoveForward()
         {
-            pageStartIndex = RetainedItemsCount;
-
             if (_currentPackage.Count == 0 || _nextPackage.Count == 0)
                 return null;
 
@@ -110,8 +104,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
                 int missingMessagesCount = IndexInteraction.LoadingMessagesCount - currentMessages.Length;
                 var missingMessages = previousMessages.Skip(previousMessages.Length - missingMessagesCount).ToArray();
 
-                pageStartIndex = missingMessagesCount;
-                outputMessages.InsertRange(0, missingMessages.Concat(currentMessages).ToArray());
+                outputMessages.InsertRange(0, missingMessages);
             }
 
             _previousPackage.Reset(previousMessages);

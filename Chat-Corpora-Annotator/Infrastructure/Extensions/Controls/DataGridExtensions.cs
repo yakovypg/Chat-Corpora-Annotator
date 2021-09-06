@@ -73,6 +73,16 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions.Controls
             dataGrid.PerformActionAsync(() => dataGrid.ScrollToHorizontalOffset(offset));
         }
 
+        public static void ScrollToNearlyTopAsync(this DataGrid dataGrid)
+        {
+            dataGrid.PerformActionAsync(() => dataGrid.ScrollToNearlyTop());
+        }
+
+        public static void ScrollToNearlyBottomAsync(this DataGrid dataGrid)
+        {
+            dataGrid.PerformActionAsync(() => dataGrid.ScrollToNearlyBottom());
+        }
+
         public static void ScrollToTopAsync(this DataGrid dataGrid)
         {
             dataGrid.PerformActionAsync(() => dataGrid.ScrollToTop());
@@ -81,6 +91,20 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions.Controls
         public static void ScrollToBottomAsync(this DataGrid dataGrid)
         {
             dataGrid.PerformActionAsync(() => dataGrid.ScrollToBottom());
+        }
+
+        public static void ScrollToNearlyTop(this DataGrid dataGrid)
+        {
+            var scrollViewer = dataGrid.GetScrollViewer();
+            scrollViewer.ScrollToTop();
+            scrollViewer.LineDown();
+        }
+
+        public static void ScrollToNearlyBottom(this DataGrid dataGrid)
+        {
+            var scrollViewer = dataGrid.GetScrollViewer();
+            scrollViewer.ScrollToBottom();
+            scrollViewer.LineUp();
         }
 
         public static void ScrollToTop(this DataGrid dataGrid)
