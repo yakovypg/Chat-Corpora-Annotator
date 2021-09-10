@@ -1,0 +1,26 @@
+1. Initialize and update FontAwesome5 submodule using git
+2. Initialize and update submodule FontAwesome of submodule FontAwesome5 using git
+3. Solution -> Add -> Existing project => add FontAwesome5, FontAwesome5.Net, FontAwesome.Shared
+4. Add references to FontAwesome5, FontAwesome5.Net, FontAwesome.Shared from the current project (Chat-Corpora-Annotator)
+5. Rebuild solution
+6. Add xmlns:fa="http://schemas.fontawesome.com/icons/" to the .xaml file
+7. Now you can use the FontAwesome5
+
+If rebuild failed:
+1. Open FontAwesome5.csproj file (double click on the FontAwesome5)
+
+2. Remove these lines:
+<PropertyGroup>
+	<DocumentationFile>$(OutDir)\FontAwesome5.xml</DocumentationFile>
+</PropertyGroup>
+
+3. Open FontAwesome5.Net.csproj file (double click on the FontAwesome5.Net)
+
+4. Remove this line:
+<DocumentationFile>$(OutDir)\FontAwesome5.Net.xml</DocumentationFile>
+
+5. Rebuild solution
+6. Revert the changes to files FontAwesome5.csproj and FontAwesome5.Net.csproj
+7. Solution -> Properties -> Configuration Properties -> Configuration
+8. Uncheck Build option for FontAwesome and FontAwesome5
+9. Rebuild solution
