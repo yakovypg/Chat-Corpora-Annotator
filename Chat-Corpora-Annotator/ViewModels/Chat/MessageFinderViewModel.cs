@@ -1,14 +1,14 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models.Messages;
+using ChatCorporaAnnotator.Services;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
 using IndexEngine.Paths;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
+using System.Linq;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
@@ -16,8 +16,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
     internal class MessageFinderViewModel : ViewModel
     {
         private readonly ChatViewModel _chatVM;
+        private readonly ISearchService _messageSearcher;
 
-        #region Items
+        #region FindOptions
 
         private string _query = string.Empty;
         public string Query
@@ -88,15 +89,31 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanFindMessagesCommandExecute(parameter))
                 return;
 
-            //if (ChatVM.UsersVM.SelectedUsers.IsNullOrEmpty())
-            //{
-            //    ChatVM.MessagesVM.Messages.Clear();
-            //    ChatVM.MessagesVM.SelectedMessages.Clear();
-            //    return;
-            //}
+            if (string.IsNullOrEmpty(Query))
+            {
+                new QuickMessage("Query is empty.").ShowInformation();
+                return;
+            }
 
-            //ChatVM.MessagesVM.Messages.Clear();
-            //ChatVM.MessagesVM.SelectedMessages.Clear();
+            int messagesCount = LuceneService.DirReader.MaxDoc;
+
+            DateTime[] dates = null;
+            string[] selectedUsers = null;
+
+            var selectedChatUsers = _chatVM.UsersVM.SelectedUsers;
+
+            if (!selectedChatUsers.IsNullOrEmpty())
+                selectedUsers = selectedChatUsers.Select(t => t.Name).ToArray();
+
+            if (IsStartDateChecked || IsEndDateChecked)
+            {
+                dates = new DateTime[2];
+                dates[0] = IsStartDateChecked ? StartDate : DateTime.MinValue;
+                dates[1] = IsEndDateChecked ? StartDate : DateTime.MaxValue;
+            }
+
+            var args = new LuceneQueryEventArgs(Query, messagesCount, selectedUsers, dates);
+            var foundMessages = FindMessages(args);
         }
 
         #endregion
@@ -104,9 +121,38 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public MessageFinderViewModel(ChatViewModel chatVM)
         {
             _chatVM = chatVM ?? throw new ArgumentNullException(nameof(chatVM));
+            _messageSearcher = new SearchService();
 
             ClearFinderCommand = new RelayCommand(OnClearFinderCommandExecuted, CanClearFinderCommandExecute);
             FindMessagesCommand = new RelayCommand(OnFindMessagesCommandExecuted, CanFindMessagesCommandExecute);
+        }
+
+        private List<DynamicMessage> FindMessages(LuceneQueryEventArgs e)
+        {
+            _messageSearcher.UserQuery = LuceneService.Parser.Parse(e.Query);
+
+            if (!e.FilteredByDate && !e.FilteredByUser)
+            {
+                _messageSearcher.SearchText(e.MessagesCount);
+            }
+            else if (e.FilteredByDate && !e.FilteredByUser)
+            {
+                _messageSearcher.ConstructDateFilter(ProjectInfo.DateFieldKey, e.StartDate, e.EndDate);
+                _messageSearcher.SearchText_DateFilter(e.MessagesCount);
+            }
+            else if (!e.FilteredByDate && e.FilteredByUser)
+            {
+                _messageSearcher.ConstructUserFilter(ProjectInfo.SenderFieldKey, e.Users);
+                _messageSearcher.SearchText_UserFilter(e.MessagesCount);
+            }
+            else if (e.FilteredByDate && e.FilteredByUser)
+            {
+                _messageSearcher.ConstructDateFilter(ProjectInfo.DateFieldKey, e.StartDate, e.EndDate);
+                _messageSearcher.ConstructUserFilter(ProjectInfo.SenderFieldKey, e.Users);
+                _messageSearcher.SearchText_UserDateFilter(e.MessagesCount);
+            }
+
+            return _messageSearcher.MakeSearchResultsReadable();
         }
     }
 }

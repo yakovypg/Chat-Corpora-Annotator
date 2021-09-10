@@ -170,7 +170,7 @@
                         </Style>
                     </DockPanel.Resources>
 
-                    <Expander DockPanel.Dock="Top" Header="Query">
+                    <Expander Header="Query" DockPanel.Dock="Top">
                         <Grid>
                             <TextBox Name="SearchQueryTextBox" Margin="0, 7" Text="{Binding ChatVM.MessageFinderVM.Query, UpdateSourceTrigger=LostFocus}"/>
                             <UniformGrid Margin="0, 3, 0, 0">
@@ -179,7 +179,7 @@
                         </Grid>
                     </Expander>
 
-                    <Expander DockPanel.Dock="Top" Header="Select users toggle">
+                    <Expander Header="Select users toggle" DockPanel.Dock="Top">
                         
                         <ListBox Margin="0, 7"
                                  MinHeight="50"
@@ -209,7 +209,8 @@
                         
                     </Expander>
 
-                    <Expander DockPanel.Dock="Top" Header="Select dates toggle">
+                    <Expander Header="Select dates toggle" DockPanel.Dock="Top">
+                        
                         <StackPanel Margin="0, 7">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -273,7 +274,7 @@
                         </StackPanel>
                     </Expander>
 
-                    <Expander DockPanel.Dock="Top" Header="Actions" IsExpanded="True">
+                    <Expander Header="Actions" DockPanel.Dock="Top" IsExpanded="True">
                         <StackPanel Height="auto" Margin="3, 7, 0, 0">
                             <Button
                                 Content="Clear"
