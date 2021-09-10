@@ -109,7 +109,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             {
                 dates = new DateTime[2];
                 dates[0] = IsStartDateChecked ? StartDate : DateTime.MinValue;
-                dates[1] = IsEndDateChecked ? StartDate : DateTime.MaxValue;
+                dates[1] = IsEndDateChecked ? EndDate : DateTime.MaxValue;
             }
 
             var args = new LuceneQueryEventArgs(Query, messagesCount, selectedUsers, dates);
