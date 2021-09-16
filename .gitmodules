@@ -1,3 +1,6 @@
 [submodule "FontAwesome5"]
 	path = vendor/FontAwesome5
 	url = https://github.com/MartinTopfstedt/FontAwesome5
+[submodule "vendor/HighlightedTextBlock"]
+	path = vendor/HighlightedTextBlock
+	url = https://github.com/iRumba/HighlightedTextBlock
