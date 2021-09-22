@@ -10,13 +10,29 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
     [StyleTypedProperty(Property = "TextStyle", StyleTargetType = typeof(TextBlock))]
     internal class HighlightedTextBlock : Control
     {
-        #region TextOptions
+        #region TextProperties
 
         public string Text
         {
             get => GetValue(TextProperty) as string;
             set => SetValue(TextProperty, value);
         }
+
+        public TextWrapping TextWrapping
+        {
+            get => (TextWrapping)GetValue(TextWrappingProperty);
+            set => SetValue(TextWrappingProperty, value);
+        }
+
+        public Style TextStyle
+        {
+            get => GetValue(TextStyleProperty) as Style;
+            set => SetValue(TextStyleProperty, value);
+        }
+
+        #endregion
+
+        #region HighlightProperties
 
         public bool IgnoreCase
         {
@@ -36,18 +52,22 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
             set => SetValue(HighlightBrushProperty, value);
         }
 
-        public Style TextStyle
-        {
-            get => GetValue(TextStyleProperty) as Style;
-            set => SetValue(TextStyleProperty, value);
-        }
-
         #endregion
 
-        #region DependencyProperties
+        #region TextDependencyProperties
 
         public static DependencyProperty TextProperty = DependencyProperty.Register("Text", typeof(string),
             typeof(HighlightedTextBlock), new PropertyMetadata("", OnPropertyChanged));
+
+        public static DependencyProperty TextWrappingProperty = DependencyProperty.Register("TextWrapping", typeof(TextWrapping),
+            typeof(HighlightedTextBlock), new PropertyMetadata(TextWrapping.NoWrap, OnPropertyChanged));
+
+        public static DependencyProperty TextStyleProperty = DependencyProperty.Register("TextStyle", typeof(Style),
+            typeof(HighlightedTextBlock), new PropertyMetadata(null, OnPropertyChanged));
+
+        #endregion
+
+        #region HighlightDependencyProperties
 
         public static DependencyProperty IgnoreCaseProperty = DependencyProperty.Register("IgnoreCase", typeof(bool),
             typeof(HighlightedTextBlock), new PropertyMetadata(true, OnPropertyChanged));
@@ -56,9 +76,6 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
             typeof(HighlightedTextBlock), new PropertyMetadata("", OnPropertyChanged));
 
         public static DependencyProperty HighlightBrushProperty = DependencyProperty.Register("HighlightBrush", typeof(Brush),
-            typeof(HighlightedTextBlock), new PropertyMetadata(null, OnPropertyChanged));
-
-        public static DependencyProperty TextStyleProperty = DependencyProperty.Register("TextStyle", typeof(Style),
             typeof(HighlightedTextBlock), new PropertyMetadata(null, OnPropertyChanged));
 
         #endregion
@@ -74,6 +91,15 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
 
             if (!(GetTemplateChild("PART_Content") is TextBlock textBlock))
                 return;
+
+            textBlock.Padding = Padding;
+            textBlock.FontSize = FontSize;
+            textBlock.FontFamily = FontFamily;
+            textBlock.FontWeight = FontWeight;
+            textBlock.Visibility = Visibility;
+            textBlock.Foreground = Foreground;
+            textBlock.Background = Background;
+            textBlock.TextWrapping = TextWrapping;
 
             textBlock.Inlines.Clear();
 

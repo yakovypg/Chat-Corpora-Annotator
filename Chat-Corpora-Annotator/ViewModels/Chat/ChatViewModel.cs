@@ -8,6 +8,7 @@ using IndexEngine.Paths;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -124,23 +125,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public void UpdateColumnsTemplate()
         {
-            //var textColumn = ChatColumns.FirstOrDefault(t => t.Header?.ToString() == ProjectInfo.TextFieldKey);
+            var textColumn = ChatColumns.FirstOrDefault(t => t.Header?.ToString() == ProjectInfo.TextFieldKey);
 
-            //if (textColumn == null)
-            //    return;
+            if (!(textColumn is DataGridTemplateColumn textTemplateColumn))
+                return;
 
-            //int columnIndex = ChatColumns.IndexOf(textColumn);
-
-            //if (columnIndex == -1)
-            //    return;
-
-            //var newTextColumn = CreateHighlightedChatColumn(ProjectInfo.TextFieldKey);
-
-            //ChatColumns.Remove(textColumn);
-            //ChatColumns.Insert(columnIndex, newTextColumn);
-
-            var columns = GenerateChatColumns(ProjectInfo.Data.SelectedFields);
-            SetChatColumns(columns);
+            var newTextColumn = CreateHighlightedChatColumn(ProjectInfo.TextFieldKey);
+            textTemplateColumn.CellTemplate = newTextColumn.CellTemplate;
         }
 
         public void SetChatColumns(IEnumerable<DataGridColumn> columns)
@@ -222,9 +213,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             var textBlockFactory = new FrameworkElementFactory(typeof(HighlightedTextBlock));
 
-            textBlockFactory.SetValue(TextBlock.PaddingProperty, ChatTextPadding);
-            textBlockFactory.SetValue(TextBlock.FontSizeProperty, ChatTextFontSize);
-            textBlockFactory.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
+            textBlockFactory.SetValue(Control.PaddingProperty, ChatTextPadding);
+            textBlockFactory.SetValue(Control.FontSizeProperty, ChatTextFontSize);
+            textBlockFactory.SetValue(HighlightedTextBlock.TextWrappingProperty, TextWrapping.Wrap);
 
             textBlockFactory.SetValue(HighlightedTextBlock.IgnoreCaseProperty, MessageFinderVM.IgnoreCase);
             textBlockFactory.SetValue(HighlightedTextBlock.HighlightBrushProperty, MessageFinderVM.HighlightBrush);
@@ -234,7 +225,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 textBlockFactory.SetBinding(HighlightedTextBlock.TextProperty, new Binding($"Source.Contents[{fieldKey}]"));
 
             if (fieldKey == ProjectInfo.SenderFieldKey)
-                textBlockFactory.SetBinding(TextBlock.ForegroundProperty, new Binding($"SenderColor"));
+                textBlockFactory.SetBinding(Control.ForegroundProperty, new Binding($"SenderColor"));
 
             var columnDataTemplate = new DataTemplate(typeof(DynamicMessage))
             {

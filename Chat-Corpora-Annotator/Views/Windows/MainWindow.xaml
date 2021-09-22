@@ -185,7 +185,15 @@
 
                     <Expander Header="Query" DockPanel.Dock="Top">
                         <Grid>
-                            <TextBox Name="SearchQueryTextBox" Margin="0, 7" Text="{Binding ChatVM.MessageFinderVM.Query, UpdateSourceTrigger=LostFocus}"/>
+                            <TextBox Name="SearchQueryTextBox"
+                                     Margin="0, 7"
+                                     Text="{Binding ChatVM.MessageFinderVM.Query, UpdateSourceTrigger=PropertyChanged}">
+
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            
                             <UniformGrid Margin="0, 3, 0, 0">
                                 <TextBlock Text="Enter query" Style="{StaticResource QueryWaretmark}"/>
                             </UniformGrid>
