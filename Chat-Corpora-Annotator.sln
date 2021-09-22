@@ -29,10 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAwesome5.Net", "vendor\
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FontAwesome.Shared", "vendor\FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.shproj", "{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HighlightedTextBlock", "HighlightedTextBlock", "{3A7384C6-276A-4491-AA66-D9159D4B988B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighlightedTextBlock", "vendor\HighlightedTextBlock\HighlightedTextBlock\HighlightedTextBlock\HighlightedTextBlock.csproj", "{83FF39ED-4098-412F-A931-9598EB9037F3}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		vendor\FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.projitems*{2f36f2df-f8b2-49cb-91e7-e5c88e3a96d5}*SharedItemsImports = 13
@@ -65,10 +61,6 @@ Global
 		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83FF39ED-4098-412F-A931-9598EB9037F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83FF39ED-4098-412F-A931-9598EB9037F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83FF39ED-4098-412F-A931-9598EB9037F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83FF39ED-4098-412F-A931-9598EB9037F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,8 +70,6 @@ Global
 		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
 		{E2255AB1-1E63-4429-A600-B70D58682BF7} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
 		{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
-		{3A7384C6-276A-4491-AA66-D9159D4B988B} = {6C84F69D-74E4-41BB-85C2-16C43FD8EE90}
-		{83FF39ED-4098-412F-A931-9598EB9037F3} = {3A7384C6-276A-4491-AA66-D9159D4B988B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F68D240-71D4-4206-84D2-91EA13C5899F}

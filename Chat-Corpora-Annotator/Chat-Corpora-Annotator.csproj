@@ -325,10 +325,6 @@
       <Project>{b8e1321e-91b3-4dab-8376-e7c76cd1c5bf}</Project>
       <Name>FontAwesome5</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vendor\HighlightedTextBlock\HighlightedTextBlock\HighlightedTextBlock\HighlightedTextBlock.csproj">
-      <Project>{83ff39ed-4098-412f-a931-9598eb9037f3}</Project>
-      <Name>HighlightedTextBlock</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\MessageExplorerWindowIcon.png" />
