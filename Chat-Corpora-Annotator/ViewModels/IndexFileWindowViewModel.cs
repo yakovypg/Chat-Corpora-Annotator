@@ -543,9 +543,13 @@ namespace ChatCorporaAnnotator.ViewModels
                     ? FileProcessingResult.Success
                     : FileProcessingResult.Fail;
             }
-            catch
+            catch (Exception ex)
             {
                 fileProcessingResult = FileProcessingResult.Fail;
+
+                #if DEBUG
+                new QuickMessage(ex.Message).ShowError();
+                #endif
             }
 
             _fileProcessingResult = fileProcessingResult;
