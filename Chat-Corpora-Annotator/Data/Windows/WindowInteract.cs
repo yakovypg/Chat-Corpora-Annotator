@@ -26,7 +26,7 @@ namespace ChatCorporaAnnotator.Data.Windows
         }
 
         public void MoveToForeground(int waitMilliseconds, bool checkMinimized = true)
-        {           
+        {
             Task.Run(delegate
             {
                 Thread.Sleep(waitMilliseconds);

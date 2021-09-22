@@ -1,4 +1,4 @@
-﻿using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Windows.UI;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;

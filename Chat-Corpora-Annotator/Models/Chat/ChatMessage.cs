@@ -10,6 +10,10 @@ namespace ChatCorporaAnnotator.Models.Chat
     {
         public DynamicMessage Source { get; }
 
+        public string Text => Source.Contents.TryGetValue(ProjectInfo.TextFieldKey, out var text)
+            ? text.ToString()
+            : string.Empty;
+
         public Brush SenderColor
         {
             get

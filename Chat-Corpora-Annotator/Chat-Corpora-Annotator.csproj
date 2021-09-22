@@ -105,8 +105,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\Indexing\ProjectInteraction.cs" />
-    <Compile Include="Data\Windows\MouseInteract.cs" />
-    <Compile Include="Data\Windows\UIHelper.cs" />
+    <Compile Include="Data\Windows\Controls\HighlightedTextBlock.cs" />
+    <Compile Include="Data\Windows\Input\MouseInteract.cs" />
+    <Compile Include="Data\Windows\UI\UIHelper.cs" />
     <Compile Include="Data\Windows\WindowInteract.cs" />
     <Compile Include="Data\Indexing\IndexInteraction.cs" />
     <Compile Include="Data\WinFormsIntegration\AppEventArgs\ConcordancerEventArgs.cs" />
@@ -241,7 +242,7 @@
     <Compile Include="Models\Windows\PageExplorerStep.cs" />
     <Compile Include="Models\Windows\IPageSwitcher.cs" />
     <Compile Include="Models\Windows\PageSwitcher.cs" />
-    <Compile Include="Data\Windows\SelectedItemsOrganizer.cs" />
+    <Compile Include="Data\Windows\UI\SelectedItemsOrganizer.cs" />
     <Compile Include="Models\Messages\IQuickMessage.cs" />
     <Compile Include="Models\Messages\QuickMessage.cs" />
     <Compile Include="Services\CsvColumnReadService.cs" />
@@ -312,25 +313,27 @@
     <Resource Include="Resources\Icons\IndexFileWindowIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FontAwesome5\src\FontAwesome5.Net\FontAwesome5.Net.csproj">
-      <Project>{07a24efd-8c2b-4aff-b6db-468e092771c0}</Project>
-      <Name>FontAwesome5.Net</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FontAwesome5\src\FontAwesome5\FontAwesome5.csproj">
-      <Project>{b71ac76a-e48e-4c53-9f48-596c96f9e580}</Project>
-      <Name>FontAwesome5</Name>
-    </ProjectReference>
     <ProjectReference Include="..\IndexEngine\IndexEngine.csproj">
       <Project>{3a58ab22-7cb7-47da-8b31-f513cc71db3a}</Project>
       <Name>IndexEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vendor\FontAwesome5\src\FontAwesome5.Net\FontAwesome5.Net.csproj">
+      <Project>{e2255ab1-1e63-4429-a600-b70d58682bf7}</Project>
+      <Name>FontAwesome5.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vendor\FontAwesome5\src\FontAwesome5\FontAwesome5.csproj">
+      <Project>{b8e1321e-91b3-4dab-8376-e7c76cd1c5bf}</Project>
+      <Name>FontAwesome5</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vendor\HighlightedTextBlock\HighlightedTextBlock\HighlightedTextBlock\HighlightedTextBlock.csproj">
+      <Project>{83ff39ed-4098-412f-a931-9598eb9037f3}</Project>
+      <Name>HighlightedTextBlock</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\MessageExplorerWindowIcon.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\WinFormsIntegration\FormsBehind\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Analyzer Include="..\packages\Lucene.Net.4.8.0-beta00008\analyzers\dotnet\cs\Lucene.Net.CodeAnalysis.dll" />
   </ItemGroup>

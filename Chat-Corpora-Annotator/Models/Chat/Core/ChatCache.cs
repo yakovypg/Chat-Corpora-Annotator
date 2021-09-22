@@ -11,10 +11,12 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 {
     internal class ChatCache : IChatCache, INotifyPropertyChanged
     {
+        private readonly List<ChatMessage> _savedPackage;
         private readonly List<ChatMessage> _previousPackage;
         private readonly List<ChatMessage> _currentPackage;
         private readonly List<ChatMessage> _nextPackage;
 
+        public bool IsPaused => _savedPackage.Count > 0;
         public int CurrentPackageItemsCount => _currentPackage.Count;
 
         private ObservableCollection<ChatMessage> _currentMessages;
@@ -59,6 +61,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
             _currentMessages = new ObservableCollection<ChatMessage>(currentPackage);
 
+            _savedPackage = new List<ChatMessage>();
             _previousPackage = new List<ChatMessage>();
             _currentPackage = new List<ChatMessage>(currentPackage);
             _nextPackage = new List<ChatMessage>();
@@ -68,7 +71,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         public IList<ChatMessage> MoveBack()
         {
-            if (_currentPackage.Count == 0 || _previousPackage.Count == 0)
+            if (IsPaused || _currentPackage.Count == 0 || _previousPackage.Count == 0)
                 return null;
 
             int cachedItemsCount = RetainedItemsCount;
@@ -88,7 +91,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         public IList<ChatMessage> MoveForward()
         {
-            if (_currentPackage.Count == 0 || _nextPackage.Count == 0)
+            if (IsPaused || _currentPackage.Count == 0 || _nextPackage.Count == 0)
                 return null;
 
             int cachedItemsCount = CurrentPackageItemsCount - RetainedItemsCount;
@@ -116,8 +119,30 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             return outputMessages;
         }
 
+        public void Pause(IEnumerable<ChatMessage> tempMessages)
+        {
+            if (!IsPaused)
+                _savedPackage.Reset(_currentPackage);
+
+            _currentPackage.Reset(tempMessages ?? new ChatMessage[0]);
+
+            CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
+        }
+
+        public void Resume()
+        {
+            if (!IsPaused)
+                return;
+
+            _currentPackage.Reset(_savedPackage);
+            _savedPackage.Clear();
+
+            CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
+        }
+
         public void Reset()
         {
+            _savedPackage.Clear();
             _previousPackage.Clear();
             _currentPackage.Clear();
             _nextPackage.Clear();

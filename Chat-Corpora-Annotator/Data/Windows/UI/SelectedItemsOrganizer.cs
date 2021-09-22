@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Controls;
 
-namespace ChatCorporaAnnotator.Data.Windows
+namespace ChatCorporaAnnotator.Data.Windows.UI
 {
     internal class SelectedItemsOrganizer
     {

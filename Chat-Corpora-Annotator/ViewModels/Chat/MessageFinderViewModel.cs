@@ -1,6 +1,7 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Services;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
 {
@@ -17,6 +19,14 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
     {
         private readonly ChatViewModel _chatVM;
         private readonly ISearchService _messageSearcher;
+
+        #region HighlightOptions
+
+        public bool IgnoreCase { get; set; } = true;
+        public string HighlightText { get; set; } = string.Empty;
+        public Brush HighlightBrush { get; set; } = Brushes.Gold;
+
+        #endregion
 
         #region FindOptions
 
@@ -77,6 +87,11 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             EndDate = DateTime.Today;
 
             _chatVM.UsersVM.DeselectAllUsersCommand?.Execute(null);
+
+            HighlightText = string.Empty;
+
+            _chatVM.UpdateColumnsTemplate();
+            _chatVM.MessagesVM.MessagesCase.Resume();
         }
 
         public ICommand FindMessagesCommand { get; }
@@ -113,7 +128,11 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
 
             var args = new LuceneQueryEventArgs(Query, messagesCount, selectedUsers, dates);
-            var foundMessages = FindMessages(args);
+            var foundMessages = FindMessages(args).Select(t => new ChatMessage(t)).ToArray();
+
+            _chatVM.MessagesVM.MessagesCase.Pause(foundMessages);
+
+            UpdateHighlightRules();
         }
 
         #endregion
@@ -125,6 +144,16 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ClearFinderCommand = new RelayCommand(OnClearFinderCommandExecuted, CanClearFinderCommandExecute);
             FindMessagesCommand = new RelayCommand(OnFindMessagesCommandExecuted, CanFindMessagesCommandExecute);
+        }
+
+        private void UpdateHighlightRules()
+        {
+            char[] separators = { ',', '\"', ':' };
+            string[] words = Query.Trim().Split(separators);
+
+            HighlightText = words[0];
+
+            _chatVM.UpdateColumnsTemplate();
         }
 
         private List<DynamicMessage> FindMessages(LuceneQueryEventArgs e)

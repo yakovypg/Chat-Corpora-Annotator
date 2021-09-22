@@ -1,4 +1,4 @@
-﻿using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Windows.Input;
 using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;

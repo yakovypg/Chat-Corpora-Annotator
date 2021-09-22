@@ -1,4 +1,4 @@
-﻿using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Windows.UI;
 using System;
 using System.Linq;
 using System.Windows;

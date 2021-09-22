@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Input;
 
-namespace ChatCorporaAnnotator.Data.Windows
+namespace ChatCorporaAnnotator.Data.Windows.Input
 {
     internal static class MouseInteract
     {

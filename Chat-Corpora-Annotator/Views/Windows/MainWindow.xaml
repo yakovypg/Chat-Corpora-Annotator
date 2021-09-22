@@ -8,6 +8,7 @@
         xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels"
         xmlns:chat="clr-namespace:ChatCorporaAnnotator.Models.Chat"
         xmlns:b="clr-namespace:ChatCorporaAnnotator.Infrastructure.Behaviors.Static"
+        xmlns:controls="clr-namespace:ChatCorporaAnnotator.Data.Windows.Controls"
         mc:Ignorable="d"
         Icon="/Resources/Icons/MainWindowIcon.png"
         Title="Chat Corpora Annotator"
@@ -17,6 +18,18 @@
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="controls:HighlightedTextBlock">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="controls:HighlightedTextBlock">
+                        <TextBlock x:Name="PART_Content" Style="{TemplateBinding TextStyle}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -359,8 +372,6 @@
                                     Width="3"
                                     Margin="0, 0, 2, 0">
                                 </GridSplitter>
-
-                                <ListBox x:Name="TestList"/>
 
                                 <DataGrid Name="ChatDataGrid"
                                           Grid.Column="0"

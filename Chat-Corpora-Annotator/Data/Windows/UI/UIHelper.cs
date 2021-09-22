@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace ChatCorporaAnnotator.Data.Windows
+namespace ChatCorporaAnnotator.Data.Windows.UI
 {
     internal static class UIHelper
     {
