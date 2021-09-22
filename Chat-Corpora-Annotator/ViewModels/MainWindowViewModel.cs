@@ -298,19 +298,27 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!DialogProvider.GetFolderPath(out string path))
                 return;
 
-            SituationIndex.GetInstance().UnloadData();
-            ProjectInfo.LoadProject(path);
-
-            if (!LuceneService.OpenIndex())
+            try
             {
-                new QuickMessage("No index").ShowError();
+                SituationIndex.GetInstance().UnloadData();
+                ProjectInfo.LoadProject(path);
+
+                if (!LuceneService.OpenIndex())
+                {
+                    new QuickMessage("No index").ShowError();
+                    return;
+                }
+
+                string dirName = System.IO.Path.GetDirectoryName(path);
+                ProjectInteraction.ProjectInfo = new ProjectInformation(dirName, path);
+
+                FileLoaded();
+            }
+            catch
+            {
+                new QuickMessage($"Failed to open corpus.").ShowError();
                 return;
             }
-
-            string dirName = System.IO.Path.GetDirectoryName(path);
-            ProjectInteraction.ProjectInfo = new ProjectInformation(dirName, path);
-
-            FileLoaded();
         }
 
         #endregion
