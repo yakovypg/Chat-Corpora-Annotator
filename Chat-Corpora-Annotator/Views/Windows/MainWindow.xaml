@@ -190,6 +190,8 @@
                                      Text="{Binding ChatVM.MessageFinderVM.Query, UpdateSourceTrigger=PropertyChanged}">
 
                                 <TextBox.InputBindings>
+                                    <KeyBinding Key="F5" Command="{Binding ChatVM.MessageFinderVM.ClearFinderCommand}"/>
+                                    <KeyBinding Key="F3" Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}"/>
                                     <KeyBinding Key="Enter" Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}"/>
                                 </TextBox.InputBindings>
                             </TextBox>

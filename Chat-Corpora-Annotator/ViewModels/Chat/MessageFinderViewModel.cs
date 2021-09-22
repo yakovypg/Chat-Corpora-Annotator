@@ -151,7 +151,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             char[] separators = { ',', '\"', ':' };
             string[] words = Query.Trim().Split(separators);
 
-            HighlightText = words[0];
+            if (words.Length == 0)
+                return;
+
+            HighlightText = Query.Contains(":")
+                ? words[1]
+                : words[0];
 
             _chatVM.UpdateColumnsTemplate();
         }
