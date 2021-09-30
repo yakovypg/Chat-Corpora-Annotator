@@ -332,8 +332,15 @@
                                 </TextBlock>
 
                                 <ListBox BorderThickness="0"
-                                         ItemsSource="{Binding ChatVM.TagsVM.Tags}"
-                                         SelectedItem="{Binding SelectedTagset}">
+                                         HorizontalContentAlignment="Stretch"
+                                         ItemsSource="{Binding ChatVM.TagsVM.CurrentTagset}"
+                                         SelectedItem="{Binding ChatVM.TagsVM.SelectedTag}">
+
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type chat:Tag}">
+                                            <TextBlock Text="{Binding Header}" Background="{Binding BackgroundBrush}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
                                 </ListBox>
                             </DockPanel>
                         </Border>
@@ -426,6 +433,7 @@
 
                                     <DataGrid.RowStyle>
                                         <Style TargetType="DataGridRow">
+                                            <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
                                             <EventSetter Event="PreviewMouseRightButtonDown" Handler="ChatDataGridRow_PreviewMouseRightButtonDown"/>
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">

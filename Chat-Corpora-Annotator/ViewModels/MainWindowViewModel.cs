@@ -43,17 +43,6 @@ namespace ChatCorporaAnnotator.ViewModels
             }
         }
 
-        #region SelectedItems
-
-        private object _selectedTagset;
-        public object SelectedTagset
-        {
-            get => _selectedTagset;
-            set => SetValue(ref _selectedTagset, value);
-        }
-
-        #endregion
-
         #region ItemsVisibilities
 
         private Visibility _currentTagsetVisibility = Visibility.Hidden;
@@ -473,6 +462,8 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             IsFileLoaded = true;
             ResetChatData();
+
+            ChatVM.SituationsVM.UpdateMessagesTags();
         }
 
         private void ResetChatData()
@@ -482,7 +473,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
             ChatVM.MessagesVM.MessagesCase.Reset();
 
-            ChatVM.TagsVM.SetTagsCommand?.Execute(null);
+            ChatVM.TagsVM.SetTagsetCommand?.Execute(null);
             ChatVM.DatesVM.SetDatesCommand?.Execute(null);
             ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
             ChatVM.UsersVM.SetUsersCommand?.Execute(null);

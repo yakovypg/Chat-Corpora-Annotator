@@ -1,12 +1,17 @@
 ﻿using ChatCorporaAnnotator.Data.Imaging;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using IndexEngine;
 using IndexEngine.Paths;
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
 namespace ChatCorporaAnnotator.Models.Chat
 {
-    internal class ChatMessage : IChatMessage
+    internal class ChatMessage : IChatMessage, INotifyPropertyChanged
     {
         public DynamicMessage Source { get; }
 
@@ -31,18 +36,44 @@ namespace ChatCorporaAnnotator.Models.Chat
             }
         }
 
+        private Brush _backgroundBrush = Brushes.White;
+        public Brush BackgroundBrush
+        {
+            get => _backgroundBrush;
+            set
+            {
+                _backgroundBrush = value ?? Brushes.White;
+                OnPropertyChanged(nameof(BackgroundBrush));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string property = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
         public ChatMessage(DynamicMessage source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
             //Source.Contents[ProjectInfo.TextFieldKey] = (Source.Id + 1).ToString();
         }
 
-        public void AddSituation(ISituation situation)
+        public void AddSituation(ISituation situation, IEnumerable<Tag> tagset = null)
         {
             if (situation == null)
                 return;
 
-            Source.AddSituation(situation.Header, situation.ID);
+            Source.AddSituation(situation.Header, situation.Id);
+
+            if (!tagset.IsNullOrEmpty() && Source.Situations.Count == 1)
+            {
+                string tagHeader = Source.Situations.First().Key;
+                Tag tag = tagset.FirstOrDefault(t => t.Header == tagHeader);
+
+                if (tag != null)
+                    BackgroundBrush = tag.BackgroundBrush;
+            }
         }
 
         public bool TryGetSender(out string sender)

@@ -97,11 +97,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             UsersVM = new UsersViewModel();
             DatesVM = new DatesViewModel();
-            MessagesVM = new MessagesViewModel();
 
-            MessageFinderVM = new MessageFinderViewModel(this);
             TagsVM = new TagsViewModel(MainWindowVM);
             SituationsVM = new SituationsViewModel(MainWindowVM);
+
+            MessageFinderVM = new MessageFinderViewModel(this);
+            MessagesVM = new MessagesViewModel(this);
 
             Scroller = new ChatScroller(MessagesVM.MessagesCase);
             ChatColumns = new ObservableCollection<DataGridColumn>();
@@ -122,6 +123,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ChatColumns.Clear();
         }
+
+        #region ColumnsUpdatingMethods
 
         public void UpdateColumnsTemplate()
         {
@@ -147,6 +150,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ChatColumns = new ObservableCollection<DataGridColumn>(columns);
             OnPropertyChanged(nameof(ChatColumns));
         }
+
+        #endregion
+
+        #region ColumnsGenerationMethods
 
         private DataGridTemplateColumn[] GenerateChatColumns(List<string> selectedFields)
         {
@@ -240,5 +247,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             return column;
         }
+
+        #endregion
     }
 }

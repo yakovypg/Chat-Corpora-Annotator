@@ -2,12 +2,12 @@
 {
     internal class Situation : ISituation
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string Header { get; set; }
 
         public Situation(int id, string header)
         {
-            ID = id;
+            Id = id;
             Header = header;
         }
 

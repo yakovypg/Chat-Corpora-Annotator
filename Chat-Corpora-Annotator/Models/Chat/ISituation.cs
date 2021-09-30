@@ -2,7 +2,7 @@
 {
     internal interface ISituation
     {
-        int ID { get; set; }
+        int Id { get; set; }
         string Header { get; set; }
     }
 }

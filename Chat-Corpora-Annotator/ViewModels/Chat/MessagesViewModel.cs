@@ -3,6 +3,7 @@ using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,6 +12,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class MessagesViewModel : ViewModel
     {
+        private readonly ChatViewModel _chatVM;
+
         public ChatCache MessagesCase { get; private set; }
         public ObservableCollection<ChatMessage> SelectedMessages { get; private set; }
 
@@ -34,9 +37,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
-        public MessagesViewModel()
+        public MessagesViewModel(ChatViewModel chatVM)
         {
+            _chatVM = chatVM ?? throw new ArgumentNullException(nameof(chatVM));
+
             MessagesCase = new ChatCache(null);
+            MessagesCase.PackageChanged += _chatVM.SituationsVM.UpdateMessagesTags;
+
             SelectedMessages = new ObservableCollection<ChatMessage>();
 
             ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);

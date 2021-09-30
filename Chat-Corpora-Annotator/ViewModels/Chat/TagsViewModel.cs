@@ -16,53 +16,39 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
     {
         private readonly MainWindowViewModel _mainWindowVM;
 
-        public ObservableCollection<Tag> Tags { get; private set; }
+        public ObservableCollection<Tag> CurrentTagset { get; private set; }
+
+        private Tag _selectedTag;
+        public Tag SelectedTag
+        {
+            get => _selectedTag;
+            set => SetValue(ref _selectedTag, value);
+        }
 
         #region AddingCommands
 
-        public ICommand SetTagsCommand { get; }
-        public bool CanSetTagsCommandExecute(object parameter)
+        public ICommand SetTagsetCommand { get; }
+        public bool CanSetTagsetCommandExecute(object parameter)
         {
             return true;
         }
-        public void OnSetTagsCommandExecuted(object parameter)
+        public void OnSetTagsetCommandExecuted(object parameter)
         {
-            if (!CanSetTagsCommandExecute(parameter))
+            if (!CanSetTagsetCommandExecute(parameter))
                 return;
 
             IEnumerable<Tag> newTags = parameter is IEnumerable<Tag> tags
                 ? tags
-                : GetTags();
+                : GetTagset();
 
             if (newTags.IsNullOrEmpty())
             {
-                Tags.Clear();
+                CurrentTagset.Clear();
                 return;
             }
 
-            Tags = new ObservableCollection<Tag>(newTags);
-            OnPropertyChanged(nameof(Tags));
-
-            _mainWindowVM.SetTagsetNameCommand?.Execute(ProjectInfo.Tagset);
-        }
-
-        public ICommand AddTagsCommand { get; }
-        public bool CanAddTagsCommandExecute(object parameter)
-        {
-            return parameter is IEnumerable<Tag>;
-        }
-        public void OnAddTagsCommandExecuted(object parameter)
-        {
-            if (!CanAddTagsCommandExecute(parameter))
-                return;
-
-            IEnumerable<Tag> addingTags = parameter as IEnumerable<Tag>;
-
-            if (addingTags.IsNullOrEmpty())
-                return;
-
-            Tags = new ObservableCollection<Tag>(Tags.Concat(addingTags));
-            OnPropertyChanged(nameof(Tags));
+            CurrentTagset = new ObservableCollection<Tag>(newTags);
+            OnPropertyChanged(nameof(CurrentTagset));
 
             _mainWindowVM.SetTagsetNameCommand?.Execute(ProjectInfo.Tagset);
         }
@@ -72,24 +58,23 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public TagsViewModel(MainWindowViewModel mainWindowVM)
         {
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
-            Tags = new ObservableCollection<Tag>();
+            CurrentTagset = new ObservableCollection<Tag>();
 
-            SetTagsCommand = new RelayCommand(OnSetTagsCommandExecuted, CanSetTagsCommandExecute);
-            AddTagsCommand = new RelayCommand(OnAddTagsCommandExecuted, CanAddTagsCommandExecute);
+            SetTagsetCommand = new RelayCommand(OnSetTagsetCommandExecuted, CanSetTagsetCommandExecute);
         }
 
         public void ClearData()
         {
-            Tags.Clear();
+            CurrentTagset.Clear();
         }
 
-        private IEnumerable<Tag> GetTags()
+        private IEnumerable<Tag> GetTagset()
         {
-            TagsetIndex.GetInstance().IndexCollection.TryGetValue(ProjectInfo.Tagset, out var tags);
+            TagsetIndex.GetInstance().IndexCollection.TryGetValue(ProjectInfo.Tagset, out var tagset);
 
-            return tags.IsNullOrEmpty()
+            return tagset.IsNullOrEmpty()
                 ? new Tag[0]
-                : tags.Select(t => new Tag(t.Key, t.Value));
+                : tagset.Select(t => new Tag(t.Key, t.Value));
         }
     }
 }

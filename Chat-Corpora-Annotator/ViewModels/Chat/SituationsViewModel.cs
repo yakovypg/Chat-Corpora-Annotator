@@ -1,7 +1,9 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Data.Indexing;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
+using IndexEngine;
 using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
     {
         private readonly MainWindowViewModel _mainWindowVM;
 
-        public List<int> TaggedIds { get; private set; }
+        public List<int> TaggedMessagesIds { get; private set; }
         public ObservableCollection<Situation> Situations { get; private set; }
 
         #region AddingCommands
@@ -36,7 +38,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             if (newSituations.IsNullOrEmpty())
             {
-                TaggedIds.Clear();
+                TaggedMessagesIds.Clear();
                 Situations.Clear();
                 return;
             }
@@ -111,7 +113,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
-            TaggedIds = new List<int>();
+            TaggedMessagesIds = new List<int>();
             Situations = new ObservableCollection<Situation>();
 
             SetSituationsCommand = new RelayCommand(OnSetSituationsCommandExecuted, CanSetSituationsCommandExecute);
@@ -124,8 +126,30 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public void ClearData()
         {
-            TaggedIds.Clear();
+            TaggedMessagesIds.Clear();
             Situations.Clear();
+        }
+
+        public void UpdateMessagesTags()
+        {
+            var currMessages = _mainWindowVM.ChatVM.MessagesVM.MessagesCase.CurrentMessages;
+
+            if (currMessages.IsNullOrEmpty())
+                return;
+
+            var invertedIndex = SituationIndex.GetInstance().InvertedIndex;
+
+            foreach (var msg in currMessages)
+            {
+                if (TaggedMessagesIds.Contains(msg.Source.Id))
+                {
+                    foreach (var situationData in invertedIndex[msg.Source.Id])
+                    {
+                        var situation = new Situation(situationData.Value, situationData.Key);
+                        msg.AddSituation(situation, _mainWindowVM.ChatVM.TagsVM.CurrentTagset);
+                    }
+                }
+            }
         }
 
         private IEnumerable<Situation> GetSituations()
@@ -146,8 +170,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 }
             }
 
-            TaggedIds = SituationIndex.GetInstance().InvertedIndex.Keys.ToList();
-            TaggedIds.Sort();
+            TaggedMessagesIds = SituationIndex.GetInstance().InvertedIndex.Keys.ToList();
+            TaggedMessagesIds.Sort();
 
             return situationSet;
         }

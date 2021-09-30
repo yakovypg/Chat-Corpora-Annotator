@@ -16,6 +16,9 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         private readonly List<ChatMessage> _currentPackage;
         private readonly List<ChatMessage> _nextPackage;
 
+        public delegate void PackageChangedHandler();
+        public event PackageChangedHandler PackageChanged;
+
         public bool IsPaused => _savedPackage.Count > 0;
         public int CurrentPackageItemsCount => _currentPackage.Count;
 
@@ -86,6 +89,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             LoadPreviousPackage();
             CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
 
+            PackageChanged?.Invoke();
             return new List<ChatMessage>(currentMessages);
         }
 
@@ -116,6 +120,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             LoadNextPackage();
             CurrentMessages = new ObservableCollection<ChatMessage>(outputMessages);
 
+            PackageChanged?.Invoke();
             return outputMessages;
         }
 
