@@ -150,8 +150,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         private void UpdateHighlightRules()
         {
-            char[] separators = { ',', '\"', ':' };
-            string[] words = Query.Trim().Split(separators);
+            char[] separators = { ',', '"', ':' };
+            string[] words = Query.Trim().Split(separators, StringSplitOptions.RemoveEmptyEntries);
 
             if (words.Length == 0)
                 return;
