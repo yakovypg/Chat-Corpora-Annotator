@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using System.Text;
 
 namespace ChatCorporaAnnotator.Models.Chat
 {
@@ -18,6 +19,24 @@ namespace ChatCorporaAnnotator.Models.Chat
         public string Text => Source.Contents.TryGetValue(ProjectInfo.TextFieldKey, out var text)
             ? text.ToString()
             : string.Empty;
+
+        public string TagsPresenter
+        {
+            get
+            {
+                if (Source.Situations.Count == 0)
+                    return string.Empty;
+
+                var presenter = new StringBuilder();
+
+                foreach (var situation in Source.Situations)
+                {
+                    presenter.Append(situation.Key + " ");
+                }
+
+                return presenter.ToString().TrimEnd();
+            }
+        }
 
         public Brush SenderColor
         {
@@ -74,6 +93,8 @@ namespace ChatCorporaAnnotator.Models.Chat
                 if (tag != null)
                     BackgroundBrush = tag.BackgroundBrush;
             }
+
+            OnPropertyChanged(nameof(TagsPresenter));
         }
 
         public bool RemoveSituation(string situationKey, IEnumerable<Tag> tagset = null)
@@ -97,6 +118,7 @@ namespace ChatCorporaAnnotator.Models.Chat
                     BackgroundBrush = tag.BackgroundBrush;
             }
 
+            OnPropertyChanged(nameof(TagsPresenter));
             return true;
         }
 

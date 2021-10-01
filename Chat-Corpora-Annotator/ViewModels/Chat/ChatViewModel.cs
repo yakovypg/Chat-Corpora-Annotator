@@ -344,6 +344,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             if (fieldKey != TAG_COLUMN_HEADER)
                 textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"Source.Contents[{fieldKey}]"));
+            else
+                textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"TagsPresenter"));
 
             if (fieldKey == ProjectInfo.SenderFieldKey)
                 textBlockFactory.SetBinding(TextBlock.ForegroundProperty, new Binding($"SenderColor"));

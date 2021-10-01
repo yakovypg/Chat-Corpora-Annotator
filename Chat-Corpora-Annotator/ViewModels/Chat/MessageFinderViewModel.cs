@@ -92,6 +92,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             _chatVM.UpdateColumnsTemplate();
             _chatVM.MessagesVM.MessagesCase.Resume();
+            _chatVM.SituationsVM.UpdateMessagesTags();
         }
 
         public ICommand FindMessagesCommand { get; }
@@ -133,6 +134,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             _chatVM.MessagesVM.MessagesCase.Pause(foundMessages);
 
             UpdateHighlightRules();
+            _chatVM.SituationsVM.UpdateMessagesTags();
         }
 
         #endregion

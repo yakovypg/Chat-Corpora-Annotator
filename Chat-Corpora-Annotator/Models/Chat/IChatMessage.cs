@@ -8,6 +8,7 @@ namespace ChatCorporaAnnotator.Models.Chat
     internal interface IChatMessage
     {
         string Text { get; }
+        string TagsPresenter { get; }
 
         DynamicMessage Source { get; }
         Brush SenderColor { get; }
