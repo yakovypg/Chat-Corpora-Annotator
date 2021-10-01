@@ -134,7 +134,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             UsersVM = new UsersViewModel();
-            DatesVM = new DatesViewModel();
+            DatesVM = new DatesViewModel(this);
 
             TagsVM = new TagsViewModel(MainWindowVM);
             SituationsVM = new SituationsViewModel(MainWindowVM);

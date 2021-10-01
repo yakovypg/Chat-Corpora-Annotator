@@ -14,6 +14,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class DatesViewModel : ViewModel
     {
+        private readonly ChatViewModel _chatVM;
+
         public ObservableCollection<MessageDate> ActiveDates { get; private set; }
 
         #region AddingCommands
@@ -63,8 +65,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
-        public DatesViewModel()
+        public DatesViewModel(ChatViewModel chatVM)
         {
+            _chatVM = chatVM ?? throw new ArgumentNullException(nameof(chatVM));
+
             ActiveDates = new ObservableCollection<MessageDate>();
 
             SetDatesCommand = new RelayCommand(OnSetDatesCommandExecuted, CanSetDatesCommandExecute);
@@ -74,6 +78,24 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public void ClearData()
         {
             ActiveDates.Clear();
+        }
+
+        public void UpdateActiveDates()
+        {
+            var dateSet = new HashSet<MessageDate>();
+
+            foreach (var msg in _chatVM.MessagesVM.MessagesCase.CurrentMessages)
+            {
+                string messageContent = msg.Source.Contents[ProjectInfo.DateFieldKey].ToString();
+
+                DateTime date = DateTime.Parse(messageContent).Date;
+                MessageDate msgDate = new MessageDate(date);
+
+                dateSet.Add(msgDate);
+            }
+
+            ActiveDates = new ObservableCollection<MessageDate>(dateSet);
+            OnPropertyChanged(nameof(ActiveDates));
         }
 
         private IEnumerable<MessageDate> ToMessageDates(IEnumerable<DateTime> datesCollection)
