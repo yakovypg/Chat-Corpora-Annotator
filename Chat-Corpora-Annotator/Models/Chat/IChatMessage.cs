@@ -1,4 +1,5 @@
 ﻿using IndexEngine;
+using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 
@@ -13,5 +14,9 @@ namespace ChatCorporaAnnotator.Models.Chat
         Brush BackgroundBrush { get; set; }
 
         void AddSituation(ISituation situation, IEnumerable<Tag> tagset = null);
+        bool RemoveSituation(string situationKey, IEnumerable<Tag> tagset = null);
+
+        bool TryGetSender(out string sender);
+        bool TryGetSentDate(out DateTime sentDate);
     }
 }

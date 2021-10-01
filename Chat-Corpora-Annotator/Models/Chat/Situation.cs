@@ -1,4 +1,6 @@
-﻿namespace ChatCorporaAnnotator.Models.Chat
+﻿using System.Collections.Generic;
+
+namespace ChatCorporaAnnotator.Models.Chat
 {
     internal class Situation : ISituation
     {
@@ -14,6 +16,23 @@
         public override string ToString()
         {
             return Header;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Situation other &&
+                   Id == other.Id &&
+                   (Header == other.Header || Header == $"{other.Header} {other.Id}");
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -1895679360;
+
+            hashCode = hashCode * -1521134295 + Id.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Header);
+
+            return hashCode;
         }
     }
 }

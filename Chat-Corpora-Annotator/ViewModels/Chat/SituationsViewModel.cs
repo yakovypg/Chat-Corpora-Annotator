@@ -1,9 +1,7 @@
-﻿using ChatCorporaAnnotator.Data.Indexing;
-using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
-using IndexEngine;
 using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;
@@ -20,7 +18,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public List<int> TaggedMessagesIds { get; private set; }
         public ObservableCollection<Situation> Situations { get; private set; }
 
-        #region AddingCommands
+        #region AddingAndRemovingCommands
 
         public ICommand SetSituationsCommand { get; }
         public bool CanSetSituationsCommandExecute(object parameter)
@@ -52,20 +50,45 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand AddSituationsCommand { get; }
         public bool CanAddSituationsCommandExecute(object parameter)
         {
-            return parameter is IEnumerable<Situation>;
+            return parameter is IEnumerable<Situation> || parameter is Situation;
         }
         public void OnAddSituationsCommandExecuted(object parameter)
         {
             if (!CanAddSituationsCommandExecute(parameter))
                 return;
 
-            var addingSituations = parameter as IEnumerable<Situation>;
+            var addingSituations = parameter is Situation
+                ? new Situation[] { parameter as Situation }
+                : parameter as IEnumerable<Situation>;
 
             if (addingSituations.IsNullOrEmpty())
                 return;
 
-            Situations = new ObservableCollection<Situation>(Situations.Concat(addingSituations));
-            OnPropertyChanged(nameof(Situations));
+            foreach (var s in addingSituations)
+                Situations.Add(s);
+
+            _mainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
+        }
+
+        public ICommand RemoveSituationsCommand { get; }
+        public bool CanRemoveSituationsCommandExecute(object parameter)
+        {
+            return parameter is IEnumerable<Situation> || parameter is Situation;
+        }
+        public void OnRemoveSituationsCommandExecuted(object parameter)
+        {
+            if (!CanRemoveSituationsCommandExecute(parameter))
+                return;
+
+            var removingSituations = parameter is Situation
+                ? new Situation[] { parameter as Situation }
+                : parameter as IEnumerable<Situation>;
+
+            if (removingSituations.IsNullOrEmpty())
+                return;
+
+            foreach (var s in removingSituations)
+                Situations.Remove(s);
 
             _mainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
         }
@@ -118,6 +141,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             SetSituationsCommand = new RelayCommand(OnSetSituationsCommandExecuted, CanSetSituationsCommandExecute);
             AddSituationsCommand = new RelayCommand(OnAddSituationsCommandExecuted, CanAddSituationsCommandExecute);
+            RemoveSituationsCommand = new RelayCommand(OnRemoveSituationsCommandExecuted, CanRemoveSituationsCommandExecute);
 
             MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);

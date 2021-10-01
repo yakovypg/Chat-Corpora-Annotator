@@ -157,6 +157,7 @@
     <Compile Include="Data\WinFormsIntegration\Presenters\Views\TagView.cs" />
     <Compile Include="Infrastructure\AppEventArgs\ChatScrollingEventArgs.cs" />
     <Compile Include="Infrastructure\AppEventArgs\LuceneQueryEventArgs.cs" />
+    <Compile Include="Infrastructure\AppEventArgs\TaggerEventArgs.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
     <Compile Include="Models\Chat\Core\ChatCache.cs" />

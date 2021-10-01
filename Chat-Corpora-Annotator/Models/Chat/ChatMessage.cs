@@ -76,6 +76,30 @@ namespace ChatCorporaAnnotator.Models.Chat
             }
         }
 
+        public bool RemoveSituation(string situationKey, IEnumerable<Tag> tagset = null)
+        {
+            if (string.IsNullOrEmpty(situationKey))
+                return false;
+
+            if (!Source.RemoveSituation(situationKey))
+                return false;
+
+            if (Source.Situations.Count == 0)
+            {
+                BackgroundBrush = Brushes.White;
+            }
+            else if (!tagset.IsNullOrEmpty())
+            {
+                string tagHeader = Source.Situations.First().Key;
+                Tag tag = tagset.FirstOrDefault(t => t.Header == tagHeader);
+
+                if (tag != null)
+                    BackgroundBrush = tag.BackgroundBrush;
+            }
+
+            return true;
+        }
+
         public bool TryGetSender(out string sender)
         {
             if (!Source.Contents.TryGetValue(ProjectInfo.SenderFieldKey, out object senderObj))

@@ -64,6 +64,11 @@ namespace IndexEngine
                 }
             }
 
+            public bool RemoveSituation(string situation)
+            {
+                return Situations.Remove(situation);
+            }
+
             public DynamicMessage(List<string> data, List<string> selectedFields, string dateFieldKey, int id)
             {
                 //this.Id = Guid.NewGuid();

@@ -1,9 +1,12 @@
 ﻿using ChatCorporaAnnotator.Data.Windows.Controls;
+using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
+using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
 using System.Collections.Generic;
@@ -70,12 +73,24 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand AddTagCommand { get; }
         public bool CanAddTagCommandExecute(object parameter)
         {
-            return MessagesVM.SelectedMessages.Count > 0;
+            return MessagesVM.SelectedMessages.Count > 0 && TagsVM.SelectedTag != null;
         }
         public void OnAddTagCommandExecuted(object parameter)
         {
             if (!CanAddTagCommandExecute(parameter))
                 return;
+
+            TaggerEventArgs args = new TaggerEventArgs
+            {
+                Id = SituationIndex.GetInstance().GetValueCount(TagsVM.SelectedTag.Header),
+                Tag = TagsVM.SelectedTag.Header,
+                MessagesIds = new List<int>()
+            };
+
+            foreach (var msg in MessagesVM.SelectedMessages)
+                args.MessagesIds.Add(msg.Source.Id);
+
+            AddTag(args);
         }
 
         public ICommand RemoveTagCommand { get; }
@@ -87,6 +102,29 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             if (!CanRemoveTagCommandExecute(parameter))
                 return;
+
+            var args = new TaggerEventArgs();
+
+            foreach (var msg in MessagesVM.SelectedMessages)
+            {
+                if (msg.Source.Situations.Count == 0)
+                    continue;
+
+                args.MessagesIds = new List<int> { msg.Source.Id };
+
+                if (msg.Source.Situations.Count == 1)
+                {
+                    var firstSituationData = msg.Source.Situations.FirstOrDefault();
+                    args.Tag = firstSituationData.Key;
+                    args.Id = firstSituationData.Value;
+
+                    RemoveTag(args);
+                }
+                else
+                {
+                    //todo
+                }
+            }
         }
 
         #endregion
@@ -123,6 +161,114 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ChatColumns.Clear();
         }
+
+        #region TagsMethods
+
+        private void AddTag(TaggerEventArgs e)
+        {
+            SituationIndex.GetInstance().AddInnerIndexEntry(e.Tag, e.Id, e.MessagesIds);
+
+            foreach (var msgId in e.MessagesIds)
+            {
+                ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == msgId);
+
+                if (msg == null)
+                    continue;
+
+                var situation = new Situation(e.Id, e.Tag);
+                msg.AddSituation(situation, TagsVM.CurrentTagset);
+
+                SituationsVM.TaggedMessagesIds.Add(msgId);
+            }
+
+            int sitId = SituationIndex.GetInstance().GetValueCount(e.Tag) - 1;
+            var sit = new Situation(sitId, e.Tag);
+
+            SituationsVM.AddSituationsCommand?.Execute(sit);
+        }
+
+        private void RemoveTag(TaggerEventArgs e)
+        {
+            ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == e.MessagesIds[0]);
+
+            if (msg == null)
+                return;
+
+            msg.RemoveSituation(e.Tag, TagsVM.CurrentTagset);
+
+            if (msg.Source.Situations.Count == 0)
+                SituationsVM.TaggedMessagesIds.Remove(msg.Source.Id);
+
+            SituationIndex.GetInstance().DeleteMessageFromSituation(e.Tag, e.Id, e.MessagesIds[0]);
+
+            if (SituationIndex.GetInstance().GetInnerValueCount(e.Tag, e.Id) == 0)
+                DeleteOrEditTag(e, true);
+        }
+
+        private void DeleteOrEditTag(TaggerEventArgs e, bool type, int index = -1)
+        {
+            foreach (var id in SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id])
+            {
+                ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == id);
+
+                if (msg != null)
+                    msg.RemoveSituation(e.Tag, TagsVM.CurrentTagset);
+            }
+
+            if (type)
+            {
+                MainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
+            }
+            else if (index == -1)
+            {
+                var tag = e.AdditionalInfo["Change"].ToString();
+                var count = SituationIndex.GetInstance().GetValueCount(tag);
+                var list = SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id];
+
+                SituationIndex.GetInstance().AddInnerIndexEntry(tag, count, list);
+
+                foreach (var id in list)
+                {
+                    ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == id);
+
+                    if (msg == null)
+                        continue;
+
+                    var s = new Situation(count, tag);
+                    msg.AddSituation(s, TagsVM.CurrentTagset);
+                }
+
+                var sit = new Situation(count, tag);
+                SituationsVM.AddSituationsCommand?.Execute(sit);
+            }
+
+            SituationIndex.GetInstance().DeleteInnerIndexEntry(e.Tag, e.Id);
+            SituationsVM.RemoveSituationsCommand?.Execute(new Situation(e.Id, e.Tag));
+
+            if (e.Id >= SituationIndex.GetInstance().GetValueCount(e.Tag) + 1)
+                return;
+
+            for (int i = e.Id + 1; i <= SituationIndex.GetInstance().GetValueCount(e.Tag); ++i)
+            {
+                var messagesIds = SituationIndex.GetInstance().IndexCollection[e.Tag][i];
+
+                foreach (var msgId in messagesIds)
+                {
+                    ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == msgId);
+
+                    if (msg != null)
+                        msg.Source.Situations[e.Tag]--;
+                }
+
+                SituationIndex.GetInstance().DeleteInnerIndexEntry(e.Tag, i);
+                SituationIndex.GetInstance().AddInnerIndexEntry(e.Tag, i - 1, messagesIds);
+
+                SituationsVM.RemoveSituationsCommand?.Execute(new Situation(i, e.Tag));
+                SituationsVM.AddSituationsCommand?.Execute(new Situation(i - 1, e.Tag));
+            }
+        }
+
+        #endregion
 
         #region ColumnsUpdatingMethods
 
