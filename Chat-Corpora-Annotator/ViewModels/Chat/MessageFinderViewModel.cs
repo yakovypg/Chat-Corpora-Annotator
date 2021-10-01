@@ -131,6 +131,14 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             var args = new LuceneQueryEventArgs(Query, messagesCount, selectedUsers, dates);
             var foundMessages = FindMessages(args).Select(t => new ChatMessage(t)).ToArray();
 
+            if (foundMessages.Length == 0)
+            {
+                string text = GetQueryTextCore();
+
+                foundMessages = _chatVM.MessagesVM.MessagesCase.CurrentMessages
+                    .Where(t => t.Text.Contains(text)).ToArray();
+            }
+
             _chatVM.MessagesVM.MessagesCase.Pause(foundMessages);
 
             UpdateHighlightRules();
@@ -148,18 +156,21 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             FindMessagesCommand = new RelayCommand(OnFindMessagesCommandExecuted, CanFindMessagesCommandExecute);
         }
 
-        private void UpdateHighlightRules()
+        private string[] SplitQuery()
         {
             char[] separators = { ',', '"', ':' };
-            string[] words = Query.Trim().Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            return Query.Trim().Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        }
 
-            if (words.Length == 0)
-                return;
+        private string GetQueryTextCore()
+        {
+            string[] words = SplitQuery();
+            return words.LastOrDefault();
+        }
 
-            HighlightText = Query.Contains(":")
-                ? words[1]
-                : words[0];
-
+        private void UpdateHighlightRules()
+        {
+            HighlightText = GetQueryTextCore();
             _chatVM.UpdateColumnsTemplate();
         }
 
