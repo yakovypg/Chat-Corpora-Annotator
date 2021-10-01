@@ -172,6 +172,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                         var situation = new Situation(situationData.Value, situationData.Key);
                         msg.AddSituation(situation, _mainWindowVM.ChatVM.TagsVM.CurrentTagset);
                     }
+
+                    msg.UpdateBackgroundBrush(_mainWindowVM.ChatVM.TagsVM.CurrentTagset);
                 }
             }
         }

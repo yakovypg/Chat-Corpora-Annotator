@@ -6,6 +6,7 @@ using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
+using ChatCorporaAnnotator.Services;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
 using ChatCorporaAnnotator.Views.Windows;
@@ -173,23 +174,38 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand SaveFileCommand { get; }
         public bool CanSaveFileCommandExecute(object parameter)
         {
-            return false;
+            return IsFileLoaded;
         }
         public void OnSaveFileCommandExecuted(object parameter)
         {
             if (!CanSaveFileCommandExecute(parameter))
                 return;
+
+            SituationIndex.GetInstance().FlushIndexToDisk();
+            TagsetIndex.GetInstance().FlushIndexToDisk();
+            UserDictsIndex.GetInstance().FlushIndexToDisk();
         }
 
         public ICommand WriteFileToDiskCommand { get; }
         public bool CanWriteFileToDiskCommandExecute(object parameter)
         {
-            return false;
+            return IsFileLoaded;
         }
         public void OnWriteFileToDiskCommandExecuted(object parameter)
         {
             if (!CanWriteFileToDiskCommandExecute(parameter))
                 return;
+
+            TagFileWriter writer = new TagFileWriter();
+            writer.OpenWriter();
+
+            foreach (var kvp in SituationIndex.GetInstance().IndexCollection)
+            {
+                foreach (var pair in kvp.Value)
+                    writer.WriteSituation(pair.Value, kvp.Key, pair.Key);
+            }
+
+            writer.CloseWriter();
         }
 
         #endregion
@@ -399,6 +415,8 @@ namespace ChatCorporaAnnotator.ViewModels
 
             CloseIndexFileWindowCommand?.Execute(null);
             CloseMessageExplorerWindowsCommand?.Execute(null);
+
+            SaveFileCommand?.Execute(null);
         }
 
         public ICommand CloseIndexFileWindowCommand { get; }

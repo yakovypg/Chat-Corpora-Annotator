@@ -83,17 +83,12 @@ namespace ChatCorporaAnnotator.Models.Chat
             if (situation == null)
                 return;
 
+            if (Source.Situations.ContainsKey(situation.Header))
+                return;
+
             Source.AddSituation(situation.Header, situation.Id);
 
-            if (!tagset.IsNullOrEmpty() && Source.Situations.Count == 1)
-            {
-                string tagHeader = Source.Situations.First().Key;
-                Tag tag = tagset.FirstOrDefault(t => t.Header == tagHeader);
-
-                if (tag != null)
-                    BackgroundBrush = tag.BackgroundBrush;
-            }
-
+            UpdateBackgroundBrush(tagset);
             OnPropertyChanged(nameof(TagsPresenter));
         }
 
@@ -105,20 +100,9 @@ namespace ChatCorporaAnnotator.Models.Chat
             if (!Source.RemoveSituation(situationKey))
                 return false;
 
-            if (Source.Situations.Count == 0)
-            {
-                BackgroundBrush = Brushes.White;
-            }
-            else if (!tagset.IsNullOrEmpty())
-            {
-                string tagHeader = Source.Situations.First().Key;
-                Tag tag = tagset.FirstOrDefault(t => t.Header == tagHeader);
-
-                if (tag != null)
-                    BackgroundBrush = tag.BackgroundBrush;
-            }
-
+            UpdateBackgroundBrush(tagset);
             OnPropertyChanged(nameof(TagsPresenter));
+
             return true;
         }
 
@@ -152,6 +136,24 @@ namespace ChatCorporaAnnotator.Models.Chat
                 sentDate = DateTime.MinValue;
                 return false;
             }
+        }
+
+        public void UpdateBackgroundBrush(IEnumerable<Tag> tagset = null)
+        {
+            if (Source.Situations.Count == 0)
+            {
+                BackgroundBrush = Brushes.White;
+                return;
+            }
+
+            if (tagset.IsNullOrEmpty())
+                return;
+
+            string tagHeader = Source.Situations.First().Key;
+            Tag tag = tagset.FirstOrDefault(t => t.Header == tagHeader);
+
+            if (tag != null)
+                BackgroundBrush = tag.BackgroundBrush;
         }
 
         public override string ToString()

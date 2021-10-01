@@ -19,5 +19,7 @@ namespace ChatCorporaAnnotator.Models.Chat
 
         bool TryGetSender(out string sender);
         bool TryGetSentDate(out DateTime sentDate);
+
+        void UpdateBackgroundBrush(IEnumerable<Tag> tagset = null);
     }
 }
