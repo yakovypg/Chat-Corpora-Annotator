@@ -42,10 +42,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             _chatVM = chatVM ?? throw new ArgumentNullException(nameof(chatVM));
 
             SelectedMessages = new ObservableCollection<ChatMessage>();
-            MessagesCase = new ChatCache(null);
 
+            MessagesCase = new ChatCache(null);
             MessagesCase.PackageChanged += _chatVM.SituationsVM.UpdateMessagesTags;
-            MessagesCase.PackageChanged += _chatVM.DatesVM.UpdateActiveDates;
 
             ChangeSelectedMessagesCommand = new RelayCommand(OnChangeSelectedMessagesCommandExecute, CanChangeSelectedMessagesCommandExecute);
         }

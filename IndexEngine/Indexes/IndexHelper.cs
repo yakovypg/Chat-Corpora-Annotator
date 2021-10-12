@@ -189,6 +189,26 @@ namespace IndexEngine
                 viewerReadIndex = LuceneService.DirReader.MaxDoc - 1;
         }
 
+        public static HashSet<DateTime> LoadAllActiveDates()
+        {
+            HashSet<DateTime> dates = new HashSet<DateTime>();
+
+            for (int i = 0; i < LuceneService.DirReader.MaxDoc; ++i)
+            {
+                Document document = LuceneService.DirReader.Document(i);
+
+                string dateField = ProjectInfo.DateFieldKey;
+                string dateString = document.GetField(dateField).GetStringValue();
+
+                DateTime fullDate = DateTools.StringToDate(dateString);
+                DateTime shortDate = new DateTime(fullDate.Year, fullDate.Month, fullDate.Day);
+
+                dates.Add(shortDate);
+            }
+
+            return dates;
+        }
+
         public static List<DynamicMessage> LoadPreviousDocumentsFromIndex(int count)
         {
             if (viewerReadIndex == 0)

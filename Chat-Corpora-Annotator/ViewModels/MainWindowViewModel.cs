@@ -669,7 +669,7 @@ namespace ChatCorporaAnnotator.ViewModels
             ChatVM.MessagesVM.MessagesCase.Reset();
 
             ChatVM.TagsVM.SetTagsetCommand?.Execute(null);
-            ChatVM.DatesVM.SetDatesCommand?.Execute(null);
+            ChatVM.DatesVM.SetAllActiveDatesCommand?.Execute(null);
             ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
             ChatVM.UsersVM.SetUsersCommand?.Execute(null);
 

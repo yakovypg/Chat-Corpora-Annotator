@@ -1,4 +1,6 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Data.Indexing;
+using ChatCorporaAnnotator.Data.Windows;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -27,6 +29,20 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #region AddingCommands
 
+        public ICommand SetAllActiveDatesCommand { get; }
+        public bool CanSetAllActiveDatesCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnSetAllActiveDatesCommandExecuted(object parameter)
+        {
+            if (!CanSetAllActiveDatesCommandExecute(parameter))
+                return;
+
+            var window = new WindowFinder().Find(typeof(Views.Windows.MainWindow));
+            _ = IndexInteraction.LoadAndSetActiveDatesAsync(t => window.Dispatcher.Invoke(() => SetActiveDates(t)));
+        }
+
         public ICommand SetDatesCommand { get; }
         public bool CanSetDatesCommandExecute(object parameter)
         {
@@ -37,9 +53,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanSetDatesCommandExecute(parameter))
                 return;
 
-            IEnumerable<MessageDate> msgDates = parameter is IEnumerable<DateTime> dates
-                ? ToMessageDates(dates)
-                : GetMessageDates();
+            IEnumerable<DateTime> msgDates = parameter is IEnumerable<DateTime> dates
+                ? dates
+                : GetMessageDatesFromContainer();
 
             if (msgDates.IsNullOrEmpty())
             {
@@ -47,8 +63,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
             }
 
-            ActiveDates = new ObservableCollection<MessageDate>(msgDates);
-            OnPropertyChanged(nameof(ActiveDates));
+            SetActiveDates(msgDates);
         }
 
         public ICommand AddDatesCommand { get; }
@@ -93,6 +108,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ActiveDates = new ObservableCollection<MessageDate>();
 
+            SetAllActiveDatesCommand = new RelayCommand(OnSetAllActiveDatesCommandExecuted, CanSetAllActiveDatesCommandExecute);
             SetDatesCommand = new RelayCommand(OnSetDatesCommandExecuted, CanSetDatesCommandExecute);
             AddDatesCommand = new RelayCommand(OnAddDatesCommandExecuted, CanAddDatesCommandExecute);
 
@@ -104,7 +120,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ActiveDates.Clear();
         }
 
-        public void UpdateActiveDates()
+        public void SetCurrentMessagesActiveDates()
         {
             var dateSet = new HashSet<MessageDate>();
 
@@ -122,6 +138,29 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             OnPropertyChanged(nameof(ActiveDates));
         }
 
+        private void SetActiveDates(IEnumerable<DateTime> dates)
+        {
+            IEnumerable<MessageDate> msgDates = ToMessageDates(dates);
+            ActiveDates = new ObservableCollection<MessageDate>(msgDates);
+
+            OnPropertyChanged(nameof(ActiveDates));
+        }
+
+        private IEnumerable<DateTime> GetMessageDatesFromContainer()
+        {
+            var dateSet = new HashSet<DateTime>();
+
+            foreach (var message in MessageContainer.Messages)
+            {
+                string messageContent = message.Contents[ProjectInfo.DateFieldKey].ToString();
+
+                DateTime date = DateTime.Parse(messageContent).Date;
+                dateSet.Add(date);
+            }
+
+            return dateSet;
+        }
+
         private IEnumerable<MessageDate> ToMessageDates(IEnumerable<DateTime> datesCollection)
         {
             var dateSet = new HashSet<MessageDate>();
@@ -129,23 +168,6 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             foreach (var date in datesCollection)
             {
                 MessageDate msgDate = new MessageDate(date);
-                dateSet.Add(msgDate);
-            }
-
-            return dateSet;
-        }
-
-        private IEnumerable<MessageDate> GetMessageDates()
-        {
-            var dateSet = new HashSet<MessageDate>();
-
-            foreach (var message in MessageContainer.Messages)
-            {
-                string messageContent = message.Contents[ProjectInfo.DateFieldKey].ToString();
-
-                DateTime date = DateTime.Parse(messageContent).Date;
-                MessageDate msgDate = new MessageDate(date);
-
                 dateSet.Add(msgDate);
             }
 
