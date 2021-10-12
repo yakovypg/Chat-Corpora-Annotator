@@ -1,5 +1,4 @@
-﻿using ChatCorporaAnnotator.Data.Indexing;
-using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
@@ -10,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
 {
@@ -40,7 +41,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             var window = new WindowFinder().Find(typeof(Views.Windows.MainWindow));
-            _ = IndexInteraction.LoadAndSetActiveDatesAsync(t => window.Dispatcher.Invoke(() => SetActiveDates(t)));
+            _ = SetActiveDatesAsync(window.Dispatcher);
         }
 
         public ICommand SetDatesCommand { get; }
@@ -172,6 +173,15 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
 
             return dateSet;
+        }
+
+        private async Task SetActiveDatesAsync(Dispatcher dispatcher)
+        {
+            await Task.Run(delegate
+            {
+                HashSet<DateTime> dates = IndexHelper.LoadAllActiveDates();
+                dispatcher?.Invoke(() => SetActiveDates(dates));
+            });
         }
     }
 }

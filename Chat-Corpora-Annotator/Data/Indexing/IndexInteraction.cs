@@ -2,10 +2,8 @@
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using IndexEngine;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ChatCorporaAnnotator.Data.Indexing
 {
@@ -33,15 +31,6 @@ namespace ChatCorporaAnnotator.Data.Indexing
         {
             int currIndex = GetMessageReadIndex();
             IndexHelper.ResetViewerReadIndex(currIndex + count);
-        }
-
-        public static async Task LoadAndSetActiveDatesAsync(Action<HashSet<DateTime>> setterAction)
-        {
-            await Task.Run(delegate
-            {
-                HashSet<DateTime> dates = IndexHelper.LoadAllActiveDates();
-                setterAction?.Invoke(dates);
-            });
         }
 
         public static IEnumerable<ChatMessage> GetMessages()
