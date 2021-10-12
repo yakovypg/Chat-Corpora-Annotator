@@ -2,11 +2,13 @@
 using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Data.Windows.UI;
+using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
+using ChatCorporaAnnotator.Models.Timers;
 using ChatCorporaAnnotator.Services;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
@@ -15,22 +17,16 @@ using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
-        private readonly DispatcherTimer _saveProjectStateTimer;
-        private const int SAVE_PROJECT_STATE_TIMER_INTERVAL = 5 * 1;
-        private const int MIN_SAVING_PROJECT_STATE_TIME = 1500;
+        private SavingTimer _projectStateSavingTimer;
 
         public ChatViewModel ChatVM { get; }
         public IndexFileWindow IndexFileWindow { get; set; }
@@ -54,7 +50,7 @@ namespace ChatCorporaAnnotator.ViewModels
                     return;
 
                 SetValue(ref _isProjectChanged, value);
-                SavingProjectState = value ? SaveProjectState.ChangesNotSaved : SaveProjectState.ChangesSaved;
+                _projectStateSavingTimer.SavingState = value ? SaveProjectState.ChangesNotSaved : SaveProjectState.ChangesSaved;
             }
         }
 
@@ -162,32 +158,6 @@ namespace ChatCorporaAnnotator.ViewModels
 
                 if (SetValue(ref _changesNotSavedImageVisibility, value))
                     SaveProjectStateHeader = "changes not saved";
-            }
-        }
-
-        private SaveProjectState _saveProjectStateResult = SaveProjectState.ChangesSaved;
-        public SaveProjectState SavingProjectState
-        {
-            get => _saveProjectStateResult;
-            private set
-            {
-                if (!SetValue(ref _saveProjectStateResult, value))
-                    return;
-
-                switch (value)
-                {
-                    case SaveProjectState.InProcess:
-                        ChangesSavingInProcessImageVisibility = Visibility.Visible;
-                        break;
-
-                    case SaveProjectState.ChangesSaved:
-                        ChangesSavedImageVisibility = Visibility.Visible;
-                        break;
-
-                    case SaveProjectState.ChangesNotSaved:
-                        ChangesNotSavedImageVisibility = Visibility.Visible;
-                        break;
-                }
             }
         }
 
@@ -305,36 +275,16 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanSavePresentStateCommandExecute(parameter))
                 return;
 
-            SavingProjectState = SaveProjectState.InProcess;
-            var window = new WindowFinder().Find(typeof(MainWindow));
-
-            Task.Run(delegate
+            try
             {
-                try
-                {
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-
-                    window?.Dispatcher.Invoke(delegate
-                    {
-                        SituationIndex.GetInstance().FlushIndexToDisk();
-                        TagsetIndex.GetInstance().FlushIndexToDisk();
-                        UserDictsIndex.GetInstance().FlushIndexToDisk();
-                    });
-
-                    stopwatch.Stop();
-
-                    if (stopwatch.ElapsedMilliseconds < MIN_SAVING_PROJECT_STATE_TIME)
-                        Thread.Sleep((int)(MIN_SAVING_PROJECT_STATE_TIME - stopwatch.ElapsedMilliseconds));
-
-                    if (SavingProjectState == SaveProjectState.InProcess)
-                        IsProjectChanged = false;
-                }
-                catch
-                {
-                    SavingProjectState = SaveProjectState.ChangesNotSaved;
-                }
-            });
+                SituationIndex.GetInstance().FlushIndexToDisk();
+                TagsetIndex.GetInstance().FlushIndexToDisk();
+                UserDictsIndex.GetInstance().FlushIndexToDisk();
+            }
+            catch
+            {
+                new QuickMessage("Failed to save present project state.").ShowError();
+            }
         }
 
         public ICommand ExportXmlCommand { get; }
@@ -429,7 +379,7 @@ namespace ChatCorporaAnnotator.ViewModels
             {
                 indexFileWindowVM = new IndexFileWindowViewModel(path)
                 {
-                    FinishAction = () => FileLoaded(),
+                    FinishAction = () => OnFileLoaded(),
                     DeactivateAction = () => IndexFileWindow = null
                 };
             }
@@ -475,7 +425,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 string dirName = System.IO.Path.GetDirectoryName(path);
                 ProjectInteraction.ProjectInfo = new ProjectInformation(dirName, path);
 
-                FileLoaded();
+                OnFileLoaded();
             }
             catch
             {
@@ -571,7 +521,7 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanMainWindowClosingCommandExecute(parameter))
                 return;
 
-            _saveProjectStateTimer.Stop();
+            _projectStateSavingTimer.Stop();
 
             CloseIndexFileWindowCommand?.Execute(null);
             CloseMessageExplorerWindowsCommand?.Execute(null);
@@ -618,6 +568,11 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             ChatVM = new ChatViewModel(this);
 
+            _projectStateSavingTimer = new SavingTimer();
+            InitProjectStateSavingTimer();
+
+            #region CommandsInitialization
+
             IndexNewFileCommand = new RelayCommand(OnIndexNewFileCommandExecuted, CanIndexNewFileCommandExecute);
             OpenCorpusCommand = new RelayCommand(OnOpenCorpusCommandExecuted, CanOpenCorpusCommandExecute);
 
@@ -642,38 +597,61 @@ namespace ChatCorporaAnnotator.ViewModels
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
 
-            _saveProjectStateTimer = new DispatcherTimer(DispatcherPriority.Background)
+            #endregion
+        }
+
+        #region InitializationMethods
+
+        private void InitProjectStateSavingTimer()
+        {
+            var window = new WindowFinder().Find(typeof(MainWindow));
+
+            _projectStateSavingTimer.Tick += delegate
             {
-                Interval = new TimeSpan(0, 0, 0, SAVE_PROJECT_STATE_TIMER_INTERVAL)
+                window?.Dispatcher.Invoke(() => SavePresentStateCommand.Execute(null));
             };
 
-            _saveProjectStateTimer.Tick += (object sender, EventArgs e) => SavePresentStateCommand.Execute(null);
+            _projectStateSavingTimer.SuccessfulIteration += delegate
+            {
+                if (_projectStateSavingTimer.SavingState == SaveProjectState.InProcess)
+                    IsProjectChanged = false;
+            };
+
+            _projectStateSavingTimer.SavingStateChanged += delegate (ProjectSavingStateEventArgs e)
+            {
+                switch (e.NewState)
+                {
+                    case SaveProjectState.InProcess:
+                        ChangesSavingInProcessImageVisibility = Visibility.Visible;
+                        break;
+
+                    case SaveProjectState.ChangesSaved:
+                        ChangesSavedImageVisibility = Visibility.Visible;
+                        break;
+
+                    case SaveProjectState.ChangesNotSaved:
+                        ChangesNotSavedImageVisibility = Visibility.Visible;
+                        break;
+                }
+            };
         }
 
-        private void FileLoaded()
+        #endregion
+
+        #region FileLoadMethods
+
+        private void OnFileLoaded()
         {
             ProjectFileLoadState = FileLoadState.InProcess;
-            ResetChatData();
 
+            ChatVM.ResetDataCommand.Execute(null);
             ChatVM.SituationsVM.UpdateMessagesTags();
+
             ProjectFileLoadState = FileLoadState.Loaded;
 
-            _saveProjectStateTimer.Start();
+            _projectStateSavingTimer.Start();
         }
 
-        private void ResetChatData()
-        {
-            ChatVM.ClearData();
-            ChatVM.SetChatColumnsCommand?.Execute(null);
-
-            ChatVM.MessagesVM.MessagesCase.Reset();
-
-            ChatVM.TagsVM.SetTagsetCommand?.Execute(null);
-            ChatVM.DatesVM.SetAllActiveDatesCommand?.Execute(null);
-            ChatVM.SituationsVM.SetSituationsCommand?.Execute(null);
-            ChatVM.UsersVM.SetUsersCommand?.Execute(null);
-
-            MessagesCount = ProjectInfo.Data.LineCount;
-        }
+        #endregion
     }
 }

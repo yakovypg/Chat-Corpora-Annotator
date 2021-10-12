@@ -68,6 +68,32 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
+        #region DataCommands
+
+        public ICommand ResetDataCommand { get; }
+        public bool CanResetDataCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnResetDataCommandExecuted(object parameter)
+        {
+            if (!CanResetDataCommandExecute(parameter))
+                return;
+
+            ClearData();
+            SetChatColumnsCommand.Execute(null);
+
+            MessagesVM.MessagesCase.Reset();
+            TagsVM.SetTagsetCommand.Execute(null);
+            DatesVM.SetAllActiveDatesCommand.Execute(null);
+            SituationsVM.SetSituationsCommand.Execute(null);
+            UsersVM.SetUsersCommand.Execute(null);
+
+            MainWindowVM.MessagesCount = ProjectInfo.Data.LineCount;
+        }
+
+        #endregion
+
         #region TagCommands
 
         public ICommand AddTagCommand { get; }
@@ -148,6 +174,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ChatColumns = new ObservableCollection<DataGridColumn>();
 
             SetChatColumnsCommand = new RelayCommand(OnSetChatColumnsCommandExecuted, CanSetChatColumnsCommandExecute);
+            ResetDataCommand = new RelayCommand(OnResetDataCommandExecuted, CanResetDataCommandExecute);
 
             AddTagCommand = new RelayCommand(OnAddTagCommandExecuted, CanAddTagCommandExecute);
             RemoveTagCommand = new RelayCommand(OnRemoveTagCommandExecuted, CanRemoveTagCommandExecute);
