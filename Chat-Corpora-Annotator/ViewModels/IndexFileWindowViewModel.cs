@@ -28,8 +28,8 @@ namespace ChatCorporaAnnotator.ViewModels
 {
     internal class IndexFileWindowViewModel : ViewModel
     {
-        private const bool HEADER_PARAM = false;
-        private const int WAIT_PAGE_TIMER_TICK_INTERVAL = 3000;
+        private const bool HEADER_PARAM = false; // an incomprehensible constant inherited
+        private const int WAIT_PAGE_TIMER_INTERVAL = 3000;
 
         private readonly IProject _project;
         private IPageSwitcher _pageSwitcher;
@@ -407,7 +407,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
             _waitPageTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
-                Interval = new TimeSpan(0, 0, 0, 0, WAIT_PAGE_TIMER_TICK_INTERVAL)
+                Interval = new TimeSpan(0, 0, 0, 0, WAIT_PAGE_TIMER_INTERVAL)
             };
 
             _waitPageTimer.Tick += WaitPageTimerTick;
