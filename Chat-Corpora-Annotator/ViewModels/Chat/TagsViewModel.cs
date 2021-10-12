@@ -51,7 +51,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             OnPropertyChanged(nameof(CurrentTagset));
 
             _mainWindowVM.IsProjectChanged = true;
-            _mainWindowVM.SetTagsetNameCommand?.Execute(ProjectInfo.Tagset);
+            _mainWindowVM.TagsetName = ProjectInfo.Tagset;
         }
 
         #endregion

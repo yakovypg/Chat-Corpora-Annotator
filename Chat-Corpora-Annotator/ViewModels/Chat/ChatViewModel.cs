@@ -246,7 +246,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             if (type)
             {
-                MainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
+                MainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
             }
             else if (index == -1)
             {

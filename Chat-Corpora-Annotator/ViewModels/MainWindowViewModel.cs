@@ -26,10 +26,21 @@ namespace ChatCorporaAnnotator.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
-        private SavingTimer _projectStateSavingTimer;
+        private readonly SavingTimer _projectStateSavingTimer;
 
         public ChatViewModel ChatVM { get; }
         public IndexFileWindow IndexFileWindow { get; set; }
+
+        #region StaticData
+
+        private static readonly string[] ProjectStateHeaders = new string[]
+        {
+            "saving changes",
+            "all changes saved",
+            "changes not saved"
+        };
+
+        #endregion
 
         #region States
 
@@ -46,11 +57,15 @@ namespace ChatCorporaAnnotator.ViewModels
             get => _isProjectChanged;
             set
             {
-                if (ProjectFileLoadState != FileLoadState.Loaded)
+                if (!IsFileLoaded)
                     return;
 
-                SetValue(ref _isProjectChanged, value);
-                _projectStateSavingTimer.SavingState = value ? SaveProjectState.ChangesNotSaved : SaveProjectState.ChangesSaved;
+                if (SetValue(ref _isProjectChanged, value))
+                {
+                    _projectStateSavingTimer.SavingState = value
+                        ? SaveProjectState.ChangesNotSaved
+                        : SaveProjectState.ChangesSaved;
+                }
             }
         }
 
@@ -103,7 +118,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region SaveProjectStatePresenterItems
 
-        private string _saveProjectStateHeader = "all changes saved";
+        private string _saveProjectStateHeader = ProjectStateHeaders[(int)SaveProjectState.ChangesSaved];
         public string SaveProjectStateHeader
         {
             get => _saveProjectStateHeader;
@@ -123,7 +138,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 }
 
                 if (SetValue(ref _changesSavingInPrecessImageVisibility, value))
-                    SaveProjectStateHeader = "saving changes";
+                    SaveProjectStateHeader = ProjectStateHeaders[(int)SaveProjectState.InProcess];
             }
         }
 
@@ -140,7 +155,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 }
 
                 if (SetValue(ref _changesSavedImageVisibility, value))
-                    SaveProjectStateHeader = "all changes saved";
+                    SaveProjectStateHeader = ProjectStateHeaders[(int)SaveProjectState.ChangesSaved];
             }
         }
 
@@ -157,7 +172,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 }
 
                 if (SetValue(ref _changesNotSavedImageVisibility, value))
-                    SaveProjectStateHeader = "changes not saved";
+                    SaveProjectStateHeader = ProjectStateHeaders[(int)SaveProjectState.ChangesNotSaved];
             }
         }
 
@@ -169,7 +184,7 @@ namespace ChatCorporaAnnotator.ViewModels
         public string LoadedFileInfo
         {
             get => _loadedFileInfo;
-            set => SetValue(ref _loadedFileInfo, value);
+            private set => SetValue(ref _loadedFileInfo, value);
         }
 
         private string _tagsetName = "No tagset";
@@ -202,40 +217,6 @@ namespace ChatCorporaAnnotator.ViewModels
         #endregion
 
         #region BottomBarCommands
-
-        #region ItemsCommands
-
-        public ICommand SetTagsetNameCommand { get; }
-        public bool CanSetTagsetNameCommandExecute(object parameter)
-        {
-            return parameter != null;
-        }
-        public void OnSetTagsetNameCommandExecuted(object parameter)
-        {
-            if (!CanSetTagsetNameCommandExecute(parameter))
-                return;
-
-            TagsetName = parameter.ToString();
-        }
-
-        public ICommand UpdateSituationCountCommand { get; }
-        public bool CanUpdateSituationCountCommandExecute(object parameter)
-        {
-            return true;
-        }
-        public void OnUpdateSituationCountCommandExecuted(object parameter)
-        {
-            if (!CanUpdateSituationCountCommandExecute(parameter))
-                return;
-
-            int newCount = parameter is int count
-                ? count
-                : SituationIndex.GetInstance().ItemCount;
-
-            SituationsCount = newCount;
-        }
-
-        #endregion
 
         #region FilterCommands
 
@@ -281,9 +262,9 @@ namespace ChatCorporaAnnotator.ViewModels
                 TagsetIndex.GetInstance().FlushIndexToDisk();
                 UserDictsIndex.GetInstance().FlushIndexToDisk();
             }
-            catch
+            catch (Exception ex)
             {
-                new QuickMessage("Failed to save present project state.").ShowError();
+                new QuickMessage($"Error: {ex.Message}").ShowError();
             }
         }
 
@@ -496,19 +477,10 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
 
             var window = new WindowFinder().Find(typeof(MainWindow));
-
-            if (window == null)
-                return;
-
             var chatDataGrid = UIHelper.FindChildren<DataGrid>(window).FirstOrDefault(t => t.Name == "ChatDataGrid");
-
-            if (chatDataGrid == null)
-                return;
-
             var scrollViewer = UIHelper.FindChildren<ScrollViewer>(chatDataGrid).FirstOrDefault();
 
-            if (scrollViewer != null)
-                scrollViewer.ScrollChanged += ChatVM.Scroller.ScrollChanged;
+            scrollViewer.ScrollChanged += ChatVM.Scroller.ScrollChanged;
         }
 
         public ICommand MainWindowClosingCommand { get; }
@@ -523,8 +495,8 @@ namespace ChatCorporaAnnotator.ViewModels
 
             _projectStateSavingTimer.Stop();
 
-            CloseIndexFileWindowCommand?.Execute(null);
-            CloseMessageExplorerWindowsCommand?.Execute(null);
+            CloseIndexFileWindowCommand.Execute(null);
+            CloseMessageExplorerWindowsCommand.Execute(null);
 
             if (IsProjectChanged)
             {
@@ -532,7 +504,7 @@ namespace ChatCorporaAnnotator.ViewModels
                     "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (msgRes == MessageBoxResult.Yes)
-                    SavePresentStateCommand?.Execute(null);
+                    SavePresentStateCommand.Execute(null);
             }
         }
 
@@ -579,9 +551,6 @@ namespace ChatCorporaAnnotator.ViewModels
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
             ExtractFileCommand = new RelayCommand(OnExtractFileCommandExecuted, CanExtractFileCommandExecute);
-
-            SetTagsetNameCommand = new RelayCommand(OnSetTagsetNameCommandExecuted, CanSetTagsetNameCommandExecute);
-            UpdateSituationCountCommand = new RelayCommand(OnUpdateSituationCountCommandExecuted, CanUpdateSituationCountCommandExecute);
 
             ChooseTagForFilterCommand = new RelayCommand(OnChooseTagForFilterCommandExecuted, CanChooseTagForFilterCommandExecute);
             SetTaggedOnlyParamForFilterCommand = new RelayCommand(OnSetTaggedOnlyParamForFilterCommandExecuted, CanSetTaggedOnlyParamForFilterCommandExecute);

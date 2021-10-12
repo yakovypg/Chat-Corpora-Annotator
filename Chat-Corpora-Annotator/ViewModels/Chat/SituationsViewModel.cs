@@ -51,7 +51,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             Situations = new ObservableCollection<Situation>(newSituations);
             OnPropertyChanged(nameof(Situations));
 
-            _mainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
+            _mainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
         }
 
         public ICommand AddSituationsCommand { get; }
@@ -74,7 +74,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             foreach (var s in addingSituations)
                 Situations.Add(s);
 
-            _mainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
+            _mainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
         }
 
         public ICommand RemoveSituationsCommand { get; }
@@ -97,7 +97,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             foreach (var s in removingSituations)
                 Situations.Remove(s);
 
-            _mainWindowVM.UpdateSituationCountCommand?.Execute(SituationIndex.GetInstance().ItemCount);
+            _mainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
         }
 
         #endregion
