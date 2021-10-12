@@ -91,6 +91,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 args.MessagesIds.Add(msg.Source.Id);
 
             AddTag(args);
+            MainWindowVM.IsProjectChanged = true;
         }
 
         public ICommand RemoveTagCommand { get; }
@@ -119,10 +120,11 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                     args.Id = firstSituationData.Value;
 
                     RemoveTag(args);
+                    MainWindowVM.IsProjectChanged = true;
                 }
                 else
                 {
-                    //todo
+                    //todo multitag
                 }
             }
         }

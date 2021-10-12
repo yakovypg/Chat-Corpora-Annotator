@@ -18,6 +18,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public List<int> TaggedMessagesIds { get; private set; }
         public ObservableCollection<Situation> Situations { get; private set; }
 
+        private Situation _selectedSituation;
+        public Situation SelectedSituation
+        {
+            get => _selectedSituation;
+            set => SetValue(ref _selectedSituation, value);
+        }
+
         #region AddingAndRemovingCommands
 
         public ICommand SetSituationsCommand { get; }
@@ -106,6 +113,21 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             if (!CanMergeSituationsCommandExecute(parameter))
                 return;
+
+            _mainWindowVM.IsProjectChanged = true;
+        }
+
+        public ICommand CrossMergeSituationsCommand { get; }
+        public bool CanCrossMergeSituationsCommandExecute(object parameter)
+        {
+            return false;
+        }
+        public void OnCrossMergeSituationsCommandExecuted(object parameter)
+        {
+            if (!CanCrossMergeSituationsCommandExecute(parameter))
+                return;
+
+            _mainWindowVM.IsProjectChanged = true;
         }
 
         public ICommand DeleteSituationCommand { get; }
@@ -117,6 +139,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             if (!CanDeleteSituationCommandExecute(parameter))
                 return;
+
+            _mainWindowVM.IsProjectChanged = true;
         }
 
         public ICommand ChangeSituationTagCommand { get; }
@@ -128,6 +152,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             if (!CanChangeSituationTagCommandExecute(parameter))
                 return;
+
+            _mainWindowVM.IsProjectChanged = true;
         }
 
         #endregion
@@ -144,6 +170,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             RemoveSituationsCommand = new RelayCommand(OnRemoveSituationsCommandExecuted, CanRemoveSituationsCommandExecute);
 
             MergeSituationsCommand = new RelayCommand(OnMergeSituationsCommandExecuted, CanMergeSituationsCommandExecute);
+            CrossMergeSituationsCommand = new RelayCommand(OnCrossMergeSituationsCommandExecuted, CanCrossMergeSituationsCommandExecute);
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
         }

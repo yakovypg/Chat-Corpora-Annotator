@@ -18,6 +18,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         public ObservableCollection<MessageDate> ActiveDates { get; private set; }
 
+        private MessageDate _selectedDate;
+        public MessageDate SelectedDate
+        {
+            get => _selectedDate;
+            set => SetValue(ref _selectedDate, value);
+        }
+
         #region AddingCommands
 
         public ICommand SetDatesCommand { get; }
@@ -65,6 +72,21 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
+        #region Commands
+
+        public ICommand MoveToSelectedDateCommand { get; }
+        public bool CanMoveToSelectedDateExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnMoveToSelectedDateExecuted(object parameter)
+        {
+            if (!CanMoveToSelectedDateExecute(parameter))
+                return;
+        }
+
+        #endregion
+
         public DatesViewModel(ChatViewModel chatVM)
         {
             _chatVM = chatVM ?? throw new ArgumentNullException(nameof(chatVM));
@@ -73,6 +95,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             SetDatesCommand = new RelayCommand(OnSetDatesCommandExecuted, CanSetDatesCommandExecute);
             AddDatesCommand = new RelayCommand(OnAddDatesCommandExecuted, CanAddDatesCommandExecute);
+
+            MoveToSelectedDateCommand = new RelayCommand(OnMoveToSelectedDateExecuted, CanMoveToSelectedDateExecute);
         }
 
         public void ClearData()

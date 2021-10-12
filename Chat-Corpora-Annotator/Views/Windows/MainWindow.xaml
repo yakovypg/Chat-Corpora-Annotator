@@ -83,6 +83,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Margin="5, 3" Orientation="Horizontal">
@@ -118,13 +119,13 @@
                 </MenuItem>
 
                 <MenuItem Header="Save">
-                    <MenuItem Header="Write to disk" Command="{Binding WriteFileToDiskCommand}">
+                    <MenuItem Header="Export xml" Command="{Binding ExportXmlCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Solid_Download"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
-                    <MenuItem Header="Save" Command="{Binding SaveFileCommand}">
+                    <MenuItem Header="Save present state" Command="{Binding SavePresentStateCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Solid_Save"/>
                         </MenuItem.Icon>
@@ -154,6 +155,19 @@
                     </MenuItem>
                 </MenuItem>
             </Menu>
+
+            <Grid Grid.Column="2" Width="auto" Visibility="{Binding BottomMenuVisibility}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="5"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Margin="5, 0" Text="{Binding SaveProjectStateHeader}"/>
+                <fa:ImageAwesome Grid.Column="1" Height="16" Foreground="Green" Icon="Regular_CheckSquare" Visibility="{Binding ChangesSavedImageVisibility}"/>
+                <fa:ImageAwesome Grid.Column="1" Height="16" Foreground="Red" Icon="Regular_WindowClose" Visibility="{Binding ChangesNotSavedImageVisibility}"/>
+                <fa:ImageAwesome Grid.Column="1" Height="16" Foreground="Orange" Icon="Solid_Sync" Visibility="{Binding ChangesSavingInProcessImageVisibility}"/>
+            </Grid>
         </Grid>
 
         <Grid Margin="5, 5, 5, 2">
@@ -460,7 +474,13 @@
                                                 Style="{StaticResource ListTitleTextBlock}">
                                             </TextBlock>
 
-                                            <ListBox BorderThickness="0" ItemsSource="{Binding DatesVM.ActiveDates}">
+                                            <ListBox BorderThickness="0" ItemsSource="{Binding DatesVM.ActiveDates}" SelectedItem="{Binding DatesVM.SelectedDate}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                                        <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding DatesVM.MoveToSelectedDateCommand}"/>
+                                                    </i:EventTrigger>
+                                                 </i:Interaction.Triggers>
+                                                    
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type chat:MessageDate}">
                                                         <TextBlock Text="{Binding ShortDatePresenter}"/>
@@ -477,7 +497,7 @@
                                                 Style="{StaticResource ListTitleTextBlock}">
                                             </TextBlock>
 
-                                            <ListBox BorderThickness="0" ItemsSource="{Binding SituationsVM.Situations}">
+                                            <ListBox BorderThickness="0" ItemsSource="{Binding SituationsVM.Situations}" SelectedItem="{Binding SituationsVM.SelectedSituation}">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type chat:Situation}">
                                                         <TextBlock Text="{Binding Header}"/>
@@ -494,13 +514,35 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <StackPanel Grid.Column="0">
-                                            <Button Content="Delete" Padding="3" Style="{StaticResource BlueCircleButton}"/>
-                                            <Button Content="Merge" Padding="3" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}"/>
+                                            <Button
+                                                Content="Delete"
+                                                Padding="3"
+                                                Command="{Binding SituationsVM.DeleteSituationCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
+                                            <Button
+                                                Content="Merge"
+                                                Padding="3"
+                                                Margin="0, 5, 0, 0"
+                                                Command="{Binding SituationsVM.MergeSituationsCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="3, 0, 0, 0">
-                                            <Button Content="Edit tag" Padding="3" Style="{StaticResource BlueCircleButton}"/>
-                                            <Button Content="Cross-Merge" Padding="3" Margin="0, 5, 0, 0" Style="{StaticResource BlueCircleButton}"/>
+                                            <Button
+                                                Content="Change tag"
+                                                Padding="3"
+                                                Command="{Binding SituationsVM.ChangeSituationTagCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
+                                            <Button
+                                                Content="Cross-Merge"
+                                                Padding="3"
+                                                Margin="0, 5, 0, 0"
+                                                Command="{Binding SituationsVM.CrossMergeSituationsCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
                                         </StackPanel>
                                     </Grid>
                                 </Grid>

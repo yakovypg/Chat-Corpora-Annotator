@@ -3,6 +3,7 @@ using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Data.Windows.UI;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
@@ -14,35 +15,70 @@ using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
+        private readonly DispatcherTimer _saveProjectStateTimer;
+        private const int SAVE_PROJECT_STATE_TIMER_INTERVAL = 5 * 1;
+        private const int MIN_SAVING_PROJECT_STATE_TIME = 1500;
+
         public ChatViewModel ChatVM { get; }
         public IndexFileWindow IndexFileWindow { get; set; }
+
+        #region States
 
         private bool _isFileLoaded = false;
         public bool IsFileLoaded
         {
             get => _isFileLoaded;
+            private set => SetValue(ref _isFileLoaded, value);
+        }
+
+        private bool _isProjectChanged = false;
+        public bool IsProjectChanged
+        {
+            get => _isProjectChanged;
             set
             {
-                if (!SetValue(ref _isFileLoaded, value))
+                if (ProjectFileLoadState != FileLoadState.Loaded)
                     return;
 
-                TabControlGridsVisibility = _isFileLoaded
+                SetValue(ref _isProjectChanged, value);
+                SavingProjectState = value ? SaveProjectState.ChangesNotSaved : SaveProjectState.ChangesSaved;
+            }
+        }
+
+        private FileLoadState _projectFileLoadState = FileLoadState.NotLoaded;
+        public FileLoadState ProjectFileLoadState
+        {
+            get => _projectFileLoadState;
+            set
+            {
+                if (!SetValue(ref _projectFileLoadState, value))
+                    return;
+
+                TabControlGridsVisibility = _projectFileLoadState == FileLoadState.Loaded
                     ? Visibility.Visible
                     : Visibility.Hidden;
 
                 BottomMenuVisibility = TabControlGridsVisibility;
                 CurrentTagsetVisibility = TabControlGridsVisibility;
+
+                IsFileLoaded = value == FileLoadState.Loaded;
             }
         }
+
+        #endregion
 
         #region ItemsVisibilities
 
@@ -69,6 +105,94 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
+        #region SaveProjectStatePresenterItems
+
+        private string _saveProjectStateHeader = "all changes saved";
+        public string SaveProjectStateHeader
+        {
+            get => _saveProjectStateHeader;
+            private set => SetValue(ref _saveProjectStateHeader, value);
+        }
+
+        private Visibility _changesSavingInPrecessImageVisibility = Visibility.Hidden;
+        public Visibility ChangesSavingInProcessImageVisibility
+        {
+            get => _changesSavingInPrecessImageVisibility;
+            private set
+            {
+                if (value == Visibility.Visible)
+                {
+                    ChangesSavedImageVisibility = Visibility.Hidden;
+                    ChangesNotSavedImageVisibility = Visibility.Hidden;
+                }
+
+                if (SetValue(ref _changesSavingInPrecessImageVisibility, value))
+                    SaveProjectStateHeader = "saving changes";
+            }
+        }
+
+        private Visibility _changesSavedImageVisibility = Visibility.Visible;
+        public Visibility ChangesSavedImageVisibility
+        {
+            get => _changesSavedImageVisibility;
+            private set
+            {
+                if (value == Visibility.Visible)
+                {
+                    ChangesNotSavedImageVisibility = Visibility.Hidden;
+                    ChangesSavingInProcessImageVisibility = Visibility.Hidden;
+                }
+
+                if (SetValue(ref _changesSavedImageVisibility, value))
+                    SaveProjectStateHeader = "all changes saved";
+            }
+        }
+
+        private Visibility _changesNotSavedImageVisibility = Visibility.Hidden;
+        public Visibility ChangesNotSavedImageVisibility
+        {
+            get => _changesNotSavedImageVisibility;
+            private set
+            {
+                if (value == Visibility.Visible)
+                {
+                    ChangesSavedImageVisibility = Visibility.Hidden;
+                    ChangesSavingInProcessImageVisibility = Visibility.Hidden;
+                }
+
+                if (SetValue(ref _changesNotSavedImageVisibility, value))
+                    SaveProjectStateHeader = "changes not saved";
+            }
+        }
+
+        private SaveProjectState _saveProjectStateResult = SaveProjectState.ChangesSaved;
+        public SaveProjectState SavingProjectState
+        {
+            get => _saveProjectStateResult;
+            private set
+            {
+                if (!SetValue(ref _saveProjectStateResult, value))
+                    return;
+
+                switch (value)
+                {
+                    case SaveProjectState.InProcess:
+                        ChangesSavingInProcessImageVisibility = Visibility.Visible;
+                        break;
+
+                    case SaveProjectState.ChangesSaved:
+                        ChangesSavedImageVisibility = Visibility.Visible;
+                        break;
+
+                    case SaveProjectState.ChangesNotSaved:
+                        ChangesNotSavedImageVisibility = Visibility.Visible;
+                        break;
+                }
+            }
+        }
+
+        #endregion
+
         #region BottomBarItems
 
         private string _loadedFileInfo = "Not loaded";
@@ -91,7 +215,7 @@ namespace ChatCorporaAnnotator.ViewModels
             get => _messagesCount;
             set
             {
-                if (!SetValue(ref _messagesCount, value) || !IsFileLoaded)
+                if (!SetValue(ref _messagesCount, value) || ProjectFileLoadState != FileLoadState.Loaded)
                     return;
 
                 LoadedFileInfo = $"{_messagesCount} messages";
@@ -171,41 +295,75 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region SaveFileCommands
 
-        public ICommand SaveFileCommand { get; }
-        public bool CanSaveFileCommandExecute(object parameter)
+        public ICommand SavePresentStateCommand { get; }
+        public bool CanSavePresentStateCommandExecute(object parameter)
         {
             return IsFileLoaded;
         }
-        public void OnSaveFileCommandExecuted(object parameter)
+        public void OnSavePresentStateCommandExecuted(object parameter)
         {
-            if (!CanSaveFileCommandExecute(parameter))
+            if (!CanSavePresentStateCommandExecute(parameter))
                 return;
 
-            SituationIndex.GetInstance().FlushIndexToDisk();
-            TagsetIndex.GetInstance().FlushIndexToDisk();
-            UserDictsIndex.GetInstance().FlushIndexToDisk();
-        }
+            SavingProjectState = SaveProjectState.InProcess;
+            var window = new WindowFinder().Find(typeof(MainWindow));
 
-        public ICommand WriteFileToDiskCommand { get; }
-        public bool CanWriteFileToDiskCommandExecute(object parameter)
-        {
-            return IsFileLoaded;
-        }
-        public void OnWriteFileToDiskCommandExecuted(object parameter)
-        {
-            if (!CanWriteFileToDiskCommandExecute(parameter))
-                return;
-
-            TagFileWriter writer = new TagFileWriter();
-            writer.OpenWriter();
-
-            foreach (var kvp in SituationIndex.GetInstance().IndexCollection)
+            Task.Run(delegate
             {
-                foreach (var pair in kvp.Value)
-                    writer.WriteSituation(pair.Value, kvp.Key, pair.Key);
-            }
+                try
+                {
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
 
-            writer.CloseWriter();
+                    window?.Dispatcher.Invoke(delegate
+                    {
+                        SituationIndex.GetInstance().FlushIndexToDisk();
+                        TagsetIndex.GetInstance().FlushIndexToDisk();
+                        UserDictsIndex.GetInstance().FlushIndexToDisk();
+                    });
+
+                    stopwatch.Stop();
+
+                    if (stopwatch.ElapsedMilliseconds < MIN_SAVING_PROJECT_STATE_TIME)
+                        Thread.Sleep((int)(MIN_SAVING_PROJECT_STATE_TIME - stopwatch.ElapsedMilliseconds));
+
+                    if (SavingProjectState == SaveProjectState.InProcess)
+                        IsProjectChanged = false;
+                }
+                catch
+                {
+                    SavingProjectState = SaveProjectState.ChangesNotSaved;
+                }
+            });
+        }
+
+        public ICommand ExportXmlCommand { get; }
+        public bool CanExportXmlCommandExecute(object parameter)
+        {
+            return IsFileLoaded;
+        }
+        public void OnExportXmlCommandExecuted(object parameter)
+        {
+            if (!CanExportXmlCommandExecute(parameter))
+                return;
+
+            try
+            {
+                TagFileWriter writer = new TagFileWriter();
+                writer.OpenWriter();
+
+                foreach (var kvp in SituationIndex.GetInstance().IndexCollection)
+                {
+                    foreach (var pair in kvp.Value)
+                        writer.WriteSituation(pair.Value, kvp.Key, pair.Key);
+                }
+
+                writer.CloseWriter();
+            }
+            catch (Exception ex)
+            {
+                new QuickMessage($"Error: {ex.Message}").ShowError();
+            }
         }
 
         #endregion
@@ -413,10 +571,19 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanMainWindowClosingCommandExecute(parameter))
                 return;
 
+            _saveProjectStateTimer.Stop();
+
             CloseIndexFileWindowCommand?.Execute(null);
             CloseMessageExplorerWindowsCommand?.Execute(null);
 
-            SaveFileCommand?.Execute(null);
+            if (IsProjectChanged)
+            {
+                var msgRes = MessageBox.Show("The project has been changed. Save changes?",
+                    "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (msgRes == MessageBoxResult.Yes)
+                    SavePresentStateCommand?.Execute(null);
+            }
         }
 
         public ICommand CloseIndexFileWindowCommand { get; }
@@ -464,8 +631,8 @@ namespace ChatCorporaAnnotator.ViewModels
             ChooseTagForFilterCommand = new RelayCommand(OnChooseTagForFilterCommandExecuted, CanChooseTagForFilterCommandExecute);
             SetTaggedOnlyParamForFilterCommand = new RelayCommand(OnSetTaggedOnlyParamForFilterCommandExecuted, CanSetTaggedOnlyParamForFilterCommandExecute);
 
-            WriteFileToDiskCommand = new RelayCommand(OnWriteFileToDiskCommandExecuted, CanWriteFileToDiskCommandExecute);
-            SaveFileCommand = new RelayCommand(OnSaveFileCommandExecuted, CanSaveFileCommandExecute);
+            ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
+            SavePresentStateCommand = new RelayCommand(OnSavePresentStateCommandExecuted, CanSavePresentStateCommandExecute);
 
             ShowSuggesterCommand = new RelayCommand(OnShowSuggesterCommandExecuted, CanShowSuggesterCommandExecute);
             ShowTagsetEditorCommand = new RelayCommand(OnShowTagsetEditorCommandExecuted, CanShowTagsetEditorCommandExecute);
@@ -474,14 +641,24 @@ namespace ChatCorporaAnnotator.ViewModels
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
+
+            _saveProjectStateTimer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = new TimeSpan(0, 0, 0, SAVE_PROJECT_STATE_TIMER_INTERVAL)
+            };
+
+            _saveProjectStateTimer.Tick += (object sender, EventArgs e) => SavePresentStateCommand.Execute(null);
         }
 
         private void FileLoaded()
         {
-            IsFileLoaded = true;
+            ProjectFileLoadState = FileLoadState.InProcess;
             ResetChatData();
 
             ChatVM.SituationsVM.UpdateMessagesTags();
+            ProjectFileLoadState = FileLoadState.Loaded;
+
+            _saveProjectStateTimer.Start();
         }
 
         private void ResetChatData()

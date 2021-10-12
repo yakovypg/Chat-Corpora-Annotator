@@ -1,5 +1,6 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
@@ -98,7 +99,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand FindMessagesCommand { get; }
         public bool CanFindMessagesCommandExecute(object parameter)
         {
-            return _chatVM.MainWindowVM.IsFileLoaded;
+            return _chatVM.MainWindowVM.ProjectFileLoadState == FileLoadState.Loaded;
         }
         public void OnFindMessagesCommandExecuted(object parameter)
         {

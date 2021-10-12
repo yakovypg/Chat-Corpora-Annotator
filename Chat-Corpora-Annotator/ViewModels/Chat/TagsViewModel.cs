@@ -50,6 +50,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             CurrentTagset = new ObservableCollection<Tag>(newTags);
             OnPropertyChanged(nameof(CurrentTagset));
 
+            _mainWindowVM.IsProjectChanged = true;
             _mainWindowVM.SetTagsetNameCommand?.Execute(ProjectInfo.Tagset);
         }
 
