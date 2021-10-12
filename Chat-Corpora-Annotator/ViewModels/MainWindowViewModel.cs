@@ -48,7 +48,16 @@ namespace ChatCorporaAnnotator.ViewModels
         public bool IsFileLoaded
         {
             get => _isFileLoaded;
-            private set => SetValue(ref _isFileLoaded, value);
+            private set
+            {
+                if (!SetValue(ref _isFileLoaded, value))
+                    return;
+
+                if (!value)
+                    LoadedFileInfo = "Not loaded";
+                else
+                    MessagesCount = ProjectInfo.Data.LineCount;
+            }
         }
 
         private bool _isProjectChanged = false;
@@ -200,7 +209,7 @@ namespace ChatCorporaAnnotator.ViewModels
             get => _messagesCount;
             set
             {
-                if (!SetValue(ref _messagesCount, value) || ProjectFileLoadState != FileLoadState.Loaded)
+                if (!IsFileLoaded || !SetValue(ref _messagesCount, value))
                     return;
 
                 LoadedFileInfo = $"{_messagesCount} messages";
