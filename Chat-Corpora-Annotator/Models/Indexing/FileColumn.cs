@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using ChatCorporaAnnotator.Models.Indexing.Comparers;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Linq;
-using ChatCorporaAnnotator.Models.Indexing.Comparers;
+using System.Runtime.CompilerServices;
 
 namespace ChatCorporaAnnotator.Models.Indexing
 {

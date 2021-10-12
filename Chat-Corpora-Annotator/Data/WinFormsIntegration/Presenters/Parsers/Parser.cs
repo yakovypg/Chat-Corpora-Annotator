@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters.Parsers
 {
-    class Parser
+    internal class Parser
     {
         public static List<List<List<int>>> parse(string query)
         {

@@ -5,7 +5,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
 {
     public class FolderService
     {
-        string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        private readonly string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         public void CheckFolder()
         {

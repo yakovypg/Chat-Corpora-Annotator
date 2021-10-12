@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters.Views
 {
-    public interface IDictEditorView: IView
+    public interface IDictEditorView : IView
     {
         event UserDictsEventHandler AddWord;
         event UserDictsEventHandler DeleteWord;

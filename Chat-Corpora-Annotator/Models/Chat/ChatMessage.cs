@@ -3,12 +3,12 @@ using ChatCorporaAnnotator.Infrastructure.Extensions;
 using IndexEngine;
 using IndexEngine.Paths;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Media;
 using System.Text;
+using System.Windows.Media;
 
 namespace ChatCorporaAnnotator.Models.Chat
 {

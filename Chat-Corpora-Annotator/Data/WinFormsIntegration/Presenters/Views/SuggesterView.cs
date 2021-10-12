@@ -27,7 +27,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters.Views
         int GroupIndex { get; set; }
         //Dictionary<string, List<string>> UserDicts { get; set; }
         void SetCounts();
-        void SetImportLabel(int count,int num=1);
+        void SetImportLabel(int count, int num = 1);
 
         event FindEventHandler ShowMessageInMainWindow;
     }

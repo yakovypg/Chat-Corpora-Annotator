@@ -43,7 +43,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters
         {
             SituationIndex.GetInstance().CrossMergeItems(args.args[0].Tag, args.args[0].Id, args.args[1].Tag, args.args[0].Id);
 
-            foreach (var id in SituationIndex.GetInstance().IndexCollection[args.args[0].Tag][args.args[0].Id]) 
+            foreach (var id in SituationIndex.GetInstance().IndexCollection[args.args[0].Tag][args.args[0].Id])
             {
                 MessageContainer.InsertTagsInDynamicMessage(id, 0);
             }
@@ -59,7 +59,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters
             SituationIndex.GetInstance().DeleteMessageFromSituation(args.Tag, args.Id, args.messages[0]);
             MessageContainer.Messages[args.messages[0]].Situations.Remove(args.Tag);
 
-            if (SituationIndex.GetInstance().GetInnerValueCount(args.Tag,args.Id) == 0)
+            if (SituationIndex.GetInstance().GetInnerValueCount(args.Tag, args.Id) == 0)
             {
                 DeleteOrEditTag(args, true);
             }
@@ -129,7 +129,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters
                     }
 
                     SituationIndex.GetInstance().DeleteInnerIndexEntry(args.Tag, i);
-                    SituationIndex.GetInstance().AddInnerIndexEntry(args.Tag, i - 1, list );
+                    SituationIndex.GetInstance().AddInnerIndexEntry(args.Tag, i - 1, list);
 
                     _tagger.DeleteSituationIndexItem(args.Tag + " " + i.ToString());
                     _tagger.AddSituationIndexItem(args.Tag + " " + (i - 1).ToString());
@@ -188,7 +188,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters
                     _tagger.DisplayTagErrorMessage();
             }
 
-            _tagger.AddSituationIndexItem(e.Tag + " " + (SituationIndex.GetInstance().GetValueCount(e.Tag)-1));
+            _tagger.AddSituationIndexItem(e.Tag + " " + (SituationIndex.GetInstance().GetValueCount(e.Tag) - 1));
             _tagger.UpdateSituationCount(SituationIndex.GetInstance().ItemCount);
         }
 

@@ -1,8 +1,8 @@
 ﻿using IndexEngine;
+using IndexEngine.Paths;
+using OpenTextSummarizer;
 using System;
 using System.Collections.Generic;
-using OpenTextSummarizer;
-using IndexEngine.Paths;
 
 namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
 {
@@ -31,7 +31,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
         void SummarizeMessage(DynamicMessage msg);
         void SummarizeList(List<DynamicMessage> list);
 
-        Dictionary<int,List<string>> Concepts { get; set; }
+        Dictionary<int, List<string>> Concepts { get; set; }
         List<string> Sentences { get; set; }
     }
 }

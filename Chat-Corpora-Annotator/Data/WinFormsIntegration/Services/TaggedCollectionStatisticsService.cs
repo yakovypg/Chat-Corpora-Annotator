@@ -33,8 +33,8 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
         public int AverageWindowLength { get; private set; }
         public int IntertwinedCount { get; private set; }
 
-        private HashSet<Tuple<int, int>> intervals = new HashSet<Tuple<int, int>>();
-        private HashSet<Tuple<Tuple<int, int>, Tuple<int, int>>> mem = new HashSet<Tuple<Tuple<int, int>, Tuple<int, int>>>();
+        private readonly HashSet<Tuple<int, int>> intervals = new HashSet<Tuple<int, int>>();
+        private readonly HashSet<Tuple<Tuple<int, int>, Tuple<int, int>>> mem = new HashSet<Tuple<Tuple<int, int>, Tuple<int, int>>>();
 
         public void CalculateAll()
         {

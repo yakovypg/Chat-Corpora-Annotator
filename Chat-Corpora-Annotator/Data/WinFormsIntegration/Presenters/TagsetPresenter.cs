@@ -58,7 +58,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters
             {
                 TagsetIndex.GetInstance().DeleteInnerIndexEntry(args.Name, args.Tag);
             }
-            if(args.Type == 1)
+            if (args.Type == 1)
             {
                 TagsetIndex.GetInstance().AddInnerIndexEntry(args.Name, args.Tag);
             }

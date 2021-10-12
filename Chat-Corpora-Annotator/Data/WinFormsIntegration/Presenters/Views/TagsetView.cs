@@ -13,7 +13,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Presenters.Views
 
         event TagsetUpdateEventHandler SetProjectTagset;
         void DisplayTagsetNames(List<string> names);
-        void DisplayTagset(Dictionary<string,Color> tags);
+        void DisplayTagset(Dictionary<string, Color> tags);
         void DisplayProjectTagsetName(string name);
     }
 }
