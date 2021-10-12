@@ -11,7 +11,7 @@ namespace ChatCorporaAnnotator.Services
 
             using (var parser = new TextFieldParser(path))
             {
-                parser.SetDelimiters(delimiter); //delimiter select
+                parser.SetDelimiters(delimiter); // delimiter select
                 fields = parser.ReadFields();
             }
 
@@ -26,7 +26,7 @@ namespace ChatCorporaAnnotator.Services
             using (var csv = new CsvReader(path))
             {
                 if (header)
-                    csv.ReadRow(ref row); //header read;
+                    csv.ReadRow(ref row); // header read;
 
                 while (csv.ReadRow(ref row))
                     count++;

@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-//The code is based on the work of frostieDE: https://github.com/kamaelyoung/HighlightedTextBlock
+// The code is based on the work of frostieDE: https://github.com/kamaelyoung/HighlightedTextBlock
 
 namespace ChatCorporaAnnotator.Data.Windows.Controls
 {

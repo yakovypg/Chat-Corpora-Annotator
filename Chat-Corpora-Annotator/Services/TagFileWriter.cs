@@ -7,36 +7,36 @@ namespace ChatCorporaAnnotator.Services
 {
     internal class TagFileWriter : ITagFileWriter
     {
-        private XmlWriter writer;
+        private XmlWriter _writer;
 
         public void OpenWriter()
         {
-            writer = XmlWriter.Create(ProjectInfo.InfoPath + @"\output.xml");
-            writer.WriteStartDocument();
-            writer.WriteStartElement("Corpus");
+            _writer = XmlWriter.Create(ProjectInfo.InfoPath + @"\output.xml");
+            _writer.WriteStartDocument();
+            _writer.WriteStartElement("Corpus");
         }
 
         public void WriteMessage(int messageId, string text, string user, string date)
         {
-            writer.WriteStartElement("Message");
-            writer.WriteAttributeString("id", messageId.ToString());
-            writer.WriteElementString("Text", text);
-            writer.WriteElementString("User", user);
-            writer.WriteElementString("Date", date);
-            writer.WriteEndElement();
+            _writer.WriteStartElement("Message");
+            _writer.WriteAttributeString("id", messageId.ToString());
+            _writer.WriteElementString("Text", text);
+            _writer.WriteElementString("User", user);
+            _writer.WriteElementString("Date", date);
+            _writer.WriteEndElement();
         }
 
         public void CloseWriter()
         {
-            writer.WriteEndElement();
-            writer.WriteEndDocument();
-            writer.Close();
+            _writer.WriteEndElement();
+            _writer.WriteEndDocument();
+            _writer.Close();
         }
 
         public void WriteSituation(List<DynamicMessage> messages, string situation, int sid)
         {
-            writer.WriteStartElement("Situation", situation);
-            writer.WriteAttributeString("SId", sid.ToString());
+            _writer.WriteStartElement("Situation", situation);
+            _writer.WriteAttributeString("SId", sid.ToString());
 
             foreach (var msg in messages)
             {
@@ -46,13 +46,13 @@ namespace ChatCorporaAnnotator.Services
                              date: msg.Contents[ProjectInfo.DateFieldKey].ToString());
             }
 
-            writer.WriteEndElement();
+            _writer.WriteEndElement();
         }
 
         public void WriteSituation(List<int> messageIds, string situation, int sid)
         {
-            writer.WriteStartElement("Situation", situation);
-            writer.WriteAttributeString("SId", sid.ToString());
+            _writer.WriteStartElement("Situation", situation);
+            _writer.WriteAttributeString("SId", sid.ToString());
 
             foreach (var id in messageIds)
             {
@@ -64,7 +64,7 @@ namespace ChatCorporaAnnotator.Services
                              date: msg.Contents[ProjectInfo.DateFieldKey].ToString());
             }
 
-            writer.WriteEndElement();
+            _writer.WriteEndElement();
         }
     }
 }

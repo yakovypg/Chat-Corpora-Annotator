@@ -48,7 +48,7 @@ namespace ChatCorporaAnnotator.Models.Indexing
             return Header;
         }
 
-        //Do not override Equals and GetHashCode. If you still decide to do this, change the method of changing the selected columns.
+        // Do not override Equals and GetHashCode. If you still decide to do this, change the method of changing the selected columns.
 
         private void AddToSelectedColumns()
         {
