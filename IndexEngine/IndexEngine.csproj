@@ -375,6 +375,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Containers\ActiveDate.cs" />
     <Compile Include="Containers\DynamicMessage.cs" />
     <Compile Include="Extractor\CoreAnalyzer.cs" />
     <Compile Include="Extractor\Extractor.cs" />

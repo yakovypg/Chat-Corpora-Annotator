@@ -4,7 +4,8 @@ namespace ChatCorporaAnnotator.Models.Chat
 {
     internal interface IMessageDate
     {
-        DateTime Source { get; }
+        DateTime Date { get; }
+        int MessageId { get; }
 
         string Presenter { get; }
 

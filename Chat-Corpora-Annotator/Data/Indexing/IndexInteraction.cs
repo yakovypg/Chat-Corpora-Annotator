@@ -95,5 +95,33 @@ namespace ChatCorporaAnnotator.Data.Indexing
                 return false;
             }
         }
+
+        public static IEnumerable<ChatMessage> PeekPreviousMessages()
+        {
+            return PeekPreviousMessages(LoadingMessagesCount);
+        }
+
+        public static IEnumerable<ChatMessage> PeekNextMessages()
+        {
+            return PeekNextMessages(LoadingMessagesCount);
+        }
+
+        public static IEnumerable<ChatMessage> PeekPreviousMessages(int count)
+        {
+            if (count < 0)
+                return new ChatMessage[0];
+
+            List<DynamicMessage> messages = IndexHelper.PeekPreviousDocumentsFromIndex(count);
+            return messages.Select(t => new ChatMessage(t));
+        }
+
+        public static IEnumerable<ChatMessage> PeekNextMessages(int count)
+        {
+            if (count < 0)
+                return new ChatMessage[0];
+
+            List<DynamicMessage> messages = IndexHelper.PeekNextDocumentsFromIndex(count);
+            return messages.Select(t => new ChatMessage(t));
+        }
     }
 }

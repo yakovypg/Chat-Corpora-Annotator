@@ -19,8 +19,9 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         /// </summary>
         /// <param name="tempMessages">The temporary messages that will be displayed on the screen.</param>
         void Pause(IEnumerable<ChatMessage> tempMessages);
-
         void Resume();
+
         void Reset();
+        void Shift(int messageReadIndex);
     }
 }

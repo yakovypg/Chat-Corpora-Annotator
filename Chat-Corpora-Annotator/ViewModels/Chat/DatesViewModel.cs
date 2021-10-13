@@ -3,6 +3,7 @@ using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
+using IndexingServices.Containers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +15,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 {
     internal class DatesViewModel : ViewModel
     {
+        private readonly ChatViewModel _chatVM;
+
         public bool IsAvtiveDatesLoadingInProgress { get; private set; }
 
         public ObservableCollection<MessageDate> ActiveDates { get; private set; }
@@ -46,18 +49,27 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand MoveToSelectedDateCommand { get; }
         public bool CanMoveToSelectedDateExecute(object parameter)
         {
-            return true;
+            return SelectedDate != null;
         }
         public void OnMoveToSelectedDateExecuted(object parameter)
         {
             if (!CanMoveToSelectedDateExecute(parameter))
                 return;
+
+            int shiftIndex = SelectedDate.MessageId - 1;
+
+            if (shiftIndex < 0)
+                shiftIndex = 0;
+
+            _chatVM.ShiftChatPageCommand.Execute(shiftIndex);
         }
 
         #endregion
 
-        public DatesViewModel()
+        public DatesViewModel(ChatViewModel chatVM)
         {
+            _chatVM = chatVM ?? throw new ArgumentNullException(nameof(chatVM));
+
             ActiveDates = new ObservableCollection<MessageDate>();
 
             SetAllActiveDatesCommand = new RelayCommand(OnSetAllActiveDatesCommandExecuted, CanSetAllActiveDatesCommandExecute);
@@ -69,22 +81,22 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ActiveDates.Clear();
         }
 
-        private void SetActiveDates(IEnumerable<DateTime> dates)
+        private void SetActiveDates(IEnumerable<ActiveDate> activeDates)
         {
-            IEnumerable<MessageDate> msgDates = ToMessageDates(dates);
+            IEnumerable<MessageDate> msgDates = ToMessageDates(activeDates);
             ActiveDates = new ObservableCollection<MessageDate>(msgDates);
 
             OnPropertyChanged(nameof(ActiveDates));
         }
 
-        private IEnumerable<MessageDate> ToMessageDates(IEnumerable<DateTime> datesCollection)
+        private IEnumerable<MessageDate> ToMessageDates(IEnumerable<ActiveDate> activeDates)
         {
             var dateSet = new HashSet<MessageDate>();
 
-            foreach (var date in datesCollection)
+            foreach (var activeDate in activeDates)
             {
-                MessageDate msgDate = new MessageDate(date);
-                dateSet.Add(msgDate);
+                MessageDate date = new MessageDate(activeDate);
+                dateSet.Add(date);
             }
 
             return dateSet;
@@ -94,7 +106,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             await Task.Run(delegate
             {
-                HashSet<DateTime> dates = IndexHelper.LoadAllActiveDates();
+                HashSet<ActiveDate> dates = IndexHelper.LoadAllActiveDates();
                 dispatcher?.Invoke(() => SetActiveDates(dates));
 
                 IsAvtiveDatesLoadingInProgress = false;

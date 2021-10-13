@@ -165,6 +165,34 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             LoadNextPackage();
         }
 
+        public void Shift(int messageReadIndex)
+        {
+            _savedPackage.Clear();
+            _previousPackage.Clear();
+            _currentPackage.Clear();
+            _nextPackage.Clear();
+
+            IndexInteraction.ResetMessageReadIndex(messageReadIndex);
+
+            IEnumerable<ChatMessage> previousMessages = IndexInteraction.PeekPreviousMessages();
+            IEnumerable<ChatMessage> currMessages = null;
+            IEnumerable<ChatMessage> nextMessages = null;
+
+            if (IndexInteraction.TryLoadNextMessagesFromIndex())
+            {
+                currMessages = IndexInteraction.GetMessages();
+
+                if (IndexInteraction.TryLoadNextMessagesFromIndex())
+                    nextMessages = IndexInteraction.GetMessages();
+            }
+
+            _previousPackage.Reset(previousMessages);
+            _currentPackage.Reset(currMessages);
+            _nextPackage.Reset(nextMessages);
+
+            CurrentMessages = new ObservableCollection<ChatMessage>(currMessages);
+        }
+
         private bool LoadPreviousPackage()
         {
             if (_previousPackage.Count > 0)

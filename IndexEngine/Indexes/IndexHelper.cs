@@ -1,5 +1,6 @@
 ﻿using CSharpTest.Net.Collections;
 using IndexEngine.Paths;
+using IndexingServices.Containers;
 using Lucene.Net.Documents;
 using SoftCircuits.CsvParser;
 using System;
@@ -189,9 +190,9 @@ namespace IndexEngine
                 viewerReadIndex = LuceneService.DirReader.MaxDoc - 1;
         }
 
-        public static HashSet<DateTime> LoadAllActiveDates()
+        public static HashSet<ActiveDate> LoadAllActiveDates()
         {
-            HashSet<DateTime> dates = new HashSet<DateTime>();
+            HashSet<ActiveDate> dates = new HashSet<ActiveDate>();
 
             for (int i = 0; i < LuceneService.DirReader.MaxDoc; ++i)
             {
@@ -203,7 +204,10 @@ namespace IndexEngine
                 DateTime fullDate = DateTools.StringToDate(dateString);
                 DateTime shortDate = new DateTime(fullDate.Year, fullDate.Month, fullDate.Day);
 
-                dates.Add(shortDate);
+                int messageId = document.GetField("id").GetInt32Value().Value;
+                var activeDate = new ActiveDate(shortDate, messageId);
+
+                dates.Add(activeDate);
             }
 
             return dates;
@@ -265,6 +269,24 @@ namespace IndexEngine
 
             viewerReadIndex = Math.Min(topEdge, LuceneService.DirReader.MaxDoc - 1);
             return messages;
+        }
+
+        public static List<DynamicMessage> PeekPreviousDocumentsFromIndex(int count)
+        {
+            int savedReadIndex = viewerReadIndex;
+            List<DynamicMessage> loadedDocuments = LoadPreviousDocumentsFromIndex(count);
+
+            viewerReadIndex = savedReadIndex;
+            return loadedDocuments;
+        }
+
+        public static List<DynamicMessage> PeekNextDocumentsFromIndex(int count)
+        {
+            int savedReadIndex = viewerReadIndex;
+            List<DynamicMessage> loadedDocuments = LoadNextDocumentsFromIndex(count);
+
+            viewerReadIndex = savedReadIndex;
+            return loadedDocuments;
         }
 
         public static List<DynamicMessage> LoadNDocumentsFromIndex(int count)

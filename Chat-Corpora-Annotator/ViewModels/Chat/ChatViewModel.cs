@@ -1,10 +1,13 @@
-﻿using ChatCorporaAnnotator.Data.Windows.Controls;
+﻿using ChatCorporaAnnotator.Data.Windows;
+using ChatCorporaAnnotator.Data.Windows.Controls;
 using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
@@ -92,6 +95,29 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             MainWindowVM.MessagesCount = ProjectInfo.Data.LineCount;
         }
 
+        public ICommand ShiftChatPageCommand { get; }
+        public bool CanShiftChatPageCommandExecute(object parameter)
+        {
+            return parameter is int;
+        }
+        public void OnShiftChatPageCommandExecuted(object parameter)
+        {
+            if (!CanShiftChatPageCommandExecute(parameter))
+                return;
+
+            int shiftIndex = (int)parameter;
+            MessagesVM.MessagesCase.Shift(shiftIndex);
+
+            var window = new WindowFinder().Find(typeof(MainWindow)) as MainWindow;
+
+            if (shiftIndex > 0)
+                window.ChatDataGrid.ScrollToNearlyTop();
+            else
+                window.ChatDataGrid.ScrollToTop();
+
+            SituationsVM.UpdateMessagesTags();
+        }
+
         #endregion
 
         #region TagCommands
@@ -162,7 +188,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             UsersVM = new UsersViewModel();
-            DatesVM = new DatesViewModel();
+            DatesVM = new DatesViewModel(this);
 
             TagsVM = new TagsViewModel(MainWindowVM);
             SituationsVM = new SituationsViewModel(MainWindowVM);
@@ -174,7 +200,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ChatColumns = new ObservableCollection<DataGridColumn>();
 
             SetChatColumnsCommand = new RelayCommand(OnSetChatColumnsCommandExecuted, CanSetChatColumnsCommandExecute);
+
             ResetDataCommand = new RelayCommand(OnResetDataCommandExecuted, CanResetDataCommandExecute);
+            ShiftChatPageCommand = new RelayCommand(OnShiftChatPageCommandExecuted, CanShiftChatPageCommandExecute);
 
             AddTagCommand = new RelayCommand(OnAddTagCommandExecuted, CanAddTagCommandExecute);
             RemoveTagCommand = new RelayCommand(OnRemoveTagCommandExecuted, CanRemoveTagCommandExecute);
