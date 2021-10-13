@@ -150,7 +150,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 }
                 else
                 {
-                    //todo multitag
+                    //todo: remove multitag
                 }
             }
         }
@@ -162,13 +162,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
             UsersVM = new UsersViewModel();
-            DatesVM = new DatesViewModel(this);
+            DatesVM = new DatesViewModel();
 
             TagsVM = new TagsViewModel(MainWindowVM);
             SituationsVM = new SituationsViewModel(MainWindowVM);
 
             MessageFinderVM = new MessageFinderViewModel(this);
-            MessagesVM = new MessagesViewModel(this);
+            MessagesVM = new MessagesViewModel(SituationsVM.UpdateMessagesTags);
 
             Scroller = new ChatScroller(MessagesVM.MessagesCase);
             ChatColumns = new ObservableCollection<DataGridColumn>();
@@ -318,12 +318,6 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             foreach (var column in columns)
                 ChatColumns.Add(column);
-        }
-
-        public void ResetChatColumns(IEnumerable<DataGridColumn> columns)
-        {
-            ChatColumns = new ObservableCollection<DataGridColumn>(columns);
-            OnPropertyChanged(nameof(ChatColumns));
         }
 
         #endregion

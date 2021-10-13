@@ -56,7 +56,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             IEnumerable<ChatUser> addingUsers = parameter as IEnumerable<ChatUser>;
 
             if (addingUsers.IsNullOrEmpty())
+            {
+                Users.Clear();
                 return;
+            }
 
             Users = new ObservableCollection<ChatUser>(Users.Concat(addingUsers));
             OnPropertyChanged(nameof(Users));
