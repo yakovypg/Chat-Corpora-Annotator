@@ -1,9 +1,8 @@
 ﻿using IndexEngine.Paths;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
-using System.ComponentModel;
 
 namespace IndexEngine.Indexes
 {
@@ -16,22 +15,22 @@ namespace IndexEngine.Indexes
             return lazy.Value;
         }
 
-        private SituationIndex() { }
+        private SituationIndex()
+        {
+        }
 
         public IDictionary<string, Dictionary<int, List<int>>> IndexCollection { get; private set; } = new Dictionary<string, Dictionary<int, List<int>>>();
-
         public IDictionary<int, Dictionary<string, int>> InvertedIndex { get; private set; } = new Dictionary<int, Dictionary<string, int>>();
 
-        
         public int ItemCount
         {
             get
             {
                 int count = 0;
+
                 foreach (var kvp in IndexCollection)
-                {
                     count += kvp.Value.Count;
-                }
+
                 return count;
             }
         }
@@ -44,12 +43,12 @@ namespace IndexEngine.Indexes
             }
             else
             {
-                foreach(var kvp in value)
+                foreach (var kvp in value)
                 {
                     AddInnerIndexEntry(key, kvp.Key, kvp.Value);
                 }
             }
-            foreach(var kvp in value)
+            foreach (var kvp in value)
             {
 
                 AddInvertedIndexEntry(key, kvp.Key, kvp.Value);
@@ -66,6 +65,7 @@ namespace IndexEngine.Indexes
                 IndexCollection.Add(key, new Dictionary<int, List<int>>());
                 IndexCollection[key].Add(sid, messages);
             }
+
             AddInvertedIndexEntry(key, sid, messages);
         }
 
@@ -94,62 +94,56 @@ namespace IndexEngine.Indexes
 
         public void CrossMergeItems(string key1, int id1, string key2, int id2)
         {
-
             AddInvertedIndexEntry(key2, id2, IndexCollection[key1][id1]);
             AddInvertedIndexEntry(key1, id1, IndexCollection[key2][id2]);
-            
         }
 
         public void DeleteIndexEntry(string key)
         {
             IndexCollection.Remove(key);
-            foreach(var kvp in InvertedIndex)
+
+            foreach (var kvp in InvertedIndex)
             {
                 if (kvp.Value.ContainsKey(key))
                 {
                     kvp.Value.Remove(key);
                 }
             }
-
         }
 
         public void DeleteInnerIndexEntry(string key, int sid)
         {
             IndexCollection[key].Remove(sid);
-            foreach(var kvp in InvertedIndex)
+
+            foreach (var kvp in InvertedIndex)
             {
-                if (kvp.Value.ContainsKey(key)){
-                    if(kvp.Value[key] == sid)
-                    {
+                if (kvp.Value.ContainsKey(key))
+                {
+                    if (kvp.Value[key] == sid)
                         kvp.Value.Remove(key);
-                    }
                 }
             }
         }
 
-
         public void FlushIndexToDisk()
         {
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(IndexCollection);
+            var json = JsonConvert.SerializeObject(IndexCollection);
             File.WriteAllText(ProjectInfo.SituationsPath, json);
 
             json = JsonConvert.SerializeObject(InvertedIndex);
             File.WriteAllText(ProjectInfo.SavedTagsPathTemp, json);
         }
 
-        public  void ReadIndexFromDisk()
+        public void ReadIndexFromDisk()
         {
             if (CheckFiles())
             {
                 InvertedIndex = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<string, int>>>(File.ReadAllText(ProjectInfo.SavedTagsPathTemp));
-
                 IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, List<int>>>>(File.ReadAllText(ProjectInfo.SituationsPath));
-
-
             }
         }
 
-        public  void UnloadData()
+        public void UnloadData()
         {
             IndexCollection.Clear();
             InvertedIndex.Clear();
@@ -157,51 +151,36 @@ namespace IndexEngine.Indexes
 
         public void UpdateIndexEntry(string key, Dictionary<int, List<int>> value)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool CheckDirectory()
         {
-            if (Directory.Exists(ProjectInfo.InfoPath))
-            {
-                return true;
-            }
-            else return false;
+            return Directory.Exists(ProjectInfo.InfoPath);
         }
 
         public bool CheckFiles()
         {
-            if(File.Exists(ProjectInfo.SituationsPath) && File.Exists(ProjectInfo.SavedTagsPathTemp))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return File.Exists(ProjectInfo.SituationsPath) && File.Exists(ProjectInfo.SavedTagsPathTemp);
         }
 
-
-
-        public  void InitializeIndex(List<string> list)
+        public void InitializeIndex(List<string> list)
         {
-            foreach(var str in list)
+            foreach (var str in list)
             {
                 IndexCollection.Add(str, new Dictionary<int, List<int>>());
             }
         }
 
-        public void DeleteMessageFromSituation(string tag, int id, int messageid) 
+        public void DeleteMessageFromSituation(string tag, int id, int messageid)
         {
             if (IndexCollection.ContainsKey(tag))
             {
                 if (IndexCollection[tag].ContainsKey(id))
-                {
                     IndexCollection[tag][id].Remove(messageid);
-                }
             }
         }
-        public void AddMessageToSituation(string tag, int id, int messageid) 
+        public void AddMessageToSituation(string tag, int id, int messageid)
         {
             if (IndexCollection.ContainsKey(tag))
             {
@@ -215,34 +194,24 @@ namespace IndexEngine.Indexes
                 }
             }
         }
-        public  int GetValueCount(string key)
+        public int GetValueCount(string key)
         {
-            if (IndexCollection.ContainsKey(key))
-            {
-                return IndexCollection[key].Count;
-            }
-            else
-            {
-                return 0;
-            }
+            return IndexCollection.ContainsKey(key)
+                ? IndexCollection[key].Count
+                : 0;
         }
 
-        public  int GetInnerValueCount(string key, int inkey)
+        public int GetInnerValueCount(string key, int inkey)
         {
             if (IndexCollection.ContainsKey(key))
             {
-                if (IndexCollection[key].ContainsKey(inkey))
-                {
-                    return IndexCollection[key][inkey].Count;
-                }
-                else
-                {
-                    return -1;
-                }
+                return IndexCollection[key].ContainsKey(inkey)
+                    ? IndexCollection[key][inkey].Count
+                    : -1;
             }
             else
             {
-                return - 1;
+                return -1;
             }
         }
 
@@ -251,19 +220,20 @@ namespace IndexEngine.Indexes
             using (StreamReader reader = new StreamReader(ProjectInfo.SavedTagsPath))
             {
                 string line;
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     var MessageIdAndSituations = line.Split(' ');
-
                     var situationsSet = MessageIdAndSituations[1].Split(new char[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
                     var id = int.Parse(MessageIdAndSituations[0]);
+
                     InvertedIndex.Add(id, new Dictionary<string, int>());
+
                     foreach (var s in situationsSet)
                     {
                         var item = s.Split('-');
                         InvertedIndex[id].Add(item[0], int.Parse(item[1]));
                     }
-
                 }
             }
         }
@@ -272,6 +242,7 @@ namespace IndexEngine.Indexes
         {
             List<string> list = new List<string> { "JobSearch", "FCCBug", "CodeHelp", "Meeting", "OSSelection", "SoftwareSupport" };
             InitializeIndex(list);
+
             foreach (var kvp in InvertedIndex)
             {
                 foreach (var pair in kvp.Value)
@@ -288,6 +259,5 @@ namespace IndexEngine.Indexes
                 }
             }
         }
-
     }
 }

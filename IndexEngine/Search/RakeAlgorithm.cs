@@ -22,10 +22,8 @@ namespace IndexEngine
             _stopWordsPattern = BuildStopWordRegEx(stopWordsPath);
         }
 
-
         public Dictionary<string, double> Run(List<string> sentenceList)
         {
-
             var phraseList = GenerateCandidateKeywords(sentenceList, _stopWordsPattern,
                 _minCharLength, _maxWordsLength);
 
@@ -79,6 +77,7 @@ namespace IndexEngine
             using (var reader = new StreamReader(stream))
             {
                 string line;
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     yield return line;
@@ -86,8 +85,7 @@ namespace IndexEngine
             }
         }
 
-        private Dictionary<string, double> GenerateCandidateKeywordScores(IList<string> phraseList, Dictionary<string, double> wordScores,
-            double minKeywordFrequency)
+        private Dictionary<string, double> GenerateCandidateKeywordScores(IList<string> phraseList, Dictionary<string, double> wordScores, double minKeywordFrequency)
         {
             var keywordCandidates = new Dictionary<string, double>();
 
@@ -99,7 +97,8 @@ namespace IndexEngine
                         continue;
                 }
 
-                if (!keywordCandidates.ContainsKey(phrase)) keywordCandidates[phrase] = 0;
+                if (!keywordCandidates.ContainsKey(phrase))
+                    keywordCandidates[phrase] = 0;
 
                 var words = SeparateWords(phrase, 0);
                 var candidateScore = words.Sum(word => wordScores[word]);
@@ -125,16 +124,19 @@ namespace IndexEngine
 
                 foreach (var word in words)
                 {
-                    if (!wordFrequency.ContainsKey(word)) wordFrequency[word] = 0;
+                    if (!wordFrequency.ContainsKey(word))
+                        wordFrequency[word] = 0;
 
                     wordFrequency[word] = wordFrequency[word] + 1;
 
-                    if (!wordDegree.ContainsKey(word)) wordDegree[word] = 0;
+                    if (!wordDegree.ContainsKey(word))
+                        wordDegree[word] = 0;
 
                     wordDegree[word] = wordDegree[word] + wordListDegree; // orig.
                                                                           // word_degree[word] += 1/(word_list_length*1.0) #exp.
                 }
             }
+
             foreach (var item in wordFrequency)
             {
                 wordDegree[item.Key] = wordDegree[item.Key] + wordFrequency[item.Key];
@@ -142,9 +144,11 @@ namespace IndexEngine
 
             // Calculate Word scores = deg(w)/frew(w)
             var wordScore = new Dictionary<string, double>();
+
             foreach (var item in wordFrequency)
             {
-                if (!wordScore.ContainsKey(item.Key)) wordScore[item.Key] = 0;
+                if (!wordScore.ContainsKey(item.Key))
+                    wordScore[item.Key] = 0;
 
                 wordScore[item.Key] = wordDegree[item.Key] / (wordFrequency[item.Key] * 1.0); // orig.
                                                                                               // word_score[item] = word_frequency[item]/(word_degree[item] * 1.0) #exp.
@@ -185,8 +189,7 @@ namespace IndexEngine
             return float.TryParse(word, out tmp);
         }
 
-        private static IList<string> GenerateCandidateKeywords(IEnumerable<string> sentenceList, string stopWordsPattern,
-            int minCharLength, int maxWordsLength)
+        private static IList<string> GenerateCandidateKeywords(IEnumerable<string> sentenceList, string stopWordsPattern, int minCharLength, int maxWordsLength)
         {
             var phraseList = new List<string>();
 
@@ -209,26 +212,33 @@ namespace IndexEngine
 
         private static bool IsAcceptable(string phrase, int minCharLength, int maxWordsLength)
         {
-            if (phrase.Length < minCharLength) return false;
+            if (phrase.Length < minCharLength)
+                return false;
 
             var words = phrase.Split(' ');
 
-            if (words.Length > maxWordsLength) return false;
+            if (words.Length > maxWordsLength)
+                return false;
 
             var digits = 0;
             var alpha = 0;
 
             for (var i = 0; i < phrase.Length; i++)
             {
-                if (char.IsDigit(phrase[i])) digits++;
-                if (char.IsLetter(phrase[i])) alpha++;
+                if (char.IsDigit(phrase[i]))
+                    digits++;
+
+                if (char.IsLetter(phrase[i]))
+                    alpha++;
             }
 
             // a phrase must have at least one alpha character
-            if (alpha == 0) return false;
+            if (alpha == 0)
+                return false;
 
             // a phrase must have more alpha than digits characters
-            if (digits > alpha) return false;
+            if (digits > alpha)
+                return false;
 
             return true;
         }
@@ -247,4 +257,3 @@ namespace IndexEngine
         }
     }
 }
-

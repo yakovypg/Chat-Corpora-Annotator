@@ -10,32 +10,29 @@ namespace IndexEngine.Paths
     public class ProjectData
     {
         public BTreeDictionary<DateTime, int> MessagesPerDay { get; set; } = new BTreeDictionary<DateTime, int>();
-
         public HashSet<string> UserKeys { get; set; } = new HashSet<string>();
-
         public Dictionary<string, Color> UserColors { get; set; } = new Dictionary<string, Color>();
-
         public List<string> SelectedFields { get; set; } = new List<string>();
-
         public int LineCount { get; set; }
     }
+
     public static class ProjectInfo
     {
-
         public static void LoadProject(string path)
         {
             UnloadData();
             SetPaths(path);
+
             var list = IndexHelper.LoadInfoFromDisk(KeyPath);
             SetKeys(list["DateFieldKey"], list["SenderFieldKey"], list["TextFieldKey"]);
+
             Data.LineCount = int.Parse(list["LineCount"]);
             Data.MessagesPerDay = IndexHelper.LoadStatsFromDisk(StatsPath);
             Data.UserKeys = IndexHelper.LoadUsersFromDisk(UsersPath);
             Data.SelectedFields = IndexHelper.LoadFieldsFromDisk(FieldsPath);
+
             if (TagsetSet)
-            {
-                Tagset = File.ReadAllText(ProjectInfo.TagsetPath);
-            }
+                Tagset = File.ReadAllText(TagsetPath);
         }
 
         public static void CreateNewProject(string path, string date, string sender, string text, List<string> fields)
@@ -44,9 +41,7 @@ namespace IndexEngine.Paths
             SetPaths(path);
             SetKeys(date, sender, text);
             SetSelectedFields(fields);
-
         }
-
         public static void UnloadData()
         {
             Data.MessagesPerDay.Clear();
@@ -54,14 +49,13 @@ namespace IndexEngine.Paths
             Data.UserKeys.Clear();
             Data.SelectedFields = new List<string>();
             Data.LineCount = 0;
+
             IndexHelper.UnloadData();
 
             foreach (PropertyInfo prop in typeof(ProjectInfo).GetProperties())
             {
                 if (prop.PropertyType.Name == "String")
-                {
-                    prop.SetValue(prop,"");
-                }
+                    prop.SetValue(prop, "");
             }
         }
 
@@ -73,6 +67,7 @@ namespace IndexEngine.Paths
         {
             IndexPath = path;
             Name = Path.GetFileNameWithoutExtension(IndexPath);
+
             InfoPath = IndexPath + @"\info\";
             KeyPath = InfoPath + Name + @"-info.txt";
             FieldsPath = InfoPath + Name + @"-fields.txt";
@@ -84,7 +79,6 @@ namespace IndexEngine.Paths
             TagCountsPath = InfoPath + Name + @"-tagcounts.txt";
             TagsetPath = InfoPath + Name + @"-tagset.txt";
             SituationsPath = InfoPath + Name + @"-situations.txt";
-
         }
 
         private static void SetKeys(string date, string sender, string text)
@@ -114,6 +108,5 @@ namespace IndexEngine.Paths
 
         public static string Tagset { get; private set; }
         public static bool TagsetSet { get { return File.Exists(TagsetPath); } }
-
     }
 }

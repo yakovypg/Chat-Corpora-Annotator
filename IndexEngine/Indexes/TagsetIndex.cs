@@ -5,13 +5,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
-using System.Text.Json;
 
 namespace IndexEngine.Indexes
 {
-    public class TagsetIndex: INestedIndex<string,Dictionary<string,Color>, string, Color>
+    public class TagsetIndex : INestedIndex<string, Dictionary<string, Color>, string, Color>
     {
         private static readonly Lazy<TagsetIndex> lazy = new Lazy<TagsetIndex>(() => new TagsetIndex());
 
@@ -20,7 +18,7 @@ namespace IndexEngine.Indexes
             return lazy.Value;
         }
 
-        private TagsetIndex() 
+        private TagsetIndex()
         {
             if (!File.Exists(ToolInfo.TagsetColorIndexPath))
             {
@@ -39,7 +37,8 @@ namespace IndexEngine.Indexes
         {
             var list = new List<string> { "JobSearch", "CodeHelp", "FCCBug", "SoftwareSupport", "OSSelection", "Meeting" };
             AddIndexEntry("default", null);
-            foreach(var tag in list)
+
+            foreach (var tag in list)
             {
                 AddInnerIndexEntry("default", tag, ColorGenerator.GenerateHSLuvColor());
             }
@@ -47,12 +46,12 @@ namespace IndexEngine.Indexes
 
         public bool CheckFiles()
         {
-            return (File.Exists(ToolInfo.TagsetColorIndexPath));
+            return File.Exists(ToolInfo.TagsetColorIndexPath);
         }
 
         public bool CheckDirectory()
         {
-            return (Directory.Exists(ToolInfo.root));
+            return Directory.Exists(ToolInfo.root);
         }
 
         public void ReadIndexFromDisk()
@@ -60,7 +59,7 @@ namespace IndexEngine.Indexes
             if (CheckFiles())
             {
                 var jsonString = File.ReadAllText(ToolInfo.TagsetColorIndexPath);
-                IndexCollection = JsonConvert.DeserializeObject<BTreeDictionary<string, Dictionary<string,Color>>>(jsonString);
+                IndexCollection = JsonConvert.DeserializeObject<BTreeDictionary<string, Dictionary<string, Color>>>(jsonString);
             }
         }
 
@@ -76,7 +75,7 @@ namespace IndexEngine.Indexes
             {
                 IndexCollection.Add(key, new Dictionary<string, Color>());
             }
-            if(!IndexCollection.ContainsKey(key) && value != null)
+            if (!IndexCollection.ContainsKey(key) && value != null)
             {
                 IndexCollection.Add(key, value);
             }
@@ -87,29 +86,23 @@ namespace IndexEngine.Indexes
             if (IndexCollection.ContainsKey(key))
             {
                 if (!IndexCollection[key].ContainsKey(inkey))
-                {
                     IndexCollection[key].Add(inkey, invalue);
-                }
             }
         }
-
 
         public void AddInnerIndexEntry(string key, string inkey)
         {
             if (IndexCollection.ContainsKey(key))
             {
                 if (!IndexCollection[key].ContainsKey(inkey))
-                {
                     IndexCollection[key].Add(inkey, ColorGenerator.GenerateHSLuvColor());
-                }
             }
         }
+
         public void DeleteIndexEntry(string key)
         {
             if (IndexCollection.ContainsKey(key))
-            {
                 IndexCollection.Remove(key);
-            }
         }
 
         public void DeleteInnerIndexEntry(string key, string inkey)
@@ -117,15 +110,13 @@ namespace IndexEngine.Indexes
             if (IndexCollection.ContainsKey(key))
             {
                 if (!IndexCollection[key].ContainsKey(inkey))
-                {
                     IndexCollection[key].Remove(inkey);
-                }
             }
         }
 
         public void InitializeIndex(List<string> list)
         {
-            foreach(var tag in list)
+            foreach (var tag in list)
             {
                 AddIndexEntry(tag, null);
             }
@@ -138,23 +129,16 @@ namespace IndexEngine.Indexes
 
         public int GetValueCount(string key)
         {
-            if (IndexCollection.ContainsKey(key))
-            {
-                return IndexCollection[key].Count;
-            }
-            else
-            {
-                return -1;
-            }
+            return IndexCollection.ContainsKey(key)
+                ? IndexCollection[key].Count
+                : -1;
         }
 
         public int GetInnerValueCount(string key, string inkey)
         {
-            if (IndexCollection.ContainsKey(key))
-            {
-                return IndexCollection[key].Count;
-            }
-            else { return -1; }
+            return IndexCollection.ContainsKey(key)
+                ? IndexCollection[key].Count
+                : -1;
         }
 
         public void UnloadData()

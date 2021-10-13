@@ -9,12 +9,9 @@ namespace IndexEngine.NLP
 {
     public class CoreAnalyzer
     {
-
-
         public Tree ConstituencyParse { get; }
         private Tree constituencyParse;
         public object[] treeArray;
-
 
         public StanfordCoreNLP SimplePipeline()
         {
@@ -34,6 +31,7 @@ namespace IndexEngine.NLP
             props.setProperty("sutime.rules", ToolInfo.sutimeRules);
             props.setProperty("sutime.markTimeRanges", "true");
             props.setProperty("sutime.includeNested", "true");
+
             StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
             return pipeline;
         }
@@ -43,6 +41,7 @@ namespace IndexEngine.NLP
             if (coredoc != null)
             {
                 ArrayList sents = (ArrayList)coredoc.annotation().get(typeof(CoreAnnotations.SentencesAnnotation));
+
                 for (int i = 0; i < sents.size(); i++)
                 {
                     CoreMap sentence = (CoreMap)sents.get(i);
@@ -51,32 +50,27 @@ namespace IndexEngine.NLP
 
                     Set treeConstituents = (Set)constituencyParse.constituents(new LabeledScoredConstituentFactory());
                     treeArray = treeConstituents.toArray();
-
                 }
             }
         }
 
         public Tree GetParseTree(CoreMap sent)
         {
-
-
             return (Tree)sent.get(typeof(TreeCoreAnnotations.TreeAnnotation));
-
-
         }
-
         public ArrayList GetSents(CoreDocument coredoc)
         {
             ArrayList sents = new ArrayList();
+
             if (coredoc != null)
             {
                 sents = (ArrayList)coredoc.annotation().get(typeof(CoreAnnotations.SentencesAnnotation));
                 return sents;
             }
-            else { return null; }
-
+            else
+            {
+                return null;
+            }
         }
-
-
     }
 }

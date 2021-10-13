@@ -2,7 +2,7 @@
 
 namespace IndexEngine.Indexes
 {
-    public interface IIndex<TKey, TValue>: IUnloadable
+    public interface IIndex<TKey, TValue> : IUnloadable
     {
         IDictionary<TKey, TValue> IndexCollection { get; }
         int ItemCount { get; }
@@ -16,7 +16,7 @@ namespace IndexEngine.Indexes
         void AddIndexEntry(TKey key, TValue value);
         int GetValueCount(TKey key);
     }
-    public interface INestedIndex<TKey, TValue, K, V> : IIndex<TKey,TValue> where TValue : IDictionary<K, V>
+    public interface INestedIndex<TKey, TValue, K, V> : IIndex<TKey, TValue> where TValue : IDictionary<K, V>
     {
         void AddInnerIndexEntry(TKey key, K inkey, V invalue);
         void DeleteInnerIndexEntry(TKey key, K inkey);
@@ -26,7 +26,6 @@ namespace IndexEngine.Indexes
 
     public interface IContainer<T> : IUnloadable
     {
-        
         IEnumerable<T> TypeContainer { get; }
         void Add(T item);
         void AddRange(IEnumerable<T> items);

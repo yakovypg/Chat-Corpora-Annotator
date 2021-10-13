@@ -14,7 +14,6 @@ namespace IndexEngine
 {
     public static class IndexHelper
     {
-
         #region fields
         private static int viewerReadIndex = 0;
         private static int[] lookup = new int[3];
@@ -22,6 +21,7 @@ namespace IndexEngine
 
 
         #endregion
+
         #region save info
         private static void CheckDir()
         {
@@ -90,11 +90,13 @@ namespace IndexEngine
             }
         }
         #endregion
+
         #region load info
+
         internal static OrderedDictionary<string, string> LoadInfoFromDisk(string keyPath)
         {
-
             OrderedDictionary<string, string> info = new OrderedDictionary<string, string>();
+
             using (StreamReader reader = new StreamReader(keyPath))
             {
                 info.Add("TextFieldKey", reader.ReadLine());
@@ -103,28 +105,30 @@ namespace IndexEngine
                 info.Add("LineCount", reader.ReadLine());
 
             }
+
             return info;
         }
 
         internal static List<string> LoadFieldsFromDisk(string fieldsPath)
         {
             List<string> fields = new List<string>();
+
             using (StreamReader reader = new StreamReader(fieldsPath))
             {
-
                 while (!reader.EndOfStream)
                 {
                     fields.Add(reader.ReadLine());
 
                 }
-
             }
+
             return fields;
         }
 
         internal static HashSet<string> LoadUsersFromDisk(string usersPath)
         {
             HashSet<string> users = new HashSet<string>();
+
             using (StreamReader reader = new StreamReader(usersPath))
             {
                 while (!reader.EndOfStream)
@@ -142,6 +146,7 @@ namespace IndexEngine
         internal static BTreeDictionary<DateTime, int> LoadStatsFromDisk(string statsPath)
         {
             BTreeDictionary<DateTime, int> stats = new BTreeDictionary<DateTime, int>();
+
             using (StreamReader reader = new StreamReader(statsPath))
             {
                 while (!reader.EndOfStream)
@@ -151,12 +156,16 @@ namespace IndexEngine
                     stats.Add(DateTime.Parse(kvp[0]), Int32.Parse(kvp[1]));
                 }
             }
+
             return stats;
         }
+
         #endregion
+
         private static void InitLookup(string[] allFields)
         {
             lookup = new int[3];
+
             foreach (var field in ProjectInfo.Data.SelectedFields)
             {
                 if (field == ProjectInfo.DateFieldKey)
@@ -293,33 +302,23 @@ namespace IndexEngine
         {
             List<DynamicMessage> messages = new List<DynamicMessage>();
 
-
             for (int i = viewerReadIndex; i < count + viewerReadIndex; i++)
             {
                 Document document;
                 List<string> temp = new List<string>();
+
                 if (i < LuceneService.DirReader.MaxDoc)
-                {
                     document = LuceneService.DirReader.Document(i);
-                }
                 else
-                {
                     break;
-                }
 
                 foreach (var field in ProjectInfo.Data.SelectedFields)
                 {
-
-
                     temp.Add(document.GetField(field).GetStringValue());
-
-
                 }
 
                 DynamicMessage message = new DynamicMessage(temp, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, document.GetField("id").GetInt32Value().Value);
                 messages.Add(message);
-
-
             }
 
             viewerReadIndex = count + viewerReadIndex;
@@ -329,31 +328,32 @@ namespace IndexEngine
         public static int PopulateIndex(string filePath, string[] allFields, bool header)
         {
             InitLookup(allFields);
+
             int result = 0;
             int count = 0;
-
             int indexingValue = 0;
+
             if (lookup != null)
             {
                 string[] row = null;
                 DateTime date;
+
                 using (var fileReader = new CsvReader(filePath))
                 {
                     if (!header)
-                    {
                         fileReader.ReadRow(ref row); //header read;
-                    }
 
                     while (fileReader.ReadRow(ref row))
-
                     {
                         count++;
+
                         var t = row[lookup[0]];
                         date = DateTime.Parse(t);
+
                         ProjectInfo.Data.UserKeys.Add(row[lookup[1]]);
 
-
                         var day = date.Date;
+
                         if (!ProjectInfo.Data.MessagesPerDay.Keys.Contains(day))
                         {
                             ProjectInfo.Data.MessagesPerDay.Add(day, 1);
@@ -397,14 +397,17 @@ namespace IndexEngine
                                 }
 
                             }
-                            //TODO: Still need to redesign this. Rework storing/indexing paradigm.
 
+                            //TODO: Still need to redesign this. Rework storing/indexing paradigm.
                         }
+
                         LuceneService.Writer.AddDocument(document);
                     }
+
                     LuceneService.Writer.Commit();
                     LuceneService.Writer.Flush(triggerMerge: false, applyAllDeletes: false);
                     ProjectInfo.Data.LineCount = count;
+
                     CheckDir();
                     PopulateUserColors();
                     SaveInfoToDisk();
@@ -412,29 +415,25 @@ namespace IndexEngine
                     SaveUsersToDisk();
                     SaveStatsToDisk();
 
-
                     result = 1;
                     return result;
                 }
             }
+
             return result;
         }
-
 
         private static void PopulateUserColors()
         {
             var colors = ColorLibrary.ColorGenerator.GenerateHSLuvColors(ProjectInfo.Data.UserKeys.Count, false);
             int i = 0;
+
             foreach (var user in ProjectInfo.Data.UserKeys)
             {
                 ProjectInfo.Data.UserColors.Add(user, colors[i]);
                 i++;
             }
-
         }
-
-
-
 
         internal static void UnloadData()
         {

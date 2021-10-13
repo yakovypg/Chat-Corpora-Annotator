@@ -23,6 +23,7 @@ namespace IndexEngine.Paths
             sutimeRules = root + @"\sutime\defs.sutime.txt,"
                               + root + @"\sutime\english.holidays.sutime.txt,"
                               + root + @"\sutime\english.sutime.txt";
+
             Console.WriteLine(UserDictsPath.IndexOfAny(System.IO.Path.GetInvalidPathChars()) >= 0);
         }
 

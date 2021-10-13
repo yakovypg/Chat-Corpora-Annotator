@@ -1,12 +1,9 @@
-﻿using CSharpTest.Net.Collections;
-using IndexEngine.Paths;
+﻿using IndexEngine.Paths;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IndexEngine.Indexes
 {
@@ -19,42 +16,33 @@ namespace IndexEngine.Indexes
             return lazy.Value;
         }
 
-        private UserDictsIndex() 
-        
+        private UserDictsIndex()
         {
-
-
         }
 
-
         public IDictionary<string, List<string>> IndexCollection { get; private set; } = new Dictionary<string, List<string>>();
-
         public int ItemCount { get { return IndexCollection.Count; } }
 
         public void AddIndexEntry(string key, List<string> value)
         {
             if (!IndexCollection.ContainsKey(key))
-            {
                 IndexCollection.Add(key, value);
-            }
         }
 
         public bool CheckDirectory()
         {
-            return (Directory.Exists(ProjectInfo.InfoPath));
+            return Directory.Exists(ProjectInfo.InfoPath);
         }
 
         public bool CheckFiles()
         {
-            return (File.Exists(ToolInfo.UserDictsPath));
+            return File.Exists(ToolInfo.UserDictsPath);
         }
 
         public void DeleteIndexEntry(string key)
         {
             if (IndexCollection.ContainsKey(key))
-            {
                 IndexCollection.Remove(key);
-            }
         }
 
         public void FlushIndexToDisk()
@@ -65,24 +53,18 @@ namespace IndexEngine.Indexes
 
         public int GetValueCount(string key)
         {
-            if (IndexCollection.ContainsKey(key))
-            {
-                return IndexCollection[key].Count;
-            }
-            else
-            {
-                return -1;
-            }
+            return IndexCollection.ContainsKey(key)
+                ? IndexCollection[key].Count
+                : -1;
         }
 
         public void ReadIndexFromDisk()
         {
-            if (CheckFiles()) {
+            if (CheckFiles())
+            {
                 var jsonString = File.ReadAllText(ToolInfo.UserDictsPath);
-
-             IndexCollection = JsonConvert.DeserializeObject<Dictionary<string,List<string>>>(jsonString);
+                IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString);
             }
-            
         }
 
         public void UnloadData()
@@ -95,17 +77,20 @@ namespace IndexEngine.Indexes
             throw new NotImplementedException();
         }
 
-        public string ImportNewDictFromFile(string path) 
+        public string ImportNewDictFromFile(string path)
         {
             if (File.Exists(path))
             {
                 var arr = File.ReadAllLines(path);
                 var value = arr.Skip(1);
+
                 AddIndexEntry(arr[0], value.ToList());
                 return arr[0];
             }
             else
-            { return null; }
+            {
+                return null;
+            }
         }
     }
 }

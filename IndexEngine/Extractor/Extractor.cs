@@ -2,9 +2,9 @@
 using edu.stanford.nlp.pipeline;
 using edu.stanford.nlp.trees;
 using edu.stanford.nlp.util;
-using NounPhraseAlgorithm;
 using IndexEngine.Paths;
 using java.util;
+using NounPhraseAlgorithm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
