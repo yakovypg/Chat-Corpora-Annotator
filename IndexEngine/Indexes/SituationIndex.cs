@@ -180,6 +180,21 @@ namespace IndexEngine.Indexes
                     IndexCollection[tag][id].Remove(messageid);
             }
         }
+
+        public void DeleteMessageFromSituationAndIndex(string tag, int id, int messageid)
+        {
+            DeleteMessageFromSituation(tag, id, messageid);
+
+            if (InvertedIndex.ContainsKey(messageid))
+            {
+                if (InvertedIndex[messageid].ContainsKey(tag))
+                    InvertedIndex[messageid].Remove(tag);
+
+                if (InvertedIndex[messageid].Count == 0)
+                    InvertedIndex.Remove(messageid);
+            }
+        }
+
         public void AddMessageToSituation(string tag, int id, int messageid)
         {
             if (IndexCollection.ContainsKey(tag))

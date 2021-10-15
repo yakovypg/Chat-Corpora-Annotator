@@ -267,7 +267,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (msg.Source.Situations.Count == 0)
                 SituationsVM.TaggedMessagesIds.Remove(msg.Source.Id);
 
-            SituationIndex.GetInstance().DeleteMessageFromSituation(e.Tag, e.Id, e.MessagesIds[0]);
+            SituationIndex.GetInstance().DeleteMessageFromSituationAndIndex(e.Tag, e.Id, e.MessagesIds[0]);
 
             if (SituationIndex.GetInstance().GetInnerValueCount(e.Tag, e.Id) == 0)
                 DeleteOrEditTag(e, true);
