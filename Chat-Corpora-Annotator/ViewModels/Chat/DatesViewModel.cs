@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -107,7 +108,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             await Task.Run(delegate
             {
                 HashSet<ActiveDate> dates = IndexHelper.LoadAllActiveDates();
-                dispatcher?.Invoke(() => SetActiveDates(dates));
+
+                dispatcher?.Invoke(delegate
+                {
+                    SetActiveDates(dates);
+                    _chatVM.ActiveDatesWaitingImageGridVisibility = Visibility.Hidden;
+                });
 
                 IsAvtiveDatesLoadingInProgress = false;
             });

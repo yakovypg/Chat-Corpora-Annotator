@@ -3,11 +3,9 @@ using ChatCorporaAnnotator.Data.Windows.Controls;
 using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
-using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
-using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
@@ -34,6 +32,17 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public MessageFinderViewModel MessageFinderVM { get; }
         public TagsViewModel TagsVM { get; }
         public SituationsViewModel SituationsVM { get; }
+
+        #endregion
+
+        #region ItemsVisibilities
+
+        private Visibility _activeDatesWaitingImageGridVisibility = Visibility.Visible;
+        public Visibility ActiveDatesWaitingImageGridVisibility
+        {
+            get => _activeDatesWaitingImageGridVisibility;
+            set => SetValue(ref _activeDatesWaitingImageGridVisibility, value);
+        }
 
         #endregion
 
@@ -108,12 +117,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             int shiftIndex = (int)parameter;
             MessagesVM.MessagesCase.Shift(shiftIndex);
 
-            var window = new WindowFinder().Find(typeof(MainWindow)) as MainWindow;
+            var mainWindowInteract = new MainWindowInteract();
 
             if (shiftIndex > 0)
-                window.ChatDataGrid.ScrollToNearlyTop();
+                mainWindowInteract.ScrollChatDataGridToNearlyTop();
             else
-                window.ChatDataGrid.ScrollToTop();
+                mainWindowInteract.ScrollChatDataGridToTop();
 
             SituationsVM.UpdateMessagesTags();
         }
