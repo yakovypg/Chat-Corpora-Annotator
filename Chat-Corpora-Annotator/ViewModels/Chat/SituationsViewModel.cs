@@ -216,9 +216,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 foreach (var situationPresenter in kvp.Value)
                 {
                     int key = situationPresenter.Key;
-                    string header = $"{kvp.Key} {key}";
-                    var situation = new Situation(key, header);
+                    string header = kvp.Key;
 
+                    var situation = new Situation(key, header);
                     situationSet.Add(situation);
                 }
             }

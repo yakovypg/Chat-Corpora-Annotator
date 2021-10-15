@@ -179,6 +179,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 if (msg.Source.Situations.Count == 1)
                 {
                     var firstSituationData = msg.Source.Situations.FirstOrDefault();
+
                     args.Tag = firstSituationData.Key;
                     args.Id = firstSituationData.Value;
 

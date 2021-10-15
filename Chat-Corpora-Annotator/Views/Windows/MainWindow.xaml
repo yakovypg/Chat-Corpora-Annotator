@@ -593,7 +593,10 @@
                                             <ListBox BorderThickness="0" ItemsSource="{Binding SituationsVM.Situations}" SelectedItem="{Binding SituationsVM.SelectedSituation}">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type chat:Situation}">
-                                                        <TextBlock Text="{Binding Header}"/>
+                                                        <TextBlock>
+                                                            <Run Text="{Binding Header}"/>
+                                                            <Run Text="{Binding Id}"/>
+                                                        </TextBlock>
                                                     </DataTemplate>
                                                 </ListBox.ItemTemplate>
                                             </ListBox>

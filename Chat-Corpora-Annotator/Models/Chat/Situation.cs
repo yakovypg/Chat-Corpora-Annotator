@@ -22,7 +22,7 @@ namespace ChatCorporaAnnotator.Models.Chat
         {
             return obj is Situation other &&
                    Id == other.Id &&
-                   (Header == other.Header || Header == $"{other.Header} {other.Id}");
+                   Header == other.Header;
         }
 
         public override int GetHashCode()
