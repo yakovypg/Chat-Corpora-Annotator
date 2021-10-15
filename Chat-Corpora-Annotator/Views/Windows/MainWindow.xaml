@@ -491,6 +491,10 @@
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
 
+                                                <ListBox.InputBindings>
+                                                    <KeyBinding Key="Enter" Command="{Binding DatesVM.MoveToSelectedDateCommand}"/>
+                                                </ListBox.InputBindings>
+
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type chat:MessageDate}">
                                                         <TextBlock Text="{Binding ShortDatePresenter}"/>

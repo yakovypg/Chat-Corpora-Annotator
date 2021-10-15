@@ -71,12 +71,11 @@ namespace ChatCorporaAnnotator.ViewModels
                 if (!IsFileLoaded)
                     return;
 
-                if (SetValue(ref _isProjectChanged, value))
-                {
-                    ProjectStateSavingTimer.SavingState = value
+                SetValue(ref _isProjectChanged, value);
+
+                ProjectStateSavingTimer.SavingState = value
                         ? SaveProjectState.ChangesNotSaved
                         : SaveProjectState.ChangesSaved;
-                }
             }
         }
 
