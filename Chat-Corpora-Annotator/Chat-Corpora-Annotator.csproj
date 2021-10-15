@@ -169,7 +169,9 @@
     <Compile Include="Models\Chat\Core\IChatCache.cs" />
     <Compile Include="Models\Chat\Core\IChatScroller.cs" />
     <Compile Include="Models\Indexing\ProjectInformation.cs" />
+    <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />
     <Compile Include="Models\Timers\SavingTimer.cs" />
+    <Compile Include="Models\Timers\Timer.cs" />
     <Compile Include="Services\ISearchService.cs" />
     <Compile Include="Services\ITagFileWriter.cs" />
     <Compile Include="Services\SearchService.cs" />

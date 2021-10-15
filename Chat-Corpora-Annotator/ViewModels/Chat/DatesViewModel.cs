@@ -63,6 +63,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 shiftIndex = 0;
 
             _chatVM.ShiftChatPageCommand.Execute(shiftIndex);
+            _chatVM.MainWindowVM.MemoryCleaninigTimer.Clean();
         }
 
         #endregion

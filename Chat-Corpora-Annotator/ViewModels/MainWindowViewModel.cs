@@ -26,10 +26,12 @@ namespace ChatCorporaAnnotator.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
-        private readonly SavingTimer _projectStateSavingTimer;
+        private IndexFileWindow _indexFileWindow;
+
+        public SavingTimer ProjectStateSavingTimer { get; }
+        public MemoryCleaninigTimer MemoryCleaninigTimer { get; }
 
         public ChatViewModel ChatVM { get; }
-        public IndexFileWindow IndexFileWindow { get; set; }
 
         #region StaticData
 
@@ -71,7 +73,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
                 if (SetValue(ref _isProjectChanged, value))
                 {
-                    _projectStateSavingTimer.SavingState = value
+                    ProjectStateSavingTimer.SavingState = value
                         ? SaveProjectState.ChangesNotSaved
                         : SaveProjectState.ChangesSaved;
                 }
@@ -354,9 +356,9 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanIndexNewFileCommandExecute(parameter))
                 return;
 
-            if (IndexFileWindow != null)
+            if (_indexFileWindow != null)
             {
-                new WindowInteract(IndexFileWindow).MoveToForeground();
+                new WindowInteract(_indexFileWindow).MoveToForeground();
                 return;
             }
 
@@ -370,7 +372,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 indexFileWindowVM = new IndexFileWindowViewModel(path)
                 {
                     FinishAction = () => OnFileLoaded(),
-                    DeactivateAction = () => IndexFileWindow = null
+                    DeactivateAction = () => _indexFileWindow = null
                 };
             }
             catch (OneProjectOnlyException ex)
@@ -384,8 +386,8 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
             }
 
-            IndexFileWindow = new IndexFileWindow(indexFileWindowVM);
-            IndexFileWindow.Show();
+            _indexFileWindow = new IndexFileWindow(indexFileWindowVM);
+            _indexFileWindow.Show();
         }
 
         public ICommand OpenCorpusCommand { get; }
@@ -502,7 +504,8 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanMainWindowClosingCommandExecute(parameter))
                 return;
 
-            _projectStateSavingTimer.Stop();
+            ProjectStateSavingTimer.Stop();
+            MemoryCleaninigTimer.Stop();
 
             CloseIndexFileWindowCommand.Execute(null);
             CloseMessageExplorerWindowsCommand.Execute(null);
@@ -520,14 +523,14 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand CloseIndexFileWindowCommand { get; }
         public bool CanCloseIndexFileWindowCommandExecute(object parameter)
         {
-            return IndexFileWindow != null;
+            return _indexFileWindow != null;
         }
         public void OnCloseIndexFileWindowCommandExecuted(object parameter)
         {
             if (!CanCloseIndexFileWindowCommandExecute(parameter))
                 return;
 
-            IndexFileWindow.Close();
+            _indexFileWindow.Close();
         }
 
         public ICommand CloseMessageExplorerWindowsCommand { get; }
@@ -549,7 +552,9 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             ChatVM = new ChatViewModel(this);
 
-            _projectStateSavingTimer = new SavingTimer();
+            MemoryCleaninigTimer = new MemoryCleaninigTimer();
+            ProjectStateSavingTimer = new SavingTimer();
+
             InitProjectStateSavingTimer();
 
             #region CommandsInitialization
@@ -584,18 +589,18 @@ namespace ChatCorporaAnnotator.ViewModels
         {
             var window = new WindowFinder().Find(typeof(MainWindow));
 
-            _projectStateSavingTimer.Tick += delegate
+            ProjectStateSavingTimer.Tick += delegate
             {
                 window?.Dispatcher.Invoke(() => SavePresentStateCommand.Execute(null));
             };
 
-            _projectStateSavingTimer.SuccessfulIteration += delegate
+            ProjectStateSavingTimer.SuccessfulIteration += delegate
             {
-                if (_projectStateSavingTimer.SavingState == SaveProjectState.InProcess)
+                if (ProjectStateSavingTimer.SavingState == SaveProjectState.InProcess)
                     IsProjectChanged = false;
             };
 
-            _projectStateSavingTimer.SavingStateChanged += delegate (ProjectSavingStateEventArgs e)
+            ProjectStateSavingTimer.SavingStateChanged += delegate (ProjectSavingStateEventArgs e)
             {
                 switch (e.NewState)
                 {
@@ -627,7 +632,8 @@ namespace ChatCorporaAnnotator.ViewModels
 
             ProjectFileLoadState = FileLoadState.Loaded;
 
-            _projectStateSavingTimer.Start();
+            ProjectStateSavingTimer.Start();
+            MemoryCleaninigTimer.Start();
         }
 
         #endregion

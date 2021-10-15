@@ -8,12 +8,10 @@ using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.Models.Timers
 {
-    internal class SavingTimer
+    internal class SavingTimer : Timer
     {
         private const int MIN_SAVING_TIME = 1500;
         private const int DEFAULT_INTERVAL = 60 * 1;
-
-        private readonly DispatcherTimer _timer;
 
         public delegate void TickHandler();
         public event TickHandler Tick;
@@ -43,24 +41,9 @@ namespace ChatCorporaAnnotator.Models.Timers
             }
         }
 
-        public SavingTimer(int interval = DEFAULT_INTERVAL, DispatcherPriority priority = DispatcherPriority.Background)
+        public SavingTimer(int interval = DEFAULT_INTERVAL, DispatcherPriority priority = DispatcherPriority.Background) : base(interval, priority)
         {
-            _timer = new DispatcherTimer(priority)
-            {
-                Interval = new TimeSpan(0, 0, 0, interval)
-            };
-
             _timer.Tick += (object sender, EventArgs e) => _ = SaveAsync();
-        }
-
-        public virtual void Start()
-        {
-            _timer.Start();
-        }
-
-        public virtual void Stop()
-        {
-            _timer.Stop();
         }
 
         protected virtual async Task SaveAsync()
