@@ -1,4 +1,5 @@
-﻿using ChatCorporaAnnotator.Data.Windows;
+﻿using ChatCorporaAnnotator.Data.Indexing;
+using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -108,7 +109,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             await Task.Run(delegate
             {
-                HashSet<ActiveDate> dates = IndexHelper.LoadAllActiveDates();
+                HashSet<ActiveDate> dates = ProjectInteraction.GetActiveDates();
 
                 dispatcher?.Invoke(delegate
                 {
