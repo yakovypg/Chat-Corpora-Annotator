@@ -115,14 +115,16 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             int shiftIndex = (int)parameter;
-            MessagesVM.MessagesCase.Shift(shiftIndex);
+            MessagesVM.MessagesCase.Shift(shiftIndex, out int indexChangeDelta);
 
             var mainWindowInteract = new MainWindowInteract();
 
-            if (shiftIndex > 0)
-                mainWindowInteract.ScrollChatDataGridToNearlyTop();
-            else
+            if (shiftIndex == 0)
                 mainWindowInteract.ScrollChatDataGridToTop();
+            else if (indexChangeDelta != 0)
+                mainWindowInteract.ScrollChatDataIntoView(MessagesVM.MessagesCase.CurrentMessages[indexChangeDelta + 1]);
+            else
+                mainWindowInteract.ScrollChatDataGridToNearlyTop();
 
             SituationsVM.UpdateMessagesTags();
         }

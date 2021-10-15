@@ -167,6 +167,24 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         public void Shift(int messageReadIndex)
         {
+            Shift(messageReadIndex, out _);
+        }
+
+        public void Shift(int messageReadIndex, out int indexChangeDelta)
+        {
+            int lastMessageIndex = IndexEngine.Paths.ProjectInfo.Data.LineCount - 1;
+            int dist = lastMessageIndex - messageReadIndex + 1;
+
+            if (dist < _currentPackage.Count)
+            {
+                indexChangeDelta = _currentPackage.Count - dist;
+                messageReadIndex -= indexChangeDelta;
+            }
+            else
+            {
+                indexChangeDelta = 0;
+            }
+
             _savedPackage.Clear();
             _previousPackage.Clear();
             _currentPackage.Clear();

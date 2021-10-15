@@ -23,5 +23,6 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         void Reset();
         void Shift(int messageReadIndex);
+        void Shift(int messageReadIndex, out int indexChangeDelta);
     }
 }

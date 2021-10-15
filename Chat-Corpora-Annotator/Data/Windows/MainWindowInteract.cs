@@ -23,5 +23,10 @@ namespace ChatCorporaAnnotator.Data.Windows
         {
             _mainWindow.ChatDataGrid.ScrollToTop();
         }
+
+        public void ScrollChatDataIntoView(object item)
+        {
+            _mainWindow.ChatDataGrid.ScrollIntoView(item);
+        }
     }
 }
