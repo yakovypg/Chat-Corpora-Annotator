@@ -524,6 +524,8 @@
                                                         <RotateTransform x:Name="AnimatedRotateTransform" Angle="0"/>
                                                     </fa:ImageAwesome.RenderTransform>
 
+                                                    <!-- ImageAwesome animation (requires a lot of memory)
+                                                    
                                                     <fa:ImageAwesome.Triggers>
                                                         <EventTrigger RoutedEvent="fa:ImageAwesome.Loaded">
                                                             <EventTrigger.Actions>
@@ -568,6 +570,8 @@
                                                         </EventTrigger>
 
                                                     </fa:ImageAwesome.Triggers>
+                                                    
+                                                    -->
                                                     
                                                 </fa:ImageAwesome>
                                             </UniformGrid>
