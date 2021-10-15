@@ -17,6 +17,7 @@ using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -496,12 +497,14 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand MainWindowClosingCommand { get; }
         public bool CanMainWindowClosingCommandExecute(object parameter)
         {
-            return true;
+            return parameter is CancelEventArgs;
         }
         public void OnMainWindowClosingCommandExecuted(object parameter)
         {
             if (!CanMainWindowClosingCommandExecute(parameter))
                 return;
+
+            var args = parameter as CancelEventArgs;
 
             ProjectStateSavingTimer.Stop();
             MemoryCleaninigTimer.Stop();
@@ -512,7 +515,13 @@ namespace ChatCorporaAnnotator.ViewModels
             if (IsProjectChanged)
             {
                 var msgRes = MessageBox.Show("The project has been changed. Save changes?",
-                    "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (msgRes == MessageBoxResult.Cancel)
+                {
+                    args.Cancel = true;
+                    return;
+                }
 
                 if (msgRes == MessageBoxResult.Yes)
                     SavePresentStateCommand.Execute(null);
