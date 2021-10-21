@@ -169,12 +169,15 @@
     <Compile Include="Models\Chat\Core\IChatCache.cs" />
     <Compile Include="Models\Chat\Core\IChatScroller.cs" />
     <Compile Include="Models\Indexing\ProjectInformation.cs" />
+    <Compile Include="Models\Serialization\SituationData.cs" />
     <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />
     <Compile Include="Models\Timers\SavingTimer.cs" />
     <Compile Include="Models\Timers\Timer.cs" />
     <Compile Include="Services\ISearchService.cs" />
+    <Compile Include="Services\ITagFileReader.cs" />
     <Compile Include="Services\ITagFileWriter.cs" />
     <Compile Include="Services\SearchService.cs" />
+    <Compile Include="Services\TagFileReader.cs" />
     <Compile Include="Services\TagFileWriter.cs" />
     <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">

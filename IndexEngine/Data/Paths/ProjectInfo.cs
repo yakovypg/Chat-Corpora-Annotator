@@ -80,6 +80,7 @@ namespace IndexEngine.Paths
             TagsetPath = InfoPath + Name + @"-tagset.txt";
             SituationsPath = InfoPath + Name + @"-situations.txt";
             ActiveDatesPath = InfoPath + Name + @"-activedates.txt";
+            OutputXmlFilePath = InfoPath + @"\output.xml";
         }
 
         private static void SetKeys(string date, string sender, string text)
@@ -107,6 +108,7 @@ namespace IndexEngine.Paths
         public static string SavedTagsPathTemp { get; private set; }
         public static string TagsetPath { get; private set; }
         public static string ActiveDatesPath { get; private set; }
+        public static string OutputXmlFilePath { get; private set; }
 
         public static string Tagset { get; private set; }
         public static bool TagsetSet { get { return File.Exists(TagsetPath); } }
