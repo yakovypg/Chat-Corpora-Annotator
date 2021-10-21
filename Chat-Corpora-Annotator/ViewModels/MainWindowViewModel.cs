@@ -257,6 +257,19 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region SaveFileCommands
 
+        public ICommand SavePresentStateByButtonCommand { get; }
+        public bool CanSavePresentStateByButtonCommandExecute(object parameter)
+        {
+            return IsFileLoaded;
+        }
+        public void OnSavePresentStateByButtonCommandExecuted(object parameter)
+        {
+            if (!CanSavePresentStateByButtonCommandExecute(parameter))
+                return;
+
+            ProjectStateSavingTimer.SaveNow();
+        }
+
         public ICommand SavePresentStateCommand { get; }
         public bool CanSavePresentStateCommandExecute(object parameter)
         {
@@ -579,6 +592,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
             ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
             SavePresentStateCommand = new RelayCommand(OnSavePresentStateCommandExecuted, CanSavePresentStateCommandExecute);
+            SavePresentStateByButtonCommand = new RelayCommand(OnSavePresentStateByButtonCommandExecuted, CanSavePresentStateByButtonCommandExecute);
 
             ShowSuggesterCommand = new RelayCommand(OnShowSuggesterCommandExecuted, CanShowSuggesterCommandExecute);
             ShowTagsetEditorCommand = new RelayCommand(OnShowTagsetEditorCommandExecuted, CanShowTagsetEditorCommandExecute);

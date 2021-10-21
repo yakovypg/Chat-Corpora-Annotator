@@ -125,7 +125,7 @@
                         </MenuItem.Icon>
                     </MenuItem>
 
-                    <MenuItem Header="Save present state" Command="{Binding SavePresentStateCommand}">
+                    <MenuItem Header="Save present state" Command="{Binding SavePresentStateByButtonCommand}">
                         <MenuItem.Icon>
                             <fa:ImageAwesome Icon="Solid_Save"/>
                         </MenuItem.Icon>

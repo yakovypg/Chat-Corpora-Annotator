@@ -46,8 +46,16 @@ namespace ChatCorporaAnnotator.Models.Timers
             _timer.Tick += (object sender, EventArgs e) => _ = SaveAsync();
         }
 
+        public void SaveNow()
+        {
+            _ = SaveAsync();
+        }
+
         protected virtual async Task SaveAsync()
         {
+            if (SavingState == SaveProjectState.InProcess)
+                return;
+
             SavingState = SaveProjectState.InProcess;
 
             await Task.Run(delegate
