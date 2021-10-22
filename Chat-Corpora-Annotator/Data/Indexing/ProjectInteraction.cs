@@ -9,6 +9,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
     {
         public static ProjectInformation ProjectInfo = null;
 
+        public static int MessagesCount => IndexEngine.Paths.ProjectInfo.Data.LineCount;
+
         public static HashSet<ActiveDate> GetActiveDates()
         {
             string path = IndexEngine.Paths.ProjectInfo.ActiveDatesPath;

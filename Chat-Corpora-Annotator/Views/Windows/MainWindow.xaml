@@ -606,7 +606,23 @@
                                                     Style="{StaticResource ListTitleTextBlock}">
                                                 </TextBlock>
 
-                                                <ListBox BorderThickness="0" ItemsSource="{Binding SituationsVM.Situations}" SelectedItem="{Binding SituationsVM.SelectedSituation}">
+                                                <ListBox BorderThickness="0"
+                                                         ItemsSource="{Binding SituationsVM.Situations}"
+                                                         SelectedItem="{Binding SituationsVM.SelectedSituation}">
+
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDoubleClick">
+                                                            <i:InvokeCommandAction
+                                                                PassEventArgsToCommand="True"
+                                                                Command="{Binding SituationsVM.MoveToSelectedSituationCommand}">
+                                                            </i:InvokeCommandAction>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+
+                                                    <ListBox.InputBindings>
+                                                        <KeyBinding Key="Enter" Command="{Binding SituationsVM.MoveToSelectedSituationCommand}"/>
+                                                    </ListBox.InputBindings>
+
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type chat:Situation}">
                                                             <TextBlock>

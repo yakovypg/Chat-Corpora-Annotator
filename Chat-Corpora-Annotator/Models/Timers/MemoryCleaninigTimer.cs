@@ -12,12 +12,12 @@ namespace ChatCorporaAnnotator.Models.Timers
             _timer.Tick += (object sender, EventArgs e) => CleanMemory();
         }
 
-        public virtual void Clean()
+        public virtual void CleanNow()
         {
             CleanMemory();
         }
 
-        public virtual void FastClean()
+        public virtual void FastCleanNow()
         {
             GC.Collect(0);
         }

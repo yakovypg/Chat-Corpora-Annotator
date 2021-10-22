@@ -28,5 +28,10 @@ namespace ChatCorporaAnnotator.Data.Windows
         {
             _mainWindow.ChatDataGrid.ScrollIntoView(item);
         }
+
+        public void ScrollToVerticalOffset(double offset)
+        {
+            _mainWindow.ChatDataGrid.ScrollToVerticalOffset(offset);
+        }
     }
 }

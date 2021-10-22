@@ -165,32 +165,23 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             LoadNextPackage();
         }
 
-        public void Shift(int messageReadIndex)
+        public void Shift(int messageIndex, out int scrollIndex)
         {
-            Shift(messageReadIndex, out _);
-        }
+            if (messageIndex < 0 || messageIndex >= ProjectInteraction.MessagesCount)
+                throw new IndexOutOfRangeException();
 
-        public void Shift(int messageReadIndex, out int indexChangeDelta)
-        {
-            int lastMessageIndex = IndexEngine.Paths.ProjectInfo.Data.LineCount - 1;
-            int dist = lastMessageIndex - messageReadIndex + 1;
+            int packageLength = IndexInteraction.LoadingMessagesCount;
+            int packageNumber = messageIndex / packageLength;
+            int firstMsgId = packageNumber * packageLength;
 
-            if (dist < _currentPackage.Count)
-            {
-                indexChangeDelta = _currentPackage.Count - dist;
-                messageReadIndex -= indexChangeDelta;
-            }
-            else
-            {
-                indexChangeDelta = 0;
-            }
+            scrollIndex = messageIndex % packageLength;
 
             _savedPackage.Clear();
             _previousPackage.Clear();
             _currentPackage.Clear();
             _nextPackage.Clear();
 
-            IndexInteraction.ResetMessageReadIndex(messageReadIndex);
+            IndexInteraction.ResetMessageReadIndex(firstMsgId);
 
             IEnumerable<ChatMessage> previousMessages = IndexInteraction.PeekPreviousMessages();
             IEnumerable<ChatMessage> currMessages = null;

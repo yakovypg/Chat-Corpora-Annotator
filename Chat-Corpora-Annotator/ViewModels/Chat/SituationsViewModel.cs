@@ -169,6 +169,34 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
+        #region NavigationCommands
+
+        public ICommand MoveToSelectedSituationCommand { get; }
+
+        public bool CanMoveToSelectedSituationCommandExecute(object parameter)
+        {
+            return SelectedSituation != null;
+        }
+        public void OnMoveToSelectedSituationCommandExecuted(object parameter)
+        {
+            if (!CanMoveToSelectedSituationCommandExecute(parameter))
+                return;
+
+            int id = SelectedSituation.Id;
+            string header = SelectedSituation.Header;
+
+            List<int> situationMessagesIds = SituationIndex.GetInstance().IndexCollection[header][id];
+            int shiftIndex = situationMessagesIds[0] - 1;
+
+            if (shiftIndex < 0)
+                shiftIndex = 0;
+
+            _mainWindowVM.ChatVM.ShiftChatPageCommand.Execute(shiftIndex);
+            _mainWindowVM.ChatVM.MainWindowVM.MemoryCleaninigTimer.CleanNow();
+        }
+
+        #endregion
+
         public SituationsViewModel(MainWindowViewModel mainWindowVM)
         {
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
@@ -184,6 +212,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             CrossMergeSituationsCommand = new RelayCommand(OnCrossMergeSituationsCommandExecuted, CanCrossMergeSituationsCommandExecute);
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
+
+            MoveToSelectedSituationCommand = new RelayCommand(OnMoveToSelectedSituationCommandExecuted, CanMoveToSelectedSituationCommandExecute);
         }
 
         public void ClearData()

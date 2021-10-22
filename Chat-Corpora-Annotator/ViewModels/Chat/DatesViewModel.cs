@@ -3,7 +3,6 @@ using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
-using IndexEngine;
 using IndexingServices.Containers;
 using System;
 using System.Collections.Generic;
@@ -30,7 +29,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             set => SetValue(ref _selectedDate, value);
         }
 
-        #region Commands
+        #region AddingCommands
 
         public ICommand SetAllActiveDatesCommand { get; }
         public bool CanSetAllActiveDatesCommandExecute(object parameter)
@@ -48,6 +47,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             _ = SetActiveDatesAsync(window.Dispatcher);
         }
 
+        #endregion
+
+        #region NavigationCommands
+
         public ICommand MoveToSelectedDateCommand { get; }
         public bool CanMoveToSelectedDateExecute(object parameter)
         {
@@ -64,7 +67,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 shiftIndex = 0;
 
             _chatVM.ShiftChatPageCommand.Execute(shiftIndex);
-            _chatVM.MainWindowVM.MemoryCleaninigTimer.Clean();
+            _chatVM.MainWindowVM.MemoryCleaninigTimer.CleanNow();
         }
 
         #endregion
