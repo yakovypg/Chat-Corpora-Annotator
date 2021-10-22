@@ -354,6 +354,12 @@ namespace ChatCorporaAnnotator.ViewModels
                     ChatVM.AddTagCommand.Execute(sit);
                 }
 
+                int[] taggedMsgIds = SituationIndex.GetInstance().InvertedIndex.Keys.ToArray();
+
+                ChatVM.SituationsVM.TaggedMessagesIds.Clear();
+                ChatVM.SituationsVM.TaggedMessagesIds.AddRange(taggedMsgIds);
+                ChatVM.SituationsVM.TaggedMessagesIds.Sort();
+
                 ChatVM.SituationsVM.UpdateMessagesTags();
 
                 reader.CloseReader();
