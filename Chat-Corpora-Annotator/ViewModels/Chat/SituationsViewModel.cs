@@ -1,4 +1,5 @@
-﻿using ChatCorporaAnnotator.Infrastructure.Commands;
+﻿using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
+using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -133,12 +134,22 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand DeleteSituationCommand { get; }
         public bool CanDeleteSituationCommandExecute(object parameter)
         {
-            return false;
+            return SelectedSituation != null;
         }
         public void OnDeleteSituationCommandExecuted(object parameter)
         {
             if (!CanDeleteSituationCommandExecute(parameter))
                 return;
+
+            var args = new TaggerEventArgs()
+            {
+                Id = SelectedSituation.Id,
+                Tag = SelectedSituation.Header,
+                MessagesIds = new List<int>()
+            };
+
+            _mainWindowVM.ChatVM.DeleteOrEditTag(args, true);
+            UpdateMessagesTags();
 
             _mainWindowVM.IsProjectChanged = true;
         }

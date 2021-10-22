@@ -148,7 +148,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             if (parameter is SituationData sitData)
             {
-                args = new TaggerEventArgs
+                args = new TaggerEventArgs()
                 {
                     Id = sitData.Id,
                     Tag = sitData.Header,
@@ -157,7 +157,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
             else
             {
-                args = new TaggerEventArgs
+                args = new TaggerEventArgs()
                 {
                     Id = SituationIndex.GetInstance().GetValueCount(TagsVM.SelectedTag.Header),
                     Tag = TagsVM.SelectedTag.Header,
@@ -271,6 +271,22 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #region TagsMethods
 
+        public void DeleteOrEditTag(TaggerEventArgs e, bool type, int index = -1)
+        {
+            RemoveSituationFromMessages(e);
+
+            if (type)
+            {
+                MainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
+            }
+            else if (index == -1)
+            {
+                EditTag(e);
+            }
+
+            RemoveSituation(e);
+        }
+
         private void AddTag(TaggerEventArgs e)
         {
             SituationIndex.GetInstance().AddInnerIndexEntry(e.Tag, e.Id, e.MessagesIds);
@@ -294,6 +310,28 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             SituationsVM.AddSituationsCommand?.Execute(sit);
         }
 
+        private void EditTag(TaggerEventArgs e)
+        {
+            var tag = e.AdditionalInfo["Change"].ToString();
+            var count = SituationIndex.GetInstance().GetValueCount(tag);
+            var list = SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id];
+
+            SituationIndex.GetInstance().AddInnerIndexEntry(tag, count, list);
+
+            foreach (var id in list)
+            {
+                ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == id);
+
+                if (msg == null)
+                    continue;
+
+                var sit = new Situation(count, tag);
+                msg.AddSituation(sit, TagsVM.CurrentTagset);
+            }
+
+            SituationsVM.AddSituationsCommand.Execute(new Situation(count, tag));
+        }
+
         private void RemoveTag(TaggerEventArgs e)
         {
             ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == e.MessagesIds[0]);
@@ -312,7 +350,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 DeleteOrEditTag(e, true);
         }
 
-        private void DeleteOrEditTag(TaggerEventArgs e, bool type, int index = -1)
+        private void RemoveSituationFromMessages(TaggerEventArgs e)
         {
             foreach (var id in SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id])
             {
@@ -321,34 +359,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 if (msg != null)
                     msg.RemoveSituation(e.Tag, TagsVM.CurrentTagset);
             }
+        }
 
-            if (type)
-            {
-                MainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
-            }
-            else if (index == -1)
-            {
-                var tag = e.AdditionalInfo["Change"].ToString();
-                var count = SituationIndex.GetInstance().GetValueCount(tag);
-                var list = SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id];
-
-                SituationIndex.GetInstance().AddInnerIndexEntry(tag, count, list);
-
-                foreach (var id in list)
-                {
-                    ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == id);
-
-                    if (msg == null)
-                        continue;
-
-                    var s = new Situation(count, tag);
-                    msg.AddSituation(s, TagsVM.CurrentTagset);
-                }
-
-                var sit = new Situation(count, tag);
-                SituationsVM.AddSituationsCommand?.Execute(sit);
-            }
-
+        private void RemoveSituation(TaggerEventArgs e)
+        {
             SituationIndex.GetInstance().DeleteInnerIndexEntry(e.Tag, e.Id);
             SituationsVM.RemoveSituationsCommand.Execute(new Situation(e.Id, e.Tag));
 
