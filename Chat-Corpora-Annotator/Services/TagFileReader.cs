@@ -10,10 +10,15 @@ namespace ChatCorporaAnnotator.Services
     {
         private XmlReader _reader;
 
+        public void OpenReader(string path)
+        {
+            _reader = XmlReader.Create(path);
+            _reader.ReadStartElement(TagFileRules.START_ELEMENT);
+        }
+
         public void OpenReader()
         {
-            _reader = XmlReader.Create(ProjectInfo.OutputXmlFilePath);
-            _reader.ReadStartElement(TagFileRules.START_ELEMENT);
+            OpenReader(ProjectInfo.OutputXmlFilePath);
         }
 
         public void CloseReader()

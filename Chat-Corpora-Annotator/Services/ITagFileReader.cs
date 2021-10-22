@@ -5,6 +5,7 @@ namespace ChatCorporaAnnotator.Services
 {
     internal interface ITagFileReader
     {
+        void OpenReader(string path);
         void OpenReader();
         void CloseReader();
 

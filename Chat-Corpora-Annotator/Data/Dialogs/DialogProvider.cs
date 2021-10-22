@@ -13,6 +13,15 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
+        public static bool GetXmlFilePath(out string path)
+        {
+            int filterIndex = 0;
+            string title = "Open xml file";
+            string filter = "XML files|*.xml";
+
+            return GetFilePath(out path, title, filter, filterIndex);
+        }
+
         public static bool GetFilePath(out string path, string title = null, string filter = null, int filterIndex = 0)
         {
             var _openFileDialog = new OpenFileDialog()

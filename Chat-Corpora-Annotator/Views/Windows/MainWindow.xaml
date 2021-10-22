@@ -132,7 +132,15 @@
                     </MenuItem>
                 </MenuItem>
 
-                <MenuItem Header="Suggester" Command="{Binding ShowSuggesterCommand}"/>
+                <MenuItem Header="Import">
+                    <MenuItem Header="Import xml" Command="{Binding ImportXmlCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_FileImport"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+
+                    <MenuItem Header="Suggester" Command="{Binding ShowSuggesterCommand}"/>
                 <MenuItem Header="Tagset Editor" Command="{Binding ShowTagsetEditorCommand}"/>
 
                 <MenuItem Header="Edit Situation">

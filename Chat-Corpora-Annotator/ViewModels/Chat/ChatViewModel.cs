@@ -5,6 +5,7 @@ using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
+using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
 using IndexEngine.Indexes;
@@ -136,22 +137,36 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand AddTagCommand { get; }
         public bool CanAddTagCommandExecute(object parameter)
         {
-            return MessagesVM.SelectedMessages.Count > 0 && TagsVM.SelectedTag != null;
+            return parameter is SituationData || (MessagesVM.SelectedMessages.Count > 0 && TagsVM.SelectedTag != null);
         }
         public void OnAddTagCommandExecuted(object parameter)
         {
             if (!CanAddTagCommandExecute(parameter))
                 return;
 
-            TaggerEventArgs args = new TaggerEventArgs
-            {
-                Id = SituationIndex.GetInstance().GetValueCount(TagsVM.SelectedTag.Header),
-                Tag = TagsVM.SelectedTag.Header,
-                MessagesIds = new List<int>()
-            };
+            TaggerEventArgs args;
 
-            foreach (var msg in MessagesVM.SelectedMessages)
-                args.MessagesIds.Add(msg.Source.Id);
+            if (parameter is SituationData sitData)
+            {
+                args = new TaggerEventArgs
+                {
+                    Id = sitData.Id,
+                    Tag = sitData.Header,
+                    MessagesIds = sitData.Messages
+                };
+            }
+            else
+            {
+                args = new TaggerEventArgs
+                {
+                    Id = SituationIndex.GetInstance().GetValueCount(TagsVM.SelectedTag.Header),
+                    Tag = TagsVM.SelectedTag.Header,
+                    MessagesIds = new List<int>()
+                };
+
+                foreach (var msg in MessagesVM.SelectedMessages)
+                    args.MessagesIds.Add(msg.Source.Id);
+            }
 
             AddTag(args);
             MainWindowVM.IsProjectChanged = true;
@@ -193,6 +208,28 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
         }
 
+        public ICommand RemoveAllTagsCommand { get; }
+        public bool CanRemoveAllTagsCommandExecute(object parameter)
+        {
+            return SituationsVM.TaggedMessagesIds.Count > 0;
+        }
+        public void OnRemoveAllTagsCommandExecuted(object parameter)
+        {
+            if (!CanRemoveAllTagsCommandExecute(parameter))
+                return;
+
+            foreach (var msg in MessagesVM.MessagesCase.CurrentMessages)
+            {
+                msg.RemoveAllSituations();
+            }
+
+            SituationsVM.Situations.Clear();
+            SituationsVM.TaggedMessagesIds.Clear();
+
+            SituationIndex.GetInstance().UnloadData();
+            MainWindowVM.IsProjectChanged = true;
+        }
+
         #endregion
 
         public ChatViewModel(MainWindowViewModel mainWindowVM)
@@ -218,6 +255,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             AddTagCommand = new RelayCommand(OnAddTagCommandExecuted, CanAddTagCommandExecute);
             RemoveTagCommand = new RelayCommand(OnRemoveTagCommandExecuted, CanRemoveTagCommandExecute);
+            RemoveAllTagsCommand = new RelayCommand(OnRemoveAllTagsCommandExecuted, CanRemoveAllTagsCommandExecute);
         }
 
         public void ClearData()
@@ -312,7 +350,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
 
             SituationIndex.GetInstance().DeleteInnerIndexEntry(e.Tag, e.Id);
-            SituationsVM.RemoveSituationsCommand?.Execute(new Situation(e.Id, e.Tag));
+            SituationsVM.RemoveSituationsCommand.Execute(new Situation(e.Id, e.Tag));
 
             if (e.Id >= SituationIndex.GetInstance().GetValueCount(e.Tag) + 1)
                 return;

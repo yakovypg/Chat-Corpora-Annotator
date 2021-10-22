@@ -8,6 +8,7 @@ using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
+using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.Models.Timers;
 using ChatCorporaAnnotator.Services;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -17,6 +18,7 @@ using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -323,6 +325,47 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
+        #region ImportCommands
+
+        public ICommand ImportXmlCommand { get; }
+        public bool CanImportXmlCommandExecute(object parameter)
+        {
+            return IsFileLoaded;
+        }
+        public void OnImportXmlCommandExecuted(object parameter)
+        {
+            if (!CanImportXmlCommandExecute(parameter))
+                return;
+
+            if (!DialogProvider.GetXmlFilePath(out string path))
+                return;
+
+            try
+            {
+                TagFileReader reader = new TagFileReader();
+                reader.OpenReader(path);
+
+                List<SituationData> situations = reader.ReadAllSituations();
+
+                ChatVM.RemoveAllTagsCommand.Execute(null);
+
+                foreach (var sit in situations)
+                {
+                    ChatVM.AddTagCommand.Execute(sit);
+                }
+
+                ChatVM.SituationsVM.UpdateMessagesTags();
+
+                reader.CloseReader();
+            }
+            catch (Exception ex)
+            {
+                new QuickMessage($"Error: {ex.Message}").ShowError();
+            }
+        }
+
+        #endregion
+
         #region SuggesterCommands
 
         public ICommand ShowSuggesterCommand { get; }
@@ -593,6 +636,8 @@ namespace ChatCorporaAnnotator.ViewModels
             ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
             SavePresentStateCommand = new RelayCommand(OnSavePresentStateCommandExecuted, CanSavePresentStateCommandExecute);
             SavePresentStateByButtonCommand = new RelayCommand(OnSavePresentStateByButtonCommandExecuted, CanSavePresentStateByButtonCommandExecute);
+
+            ImportXmlCommand = new RelayCommand(OnImportXmlCommandExecuted, CanImportXmlCommandExecute);
 
             ShowSuggesterCommand = new RelayCommand(OnShowSuggesterCommandExecuted, CanShowSuggesterCommandExecute);
             ShowTagsetEditorCommand = new RelayCommand(OnShowTagsetEditorCommandExecuted, CanShowTagsetEditorCommandExecute);

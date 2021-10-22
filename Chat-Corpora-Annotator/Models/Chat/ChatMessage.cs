@@ -75,7 +75,7 @@ namespace ChatCorporaAnnotator.Models.Chat
         public ChatMessage(DynamicMessage source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
-            //Source.Contents[ProjectInfo.TextFieldKey] = (Source.Id + 1).ToString();
+            //Source.Contents[ProjectInfo.TextFieldKey] = (Source.Id + 0).ToString();
         }
 
         public void AddSituation(ISituation situation, IEnumerable<Tag> tagset = null)
@@ -89,6 +89,14 @@ namespace ChatCorporaAnnotator.Models.Chat
             Source.AddSituation(situation.Header, situation.Id);
 
             UpdateBackgroundBrush(tagset);
+            OnPropertyChanged(nameof(TagsPresenter));
+        }
+
+        public void RemoveAllSituations()
+        {
+            Source.RemoveAllSituations();
+
+            UpdateBackgroundBrush();
             OnPropertyChanged(nameof(TagsPresenter));
         }
 

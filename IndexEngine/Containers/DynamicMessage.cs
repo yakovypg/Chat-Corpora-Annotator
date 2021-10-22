@@ -52,6 +52,11 @@ namespace IndexEngine
                 Situations.Add(situation, id);
         }
 
+        public void RemoveAllSituations()
+        {
+            Situations.Clear();
+        }
+
         public bool RemoveSituation(string situation)
         {
             return Situations.Remove(situation);
