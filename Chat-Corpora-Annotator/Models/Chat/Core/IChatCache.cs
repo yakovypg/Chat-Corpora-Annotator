@@ -11,8 +11,8 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         ObservableCollection<ChatMessage> CurrentMessages { get; }
 
-        IList<ChatMessage> MoveBack();
-        IList<ChatMessage> MoveForward();
+        IList<ChatMessage> MoveBack(out int scrollIndex);
+        IList<ChatMessage> MoveForward(out int scrollIndex);
 
         /// <summary>
         /// Saves current package and adds temporary messages to displaying collection.

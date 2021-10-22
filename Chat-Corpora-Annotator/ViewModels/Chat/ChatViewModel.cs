@@ -120,8 +120,6 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             var mainWindowInteract = new MainWindowInteract();
             mainWindowInteract.ScrollToVerticalOffset(scrollIndex);
-
-            SituationsVM.UpdateMessagesTags();
         }
 
         #endregion

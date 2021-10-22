@@ -16,6 +16,8 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         private readonly List<ChatMessage> _currentPackage;
         private readonly List<ChatMessage> _nextPackage;
 
+        private int _previousPackageScrollIndex;
+
         public delegate void PackageChangedHandler();
         public event PackageChangedHandler PackageChanged;
 
@@ -72,8 +74,10 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             RetainedItemsCount = retainedItemsCount;
         }
 
-        public IList<ChatMessage> MoveBack()
+        public IList<ChatMessage> MoveBack(out int scrollIndex)
         {
+            scrollIndex = _previousPackageScrollIndex;
+
             if (IsPaused || _currentPackage.Count == 0 || _previousPackage.Count == 0)
                 return null;
 
@@ -93,8 +97,10 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             return new List<ChatMessage>(currentMessages);
         }
 
-        public IList<ChatMessage> MoveForward()
+        public IList<ChatMessage> MoveForward(out int scrollIndex)
         {
+            scrollIndex = 0;
+
             if (IsPaused || _currentPackage.Count == 0 || _nextPackage.Count == 0)
                 return null;
 
@@ -111,7 +117,14 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
                 int missingMessagesCount = IndexInteraction.LoadingMessagesCount - currentMessages.Length;
                 var missingMessages = previousMessages.Skip(previousMessages.Length - missingMessagesCount).ToArray();
 
+                scrollIndex += missingMessagesCount;
+                _previousPackageScrollIndex = previousMessages.Length - missingMessagesCount;
+
                 outputMessages.InsertRange(0, missingMessages);
+            }
+            else
+            {
+                _previousPackageScrollIndex = previousMessages.Length - 1;
             }
 
             _previousPackage.Reset(previousMessages);
@@ -163,6 +176,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             CurrentMessages = new ObservableCollection<ChatMessage>(currentMessages);
 
             LoadNextPackage();
+            PackageChanged?.Invoke();
         }
 
         public void Shift(int messageIndex, out int scrollIndex)
@@ -195,11 +209,31 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
                     nextMessages = IndexInteraction.GetMessages();
             }
 
+            int currMessagesCount = currMessages.Count();
+            var outputMessages = new List<ChatMessage>(currMessages);
+
+            if (currMessagesCount < IndexInteraction.LoadingMessagesCount)
+            {
+                int previousMessagesCount = previousMessages.Count();
+                int missingMessagesCount = IndexInteraction.LoadingMessagesCount - currMessagesCount;
+                var missingMessages = previousMessages.Skip(previousMessagesCount - missingMessagesCount).ToArray();
+
+                scrollIndex += missingMessagesCount;
+                _previousPackageScrollIndex = previousMessagesCount - missingMessagesCount;
+
+                outputMessages.InsertRange(0, missingMessages);
+            }
+            else
+            {
+                _previousPackageScrollIndex = previousMessages.Count() - 1;
+            }
+
             _previousPackage.Reset(previousMessages);
             _currentPackage.Reset(currMessages);
             _nextPackage.Reset(nextMessages);
 
-            CurrentMessages = new ObservableCollection<ChatMessage>(currMessages);
+            CurrentMessages = new ObservableCollection<ChatMessage>(outputMessages);
+            PackageChanged?.Invoke();
         }
 
         private bool LoadPreviousPackage()
