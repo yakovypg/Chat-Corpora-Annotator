@@ -473,6 +473,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 CellTemplate = columnDataTemplate
             };
 
+            if (fieldKey == TAG_COLUMN_HEADER)
+                column.MaxWidth = 300;
+
             return column;
         }
 

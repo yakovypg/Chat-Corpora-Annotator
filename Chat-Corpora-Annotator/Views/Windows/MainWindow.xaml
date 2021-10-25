@@ -140,28 +140,8 @@
                     </MenuItem>
                 </MenuItem>
 
-                    <MenuItem Header="Suggester" Command="{Binding ShowSuggesterCommand}"/>
+                <MenuItem Header="Suggester" Command="{Binding ShowSuggesterCommand}"/>
                 <MenuItem Header="Tagset Editor" Command="{Binding ShowTagsetEditorCommand}"/>
-
-                <MenuItem Header="Edit Situation">
-                    <MenuItem Header="Merge" Command="{Binding ChatVM.SituationsVM.MergeSituationsCommand}">
-                        <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Brands_CreativeCommonsShare"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-
-                    <MenuItem Header="Delete situation" Command="{Binding ChatVM.SituationsVM.DeleteSituationCommand}">
-                        <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Regular_MinusSquare"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-
-                    <MenuItem Header="Change tag" Command="{Binding ChatVM.SituationsVM.ChangeSituationTagCommand}">
-                        <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Regular_Edit"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </MenuItem>
             </Menu>
 
             <Grid Grid.Column="2" Width="auto" Visibility="{Binding BottomMenuVisibility}">
