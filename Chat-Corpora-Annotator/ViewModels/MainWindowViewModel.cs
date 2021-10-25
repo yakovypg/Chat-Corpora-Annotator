@@ -346,6 +346,7 @@ namespace ChatCorporaAnnotator.ViewModels
                 reader.OpenReader(path);
 
                 List<SituationData> situations = reader.ReadAllSituations();
+                SyncData(situations);
 
                 ChatVM.RemoveAllTagsCommand.Execute(null);
 
@@ -707,6 +708,33 @@ namespace ChatCorporaAnnotator.ViewModels
 
             ProjectStateSavingTimer.Start();
             MemoryCleaninigTimer.Start();
+        }
+
+        #endregion
+
+        #region ImportMethods
+
+        public void SyncData(List<SituationData> unsynchronizedData)
+        {
+            int maxMsgId = ProjectInfo.Data.LineCount - 1;
+
+            foreach (var sitData in unsynchronizedData)
+            {
+                sitData.Messages.RemoveAll(id => id > maxMsgId);
+            }
+
+            unsynchronizedData.RemoveAll(t => t.Messages.Count == 0);
+
+            for (int i = 1; i < unsynchronizedData.Count; ++i)
+            {
+                SituationData prevData = unsynchronizedData[i - 1];
+                SituationData currData = unsynchronizedData[i];
+
+                int idDelta = currData.Id - prevData.Id;
+
+                if (currData.Header == prevData.Header && idDelta != 1)
+                    currData.Id = prevData.Id + 1;
+            }
         }
 
         #endregion

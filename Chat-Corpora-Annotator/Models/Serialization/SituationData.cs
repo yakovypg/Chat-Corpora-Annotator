@@ -4,7 +4,7 @@ namespace ChatCorporaAnnotator.Models.Serialization
 {
     internal class SituationData
     {
-        public int Id { get; }
+        public int Id { get; set; }
         public string Header { get; }
         public List<int> Messages { get; }
 

@@ -1,5 +1,6 @@
 ﻿using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using IndexEngine.Paths;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -195,11 +196,13 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _currentPackage.Clear();
             _nextPackage.Clear();
 
-            IndexInteraction.ResetMessageReadIndex(firstMsgId);
+            IndexInteraction.ResetMessageReadIndex(firstMsgId - 1);
 
             IEnumerable<ChatMessage> previousMessages = IndexInteraction.PeekPreviousMessages();
             IEnumerable<ChatMessage> currMessages = null;
             IEnumerable<ChatMessage> nextMessages = null;
+
+            IndexInteraction.ResetMessageReadIndex(firstMsgId);
 
             if (IndexInteraction.TryLoadNextMessagesFromIndex())
             {
@@ -212,7 +215,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             int currMessagesCount = currMessages.Count();
             var outputMessages = new List<ChatMessage>(currMessages);
 
-            if (currMessagesCount < IndexInteraction.LoadingMessagesCount)
+            if (IndexInteraction.LoadingMessagesCount < ProjectInfo.Data.LineCount && currMessagesCount < IndexInteraction.LoadingMessagesCount)
             {
                 int previousMessagesCount = previousMessages.Count();
                 int missingMessagesCount = IndexInteraction.LoadingMessagesCount - currMessagesCount;
