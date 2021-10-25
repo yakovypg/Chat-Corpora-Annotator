@@ -2,12 +2,14 @@
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
+using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
@@ -50,6 +52,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
 
             Situations = new ObservableCollection<Situation>(newSituations);
+            SortSituations();
+
             OnPropertyChanged(nameof(Situations));
 
             _mainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
@@ -75,6 +79,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             foreach (var s in addingSituations)
                 Situations.Add(s);
 
+            SortSituations();
             _mainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
         }
 
@@ -98,6 +103,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             foreach (var s in removingSituations)
                 Situations.Remove(s);
 
+            SortSituations();
             _mainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
         }
 
@@ -169,10 +175,57 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
+        #region InfoCommands
+
+        public ICommand ShowSelectedSituationInfoCommand { get; }
+        public bool CanShowSelectedSituationInfoCommandExecute(object parameter)
+        {
+            return SelectedSituation != null;
+        }
+        public void OnShowSelectedSituationInfoCommandExecuted(object parameter)
+        {
+            if (!CanShowSelectedSituationInfoCommandExecute(parameter))
+                return;
+
+            int id = SelectedSituation.Id;
+            string header = SelectedSituation.Header;
+
+            List<int> sitMsgIds = SituationIndex.GetInstance().IndexCollection[header][id];
+            sitMsgIds.Sort();
+
+            List<Tuple<int, int>> regions = new List<Tuple<int, int>>();
+
+            int regionStart = sitMsgIds[0];
+
+            for (int i = 1; i < sitMsgIds.Count; ++i)
+            {
+                if (sitMsgIds[i] - sitMsgIds[i - 1] > 1)
+                {
+                    var region = new Tuple<int, int>(regionStart, sitMsgIds[i - 1]);
+                    regions.Add(region);
+
+                    regionStart = sitMsgIds[i];
+                }
+            }
+
+            var lastRegion = new Tuple<int, int>(regionStart, sitMsgIds[sitMsgIds.Count - 1]);
+            regions.Add(lastRegion);
+
+            var infoBuilder = new StringBuilder("Regions:\n");
+
+            for (int i = 0; i < regions.Count; ++i)
+            {
+                infoBuilder.Append($"{i + 1}. {regions[i].Item1}-{regions[i].Item2}\n");
+            }
+
+            new QuickMessage(infoBuilder.ToString()).ShowInformation();
+        }
+
+        #endregion
+
         #region NavigationCommands
 
         public ICommand MoveToSelectedSituationCommand { get; }
-
         public bool CanMoveToSelectedSituationCommandExecute(object parameter)
         {
             return SelectedSituation != null;
@@ -213,14 +266,29 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             DeleteSituationCommand = new RelayCommand(OnDeleteSituationCommandExecuted, CanDeleteSituationCommandExecute);
             ChangeSituationTagCommand = new RelayCommand(OnChangeSituationTagCommandExecuted, CanChangeSituationTagCommandExecute);
 
+            ShowSelectedSituationInfoCommand = new RelayCommand(OnShowSelectedSituationInfoCommandExecuted, CanShowSelectedSituationInfoCommandExecute);
             MoveToSelectedSituationCommand = new RelayCommand(OnMoveToSelectedSituationCommandExecuted, CanMoveToSelectedSituationCommandExecute);
         }
+
+        #region DataMethods
 
         public void ClearData()
         {
             TaggedMessagesIds.Clear();
             Situations.Clear();
         }
+
+        public void SortSituations()
+        {
+            var sortedData = Situations.OrderBy(t => t.Header).ThenBy(t => t.Id).ToArray();
+            Situations = new ObservableCollection<Situation>(sortedData);
+
+            OnPropertyChanged(nameof(Situations));
+        }
+
+        #endregion
+
+        #region ViewMethods
 
         public void UpdateMessagesTags()
         {
@@ -246,6 +314,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
         }
 
+        #endregion
+
+        #region DataGettingMethods
+
         private IEnumerable<Situation> GetSituations()
         {
             SituationIndex.GetInstance().ReadIndexFromDisk();
@@ -269,5 +341,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             return situationSet;
         }
+
+        #endregion
     }
 }

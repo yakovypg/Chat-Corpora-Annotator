@@ -620,6 +620,7 @@
                                                     </i:Interaction.Triggers>
 
                                                     <ListBox.InputBindings>
+                                                        <KeyBinding Key="F1" Command="{Binding SituationsVM.ShowSelectedSituationInfoCommand}"/>
                                                         <KeyBinding Key="Enter" Command="{Binding SituationsVM.MoveToSelectedSituationCommand}"/>
                                                     </ListBox.InputBindings>
 

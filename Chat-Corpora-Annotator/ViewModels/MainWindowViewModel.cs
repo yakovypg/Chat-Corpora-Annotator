@@ -6,6 +6,7 @@ using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Serialization;
@@ -346,6 +347,8 @@ namespace ChatCorporaAnnotator.ViewModels
                 reader.OpenReader(path);
 
                 List<SituationData> situations = reader.ReadAllSituations();
+
+                RecoverData(situations);
                 SyncData(situations);
 
                 ChatVM.RemoveAllTagsCommand.Execute(null);
@@ -714,7 +717,30 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region ImportMethods
 
-        public void SyncData(List<SituationData> unsynchronizedData)
+        private void RecoverData(List<SituationData> data)
+        {
+            SituationData[] recoveredData = data.Distinct().ToArray();
+
+            if (data.Count != recoveredData.Length)
+                data.Reset(recoveredData);
+
+            data.RemoveAll(t => t.Messages.Count == 0);
+
+            var sortedData = data.OrderBy(t => t.Header).ThenBy(t => t.Id).ToArray();
+            data.Reset(sortedData);
+
+            foreach (var situation in data)
+            {
+                int[] recoveredMessages = situation.Messages.Distinct().ToArray();
+
+                if (situation.Messages.Count != recoveredMessages.Length)
+                    situation.Messages.Reset(recoveredMessages);
+
+                situation.Messages.Sort();
+            }
+        }
+
+        private void SyncData(List<SituationData> unsynchronizedData)
         {
             int maxMsgId = ProjectInfo.Data.LineCount - 1;
 

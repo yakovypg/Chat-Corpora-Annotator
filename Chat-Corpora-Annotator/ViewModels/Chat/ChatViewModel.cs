@@ -191,13 +191,14 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                     args.Id = firstSituationData.Value;
 
                     RemoveTag(args);
-                    MainWindowVM.IsProjectChanged = true;
                 }
                 else
                 {
                     //todo: remove multitag
                 }
             }
+
+            MainWindowVM.IsProjectChanged = true;
         }
 
         public ICommand RemoveAllTagsCommand { get; }
@@ -250,6 +251,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             RemoveAllTagsCommand = new RelayCommand(OnRemoveAllTagsCommandExecuted, CanRemoveAllTagsCommandExecute);
         }
 
+        #region DataMethods
+
         public void ClearData()
         {
             TagsVM.ClearData();
@@ -260,6 +263,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             ChatColumns.Clear();
         }
+
+        #endregion
 
         #region TagsMethods
 
