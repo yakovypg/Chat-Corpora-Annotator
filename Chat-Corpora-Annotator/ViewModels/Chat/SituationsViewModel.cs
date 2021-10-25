@@ -4,6 +4,7 @@ using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;
@@ -114,27 +115,62 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand MergeSituationsCommand { get; }
         public bool CanMergeSituationsCommandExecute(object parameter)
         {
-            return false;
+            return Situations.Count >= 2;
         }
         public void OnMergeSituationsCommandExecuted(object parameter)
         {
             if (!CanMergeSituationsCommandExecute(parameter))
                 return;
 
-            _mainWindowVM.IsProjectChanged = true;
+            var viewModel = new MergeSituationsWindowViewModel(Situations)
+            {
+                MergeSituationsFunc = TryMergeSituations,
+
+                Title = "Merge situations",
+                TextBetweenComboBoxes = "to",
+                PerformButtonContent = "Merge",
+
+                Hint = "You are going to perform a merge of situations. In the first box, select the situation " +
+                       "from which you want to take messages. In the second box, select the situation in which the " +
+                       "messages will be moved."
+            };
+
+            var window = new MergeSituationsWindow()
+            {
+                DataContext = viewModel
+            };
+
+            window.ShowDialog();
         }
 
         public ICommand CrossMergeSituationsCommand { get; }
         public bool CanCrossMergeSituationsCommandExecute(object parameter)
         {
-            return false;
+            return Situations.Count >= 2;
         }
         public void OnCrossMergeSituationsCommandExecuted(object parameter)
         {
             if (!CanCrossMergeSituationsCommandExecute(parameter))
                 return;
 
-            _mainWindowVM.IsProjectChanged = true;
+            var viewModel = new MergeSituationsWindowViewModel(Situations)
+            {
+                MergeSituationsFunc = TryCrossMergeSituations,
+
+                Title = "Cross-Merge situations",
+                TextBetweenComboBoxes = "with",
+                PerformButtonContent = "Cross-Merge",
+
+                Hint = "You are going to perform a cross-merge of situations. In the first box, select the first " +
+                       "situation. In the second box, select the second situation."
+            };
+
+            var window = new MergeSituationsWindow()
+            {
+                DataContext = viewModel
+            };
+
+            window.ShowDialog();
         }
 
         public ICommand DeleteSituationCommand { get; }
@@ -163,13 +199,21 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand ChangeSituationTagCommand { get; }
         public bool CanChangeSituationTagCommandExecute(object parameter)
         {
-            return false;
+            return SelectedSituation != null && _mainWindowVM.ChatVM.TagsVM.SelectedTag != null;
         }
         public void OnChangeSituationTagCommandExecuted(object parameter)
         {
             if (!CanChangeSituationTagCommandExecute(parameter))
                 return;
 
+            var args = new TaggerEventArgs
+            {
+                Id = SelectedSituation.Id,
+                Tag = SelectedSituation.Header,
+                AdditionalInfo = new Dictionary<string, object>() { { "Change", _mainWindowVM.ChatVM.TagsVM.SelectedTag.Header } }
+            };
+
+            _mainWindowVM.ChatVM.DeleteOrEditTag(args, false);
             _mainWindowVM.IsProjectChanged = true;
         }
 
@@ -312,6 +356,22 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                     msg.UpdateBackgroundBrush(_mainWindowVM.ChatVM.TagsVM.CurrentTagset);
                 }
             }
+        }
+
+        #endregion
+
+        #region MergeSituationsMethods
+
+        private bool TryMergeSituations(Situation first, Situation second)
+        {
+            _mainWindowVM.IsProjectChanged = true;
+            return true;
+        }
+
+        private bool TryCrossMergeSituations(Situation first, Situation second)
+        {
+            _mainWindowVM.IsProjectChanged = true;
+            return true;
         }
 
         #endregion

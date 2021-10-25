@@ -160,6 +160,7 @@
     <Compile Include="Infrastructure\AppEventArgs\LuceneQueryEventArgs.cs" />
     <Compile Include="Infrastructure\AppEventArgs\ProjectSavingStateEventArgs.cs" />
     <Compile Include="Infrastructure\AppEventArgs\TaggerEventArgs.cs" />
+    <Compile Include="Infrastructure\Commands\CloseWindowCommand.cs" />
     <Compile Include="Infrastructure\Enums\FileLoadState.cs" />
     <Compile Include="Infrastructure\Enums\SaveProjectState.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
@@ -180,6 +181,10 @@
     <Compile Include="Services\TagFileReader.cs" />
     <Compile Include="Services\TagFileWriter.cs" />
     <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
+    <Compile Include="ViewModels\MergeSituationsWindowViewModel.cs" />
+    <Compile Include="Views\Windows\MergeSituationsWindow.xaml.cs">
+      <DependentUpon>MergeSituationsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">
       <DependentUpon>MessageExplorerWindow.xaml</DependentUpon>
     </Compile>
@@ -279,6 +284,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\Windows\MergeSituationsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\MessageExplorerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

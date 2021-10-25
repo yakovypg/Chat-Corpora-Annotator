@@ -309,13 +309,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         private void EditTag(TaggerEventArgs e)
         {
-            var tag = e.AdditionalInfo["Change"].ToString();
-            var count = SituationIndex.GetInstance().GetValueCount(tag);
-            var list = SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id];
+            string tag = e.AdditionalInfo["Change"].ToString();
+            int count = SituationIndex.GetInstance().GetValueCount(tag);
+            List<int> msgIds = SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id];
 
-            SituationIndex.GetInstance().AddInnerIndexEntry(tag, count, list);
+            SituationIndex.GetInstance().AddInnerIndexEntry(tag, count, msgIds);
 
-            foreach (var id in list)
+            foreach (var id in msgIds)
             {
                 ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == id);
 
