@@ -98,6 +98,18 @@ namespace IndexEngine.Indexes
             AddInvertedIndexEntry(key1, id1, IndexCollection[key2][id2]);
         }
 
+        public void MergeItems(string key1, int id1, string key2, int id2)
+        {
+            List<int> firstSitMsgIds = new List<int>(IndexCollection[key1][id1]);
+            List<int> secondSitMsgIds = IndexCollection[key2][id2];
+
+            secondSitMsgIds.AddRange(firstSitMsgIds);
+            secondSitMsgIds.Sort();
+
+            DeleteInnerIndexEntry(key1, id1);
+            AddInvertedIndexEntry(key2, id2, firstSitMsgIds);
+        }
+
         public void DeleteIndexEntry(string key)
         {
             IndexCollection.Remove(key);

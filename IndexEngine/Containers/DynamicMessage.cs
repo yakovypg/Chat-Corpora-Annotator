@@ -15,13 +15,15 @@ namespace IndexEngine
             {
                 foreach (var str in SituationIndex.GetInstance().InvertedIndex[id])
                 {
-                    if (!Messages[id].Situations.ContainsKey(str.Key))
-                    {
-                        Messages[id].Situations.Add(str.Key, str.Value);
-
-                    }
+                    Messages[id].AddSituation(str.Key, str.Value);
                 }
             }
+        }
+
+        public static void UpdateTagsInDynamicMessage(int id, int offset)
+        {
+            Messages[id].RemoveAllSituations();
+            InsertTagsInDynamicMessage(id, offset);
         }
     }
 

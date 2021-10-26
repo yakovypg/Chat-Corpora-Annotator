@@ -5,6 +5,7 @@ using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.Views.Windows;
+using IndexEngine;
 using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;
@@ -124,7 +125,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             var viewModel = new MergeSituationsWindowViewModel(Situations)
             {
-                MergeSituationsFunc = TryMergeSituations,
+                MergeSituationsFunc = MergeSituations,
+                CheckDataFunc = CanMergeSituations,
 
                 Title = "Merge situations",
                 TextBetweenComboBoxes = "to",
@@ -155,7 +157,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             var viewModel = new MergeSituationsWindowViewModel(Situations)
             {
-                MergeSituationsFunc = TryCrossMergeSituations,
+                MergeSituationsFunc = CrossMergeSituations,
+                CheckDataFunc = CanCrossMergeSituations,
 
                 Title = "Cross-Merge situations",
                 TextBetweenComboBoxes = "with",
@@ -353,6 +356,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                         msg.AddSituation(situation, _mainWindowVM.ChatVM.TagsVM.CurrentTagset);
                     }
 
+                    msg.UpdateTagPresenter();
                     msg.UpdateBackgroundBrush(_mainWindowVM.ChatVM.TagsVM.CurrentTagset);
                 }
             }
@@ -362,15 +366,86 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #region MergeSituationsMethods
 
-        private bool TryMergeSituations(Situation first, Situation second)
+        private Tuple<bool, string> CanMergeSituations(Situation first, Situation second)
         {
+            string errorMessage = null;
+
+            if (first == null || second == null)
+                errorMessage = "One of the situations is null.";
+
+            else if (first.Equals(second))
+                errorMessage = "Can not merge identical situations.";
+
+            return new Tuple<bool, string>(errorMessage is null, errorMessage);
+        }
+
+        private Tuple<bool, string> CanCrossMergeSituations(Situation first, Situation second)
+        {
+            string errorMessage = null;
+
+            if (first == null || second == null)
+                errorMessage = "One of the situations is null.";
+
+            else if (first.Header == second.Header)
+                errorMessage = "Can not merge situations of the same type.";
+
+            return new Tuple<bool, string>(errorMessage is null, errorMessage);
+        }
+
+        private bool MergeSituations(Situation first, Situation second)
+        {
+            List<int> firstSitMsgIds = SituationIndex.GetInstance().IndexCollection[first.Header][first.Id].ToList();
+            List<int> secondSitMsgIds = SituationIndex.GetInstance().IndexCollection[second.Header][second.Id].ToList();
+
+            SituationIndex.GetInstance().MergeItems(first.Header, first.Id, second.Header, second.Id);
+
+            foreach (var id in firstSitMsgIds)
+            {
+                MessageContainer.UpdateTagsInDynamicMessage(id, 0);
+            }
+
+            foreach (var id in secondSitMsgIds)
+            {
+                MessageContainer.UpdateTagsInDynamicMessage(id, 0);
+            }
+
+            Situations.Remove(first);
+
+            UpdateMessagesTags();
             _mainWindowVM.IsProjectChanged = true;
+
             return true;
         }
 
-        private bool TryCrossMergeSituations(Situation first, Situation second)
+        private bool CrossMergeSituations(Situation first, Situation second)
         {
+            SituationIndex.GetInstance().CrossMergeItems(first.Header, first.Id, second.Header, second.Id);
+
+            List<int> firstSitMsgIds = SituationIndex.GetInstance().IndexCollection[first.Header][first.Id];
+            List<int> secondSitMsgIds = SituationIndex.GetInstance().IndexCollection[second.Header][second.Id];
+
+            foreach (var id in firstSitMsgIds)
+            {
+                MessageContainer.InsertTagsInDynamicMessage(id, 0);
+            }
+
+            foreach (var id in secondSitMsgIds)
+            {
+                MessageContainer.InsertTagsInDynamicMessage(id, 0);
+            }
+
+            var firstSitMsgIdsClone = new List<int>(firstSitMsgIds);
+            var secondSitMsgIdsClone = new List<int>(secondSitMsgIds);
+
+            firstSitMsgIds.AddRange(secondSitMsgIdsClone);
+            secondSitMsgIds.AddRange(firstSitMsgIdsClone);
+
+            firstSitMsgIds.Sort();
+            secondSitMsgIds.Sort();
+
+            UpdateMessagesTags();
             _mainWindowVM.IsProjectChanged = true;
+
             return true;
         }
 

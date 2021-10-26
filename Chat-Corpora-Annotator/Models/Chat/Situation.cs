@@ -15,7 +15,7 @@ namespace ChatCorporaAnnotator.Models.Chat
 
         public override string ToString()
         {
-            return Header;
+            return $"{Header} {Id}";
         }
 
         public override bool Equals(object obj)

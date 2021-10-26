@@ -164,6 +164,11 @@ namespace ChatCorporaAnnotator.Models.Chat
                 BackgroundBrush = tag.BackgroundBrush;
         }
 
+        public void UpdateTagPresenter()
+        {
+            OnPropertyChanged(nameof(TagsPresenter));
+        }
+
         public override string ToString()
         {
             return Source.Contents.TryGetValue(ProjectInfo.TextFieldKey, out object text)
