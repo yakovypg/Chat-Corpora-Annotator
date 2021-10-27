@@ -2,6 +2,7 @@
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using IndexEngine;
+using IndexEngine.Indexes;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,6 +56,68 @@ namespace ChatCorporaAnnotator.Data.Indexing
             return messages.IsNullOrEmpty()
                 ? new ChatMessage[0]
                 : messages.Select(t => new ChatMessage(t));
+        }
+
+        public static IEnumerable<ChatMessage> GetAllTaggedMessages()
+        {
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+
+            var indexItems = SituationIndex.GetInstance().InvertedIndex.Where(t => t.Value.Count > 0);
+            var taggedMsgIds = indexItems.Select(t => t.Key).ToArray();
+
+            foreach (int id in taggedMsgIds)
+            {
+                DynamicMessage msg = IndexHelper.GetMessage(id - ProjectInteraction.FirstMessageId);
+                messages.Add(msg);
+            }
+
+            return messages.Select(t => new ChatMessage(t));
+        }
+
+        public static IEnumerable<ChatMessage> GetMessagesByTag(string tagHeader)
+        {
+            List<int> msgIds = new List<int>();
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+
+            var index = SituationIndex.GetInstance().IndexCollection;
+
+            foreach (var kvp in index)
+            {
+                if (!kvp.Key.Contains(tagHeader))
+                    continue;
+
+                foreach (var situationData in index[kvp.Key])
+                {
+                    msgIds.AddRange(situationData.Value);
+                }
+            }
+
+            msgIds = msgIds.Distinct().ToList();
+
+            foreach (int id in msgIds)
+            {
+                DynamicMessage msg = IndexHelper.GetMessage(id - ProjectInteraction.FirstMessageId);
+                messages.Add(msg);
+            }
+
+            return messages.Select(t => new ChatMessage(t));
+        }
+
+        public static IEnumerable<ChatMessage> GetMessagesBySituation(Situation situation)
+        {
+            List<DynamicMessage> messages = new List<DynamicMessage>();
+
+            int sitId = situation.Id;
+            string sitTag = situation.Header;
+            List<int> msgIds = SituationIndex.GetInstance().IndexCollection[sitTag][sitId];
+
+            foreach (int id in msgIds)
+            {
+                DynamicMessage msg = IndexHelper.GetMessage(id - ProjectInteraction.FirstMessageId);
+                messages.Add(msg);
+            }
+
+            return messages.Select(t => new ChatMessage(t));
         }
 
         public static bool TryLoadPreviousMessagesFromIndex()

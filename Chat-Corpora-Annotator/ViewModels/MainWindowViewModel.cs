@@ -232,32 +232,6 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #region BottomBarCommands
 
-        #region FilterCommands
-
-        public ICommand ChooseTagForFilterCommand { get; }
-        public bool CanChooseTagForFilterCommandExecute(object parameter)
-        {
-            return false;
-        }
-        public void OnChooseTagForFilterCommandExecuted(object parameter)
-        {
-            if (!CanChooseTagForFilterCommandExecute(parameter))
-                return;
-        }
-
-        public ICommand SetTaggedOnlyParamForFilterCommand { get; }
-        public bool CanSetTaggedOnlyParamForFilterCommandExecute(object parameter)
-        {
-            return false;
-        }
-        public void OnSetTaggedOnlyParamForFilterCommandExecuted(object parameter)
-        {
-            if (!CanSetTaggedOnlyParamForFilterCommandExecute(parameter))
-                return;
-        }
-
-        #endregion
-
         #region SaveFileCommands
 
         public ICommand SavePresentStateByButtonCommand { get; }
@@ -376,7 +350,7 @@ namespace ChatCorporaAnnotator.ViewModels
 
         #endregion
 
-        #region SuggesterCommands
+        #region AuxiliaryComponentsCommands
 
         public ICommand ShowSuggesterCommand { get; }
         public bool CanShowSuggesterCommandExecute(object parameter)
@@ -388,10 +362,6 @@ namespace ChatCorporaAnnotator.ViewModels
             if (!CanShowSuggesterCommandExecute(parameter))
                 return;
         }
-
-        #endregion
-
-        #region TagsetEditorCommands
 
         public ICommand ShowTagsetEditorCommand { get; }
         public bool CanShowTagsetEditorCommandExecute(object parameter)
@@ -639,9 +609,6 @@ namespace ChatCorporaAnnotator.ViewModels
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
             ExtractFileCommand = new RelayCommand(OnExtractFileCommandExecuted, CanExtractFileCommandExecute);
-
-            ChooseTagForFilterCommand = new RelayCommand(OnChooseTagForFilterCommandExecuted, CanChooseTagForFilterCommandExecute);
-            SetTaggedOnlyParamForFilterCommand = new RelayCommand(OnSetTaggedOnlyParamForFilterCommandExecuted, CanSetTaggedOnlyParamForFilterCommandExecute);
 
             ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
             SavePresentStateCommand = new RelayCommand(OnSavePresentStateCommandExecuted, CanSavePresentStateCommandExecute);

@@ -30,6 +30,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public UsersViewModel UsersVM { get; }
         public DatesViewModel DatesVM { get; }
         public MessagesViewModel MessagesVM { get; }
+        public MessageFilterViewModel MessageFilterVM { get; }
         public MessageFinderViewModel MessageFinderVM { get; }
         public TagsViewModel TagsVM { get; }
         public SituationsViewModel SituationsVM { get; }
@@ -235,6 +236,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             TagsVM = new TagsViewModel(MainWindowVM);
             SituationsVM = new SituationsViewModel(MainWindowVM);
 
+            MessageFilterVM = new MessageFilterViewModel(this);
             MessageFinderVM = new MessageFinderViewModel(this);
             MessagesVM = new MessagesViewModel(SituationsVM.UpdateMessagesTags);
 
