@@ -10,7 +10,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
-namespace ChatCorporaAnnotator.ViewModels
+namespace ChatCorporaAnnotator.ViewModels.Windows
 {
     internal class MessageExplorerWindowViewModel : ViewModel
     {

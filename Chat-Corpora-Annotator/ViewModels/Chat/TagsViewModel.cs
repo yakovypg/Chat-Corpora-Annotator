@@ -2,6 +2,7 @@
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.ViewModels.Windows;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;
 using System;

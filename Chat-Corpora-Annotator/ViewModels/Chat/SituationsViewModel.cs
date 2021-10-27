@@ -4,6 +4,7 @@ using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.ViewModels.Windows;
 using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine;
 using IndexEngine.Indexes;

@@ -7,6 +7,7 @@ using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.ViewModels.Windows;
 using IndexEngine;
 using IndexEngine.Indexes;
 using IndexEngine.Paths;

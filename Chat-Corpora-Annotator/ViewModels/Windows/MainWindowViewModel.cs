@@ -26,11 +26,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace ChatCorporaAnnotator.ViewModels
+namespace ChatCorporaAnnotator.ViewModels.Windows
 {
     internal class MainWindowViewModel : ViewModel
     {
         private IndexFileWindow _indexFileWindow;
+        private TagsetEditorWindow _tagsetEditorWindow;
 
         public SavingTimer ProjectStateSavingTimer { get; }
         public MemoryCleaninigTimer MemoryCleaninigTimer { get; }
@@ -366,12 +367,26 @@ namespace ChatCorporaAnnotator.ViewModels
         public ICommand ShowTagsetEditorCommand { get; }
         public bool CanShowTagsetEditorCommandExecute(object parameter)
         {
-            return false;
+            return true;
         }
         public void OnShowTagsetEditorCommandExecuted(object parameter)
         {
             if (!CanShowTagsetEditorCommandExecute(parameter))
                 return;
+
+            if (_tagsetEditorWindow != null)
+            {
+                new WindowInteract(_tagsetEditorWindow).MoveToForeground();
+                return;
+            }
+
+            var vm = new TagsetEditorWindowViewModel()
+            {
+                DeactivateAction = () => _tagsetEditorWindow = null
+            };
+
+            _tagsetEditorWindow = new TagsetEditorWindow(vm);
+            _tagsetEditorWindow.Show();
         }
 
         #endregion
@@ -546,6 +561,7 @@ namespace ChatCorporaAnnotator.ViewModels
             MemoryCleaninigTimer.Stop();
 
             CloseIndexFileWindowCommand.Execute(null);
+            CloseTagsetEditorWindowCommand.Execute(null);
             CloseMessageExplorerWindowsCommand.Execute(null);
 
             if (IsProjectChanged)
@@ -575,6 +591,19 @@ namespace ChatCorporaAnnotator.ViewModels
                 return;
 
             _indexFileWindow.Close();
+        }
+
+        public ICommand CloseTagsetEditorWindowCommand { get; }
+        public bool CanCloseTagsetEditorWindowCommandExecute(object parameter)
+        {
+            return _tagsetEditorWindow != null;
+        }
+        public void OnCloseTagsetEditorWindowCommandExecuted(object parameter)
+        {
+            if (!CanCloseTagsetEditorWindowCommandExecute(parameter))
+                return;
+
+            _tagsetEditorWindow.Close();
         }
 
         public ICommand CloseMessageExplorerWindowsCommand { get; }
@@ -622,6 +651,7 @@ namespace ChatCorporaAnnotator.ViewModels
             MainWindowLoadedCommand = new RelayCommand(OnMainWindowLoadedCommandExecuted, CanMainWindowLoadedCommandExecute);
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
+            CloseTagsetEditorWindowCommand = new RelayCommand(OnCloseTagsetEditorWindowCommandExecuted, CanCloseTagsetEditorWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
 
             #endregion

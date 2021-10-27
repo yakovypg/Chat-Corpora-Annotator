@@ -182,12 +182,16 @@
     <Compile Include="Services\TagFileWriter.cs" />
     <Compile Include="ViewModels\Chat\MessageFilterViewModel.cs" />
     <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
-    <Compile Include="ViewModels\MergeSituationsWindowViewModel.cs" />
+    <Compile Include="ViewModels\Windows\MergeSituationsWindowViewModel.cs" />
+    <Compile Include="ViewModels\Windows\TagsetEditorWindowViewModel.cs" />
     <Compile Include="Views\Windows\MergeSituationsWindow.xaml.cs">
       <DependentUpon>MergeSituationsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">
       <DependentUpon>MessageExplorerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\TagsetEditorWindow.xaml.cs">
+      <DependentUpon>TagsetEditorWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Resources\ControlTemplates\Buttons.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -275,9 +279,9 @@
     <Compile Include="ViewModels\Chat\SituationsViewModel.cs" />
     <Compile Include="ViewModels\Chat\TagsViewModel.cs" />
     <Compile Include="ViewModels\Chat\UsersViewModel.cs" />
-    <Compile Include="ViewModels\IndexFileWindowViewModel.cs" />
-    <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\MessageExplorerWindowViewModel.cs" />
+    <Compile Include="ViewModels\Windows\IndexFileWindowViewModel.cs" />
+    <Compile Include="ViewModels\Windows\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\Windows\MessageExplorerWindowViewModel.cs" />
     <Compile Include="Views\Windows\IndexFileWindow.xaml.cs">
       <DependentUpon>IndexFileWindow.xaml</DependentUpon>
     </Compile>
@@ -290,6 +294,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\MessageExplorerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\TagsetEditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

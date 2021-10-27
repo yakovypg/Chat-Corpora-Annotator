@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fa="http://schemas.fontawesome.com/icons/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels"
+        xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels.Windows"
         xmlns:chat="clr-namespace:ChatCorporaAnnotator.Models.Chat"
         xmlns:b="clr-namespace:ChatCorporaAnnotator.Infrastructure.Behaviors.Static"
         xmlns:controls="clr-namespace:ChatCorporaAnnotator.Data.Windows.Controls"
@@ -625,6 +625,7 @@
                                                     <ListBox.InputBindings>
                                                         <KeyBinding Key="F1" Command="{Binding SituationsVM.ShowSelectedSituationInfoCommand}"/>
                                                         <KeyBinding Key="Enter" Command="{Binding SituationsVM.MoveToSelectedSituationCommand}"/>
+                                                        <KeyBinding Key="Delete" Command="{Binding SituationsVM.DeleteSituationCommand}"/>
                                                     </ListBox.InputBindings>
 
                                                     <ListBox.ItemTemplate>

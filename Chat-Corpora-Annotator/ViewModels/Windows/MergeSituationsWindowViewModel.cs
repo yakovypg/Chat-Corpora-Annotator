@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 
-namespace ChatCorporaAnnotator.ViewModels
+namespace ChatCorporaAnnotator.ViewModels.Windows
 {
     internal class MergeSituationsWindowViewModel : ViewModel
     {

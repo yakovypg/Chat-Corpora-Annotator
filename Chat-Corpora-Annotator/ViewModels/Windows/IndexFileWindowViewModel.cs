@@ -24,7 +24,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace ChatCorporaAnnotator.ViewModels
+namespace ChatCorporaAnnotator.ViewModels.Windows
 {
     internal class IndexFileWindowViewModel : ViewModel
     {
