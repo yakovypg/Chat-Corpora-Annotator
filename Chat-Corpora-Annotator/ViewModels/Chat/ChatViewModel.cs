@@ -159,8 +159,14 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 };
 
                 foreach (var msg in MessagesVM.SelectedMessages)
-                    args.MessagesIds.Add(msg.Source.Id);
+                {
+                    if (!msg.Source.Situations.ContainsKey(args.Tag))
+                        args.MessagesIds.Add(msg.Source.Id);
+                }
             }
+
+            if (args.MessagesIds.Count == 0)
+                return;
 
             AddTag(args);
             MainWindowVM.IsProjectChanged = true;
@@ -185,18 +191,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
                 args.MessagesIds = new List<int> { msg.Source.Id };
 
-                if (msg.Source.Situations.Count == 1)
+                foreach (var situation in msg.Source.Situations.ToArray())
                 {
-                    var firstSituationData = msg.Source.Situations.FirstOrDefault();
-
-                    args.Tag = firstSituationData.Key;
-                    args.Id = firstSituationData.Value;
+                    args.Tag = situation.Key;
+                    args.Id = situation.Value;
 
                     RemoveTag(args);
-                }
-                else
-                {
-                    //todo: remove multitag
                 }
             }
 
