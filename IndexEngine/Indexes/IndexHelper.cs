@@ -222,6 +222,30 @@ namespace IndexEngine
             return dates;
         }
 
+        public static DynamicMessage GetMessage(int index)
+        {
+            List<string> msgData = new List<string>();
+            Document document = LuceneService.DirReader.Document(index);
+
+            foreach (var field in ProjectInfo.Data.SelectedFields)
+            {
+                msgData.Add(document.GetField(field).GetStringValue());
+            }
+
+            int id = document.GetField("id").GetInt32Value().Value;
+            return new DynamicMessage(msgData, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, id);
+        }
+
+        public static DynamicMessage GetFirstMessage()
+        {
+            return GetMessage(0);
+        }
+
+        public static DynamicMessage GetLastMessage()
+        {
+            return GetMessage(LuceneService.DirReader.MaxDoc - 1);
+        }
+
         public static List<DynamicMessage> LoadPreviousDocumentsFromIndex(int count)
         {
             if (viewerReadIndex == 0)

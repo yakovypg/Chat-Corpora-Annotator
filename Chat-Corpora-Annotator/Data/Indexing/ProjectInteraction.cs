@@ -10,6 +10,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
         public static ProjectInformation ProjectInfo = null;
 
         public static int MessagesCount => IndexEngine.Paths.ProjectInfo.Data.LineCount;
+        public static int FirstMessageId => IndexInteraction.GetFirstMessageId();
+        public static int LastMessageId => IndexInteraction.GetLastMessageId();
 
         public static HashSet<ActiveDate> GetActiveDates()
         {

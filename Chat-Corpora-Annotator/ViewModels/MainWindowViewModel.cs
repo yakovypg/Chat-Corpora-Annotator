@@ -731,6 +731,8 @@ namespace ChatCorporaAnnotator.ViewModels
 
             foreach (var situation in data)
             {
+                situation.Messages.RemoveAll(id => id < 0);
+
                 int[] recoveredMessages = situation.Messages.Distinct().ToArray();
 
                 if (situation.Messages.Count != recoveredMessages.Length)
@@ -738,28 +740,35 @@ namespace ChatCorporaAnnotator.ViewModels
 
                 situation.Messages.Sort();
             }
+
+            data.RemoveAll(t => t.Messages.Count == 0);
         }
 
         private void SyncData(List<SituationData> unsynchronizedData)
         {
-            int maxMsgId = ProjectInfo.Data.LineCount - 1;
+            int minMsgId = ProjectInteraction.FirstMessageId;
+            int maxMsgId = ProjectInteraction.LastMessageId;
 
             foreach (var sitData in unsynchronizedData)
             {
-                sitData.Messages.RemoveAll(id => id > maxMsgId);
+                sitData.Messages.RemoveAll(id => id < minMsgId || id > maxMsgId);
             }
 
             unsynchronizedData.RemoveAll(t => t.Messages.Count == 0);
+
+            if (unsynchronizedData.Count == 0)
+                return;
+
+            unsynchronizedData[0].Id = 0;
 
             for (int i = 1; i < unsynchronizedData.Count; ++i)
             {
                 SituationData prevData = unsynchronizedData[i - 1];
                 SituationData currData = unsynchronizedData[i];
 
-                int idDelta = currData.Id - prevData.Id;
-
-                if (currData.Header == prevData.Header && idDelta != 1)
-                    currData.Id = prevData.Id + 1;
+                currData.Id = currData.Header == prevData.Header
+                    ? prevData.Id + 1
+                    : 0;
             }
         }
 

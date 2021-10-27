@@ -17,9 +17,14 @@ namespace ChatCorporaAnnotator.Data.Indexing
             return IndexHelper.GetViewerReadIndex();
         }
 
-        public static void ResetMessageReadIndex(int index = 0)
+        public static void ResetMessageReadIndex()
         {
-            IndexHelper.ResetViewerReadIndex(index);
+            ResetMessageReadIndex(ProjectInteraction.FirstMessageId);
+        }
+
+        public static void ResetMessageReadIndex(int messageId)
+        {
+            IndexHelper.ResetViewerReadIndex(messageId - ProjectInteraction.FirstMessageId);
         }
 
         public static void DecreaseMessageReadIndex(int count)
@@ -31,6 +36,16 @@ namespace ChatCorporaAnnotator.Data.Indexing
         {
             int currIndex = GetMessageReadIndex();
             IndexHelper.ResetViewerReadIndex(currIndex + count);
+        }
+
+        public static int GetFirstMessageId()
+        {
+            return IndexHelper.GetFirstMessage().Id;
+        }
+
+        public static int GetLastMessageId()
+        {
+            return IndexHelper.GetLastMessage().Id;
         }
 
         public static IEnumerable<ChatMessage> GetMessages()
