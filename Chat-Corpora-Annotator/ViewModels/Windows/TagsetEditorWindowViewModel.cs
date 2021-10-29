@@ -1,12 +1,9 @@
-﻿using ChatCorporaAnnotator.ViewModels.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Threading.Tasks;
-using ChatCorporaAnnotator.Infrastructure.Commands;
-using System.Collections.ObjectModel;
+﻿using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
+using ChatCorporaAnnotator.ViewModels.Base;
+using System;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Windows
 {

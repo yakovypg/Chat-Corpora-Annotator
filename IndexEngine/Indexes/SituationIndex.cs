@@ -81,12 +81,6 @@ namespace IndexEngine.Indexes
                 }
                 else
                 {
-                    /*
-                    yakov-comment
-                    InvertedIndex[id].Add(key, sid);
-                    */
-
-                    //yakov-added
                     if (!InvertedIndex[id].ContainsKey(key))
                         InvertedIndex[id].Add(key, sid);
                 }
