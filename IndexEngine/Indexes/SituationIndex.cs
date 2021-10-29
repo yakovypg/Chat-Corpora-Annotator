@@ -202,8 +202,10 @@ namespace IndexEngine.Indexes
                 if (InvertedIndex[messageid].ContainsKey(tag))
                     InvertedIndex[messageid].Remove(tag);
 
+                /*
                 if (InvertedIndex[messageid].Count == 0)
                     InvertedIndex.Remove(messageid);
+                */
             }
         }
 
