@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace IndexEngine.Indexes
 {
@@ -103,7 +104,22 @@ namespace IndexEngine.Indexes
             List<int> firstSitMsgIds = new List<int>(IndexCollection[key1][id1]);
             List<int> secondSitMsgIds = IndexCollection[key2][id2];
 
+            foreach (int id in firstSitMsgIds.ToArray())
+            {
+                if (InvertedIndex[id].ContainsKey(key2))
+                    firstSitMsgIds.Remove(id);
+            }
+
             secondSitMsgIds.AddRange(firstSitMsgIds);
+
+            int[] distinctedIds = secondSitMsgIds.Distinct().ToArray();
+
+            if (secondSitMsgIds.Count != distinctedIds.Length)
+            {
+                secondSitMsgIds.Clear();
+                secondSitMsgIds.AddRange(distinctedIds);
+            }
+
             secondSitMsgIds.Sort();
 
             DeleteInnerIndexEntry(key1, id1);
@@ -201,11 +217,6 @@ namespace IndexEngine.Indexes
             {
                 if (InvertedIndex[messageid].ContainsKey(tag))
                     InvertedIndex[messageid].Remove(tag);
-
-                /*
-                if (InvertedIndex[messageid].Count == 0)
-                    InvertedIndex.Remove(messageid);
-                */
             }
         }
 
