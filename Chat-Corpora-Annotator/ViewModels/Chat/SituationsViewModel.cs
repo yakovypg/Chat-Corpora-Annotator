@@ -349,6 +349,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             foreach (var msg in currMessages)
             {
+                msg.RemoveAllSituations();
+
                 if (TaggedMessagesIds.Contains(msg.Source.Id))
                 {
                     foreach (var situationData in invertedIndex[msg.Source.Id])
@@ -399,6 +401,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             List<int> secondSitMsgIds = SituationIndex.GetInstance().IndexCollection[second.Header][second.Id].ToList();
 
             SituationIndex.GetInstance().MergeItems(first.Header, first.Id, second.Header, second.Id);
+
+            _mainWindowVM.ChatVM.ShiftSituationsIds(first.Header, first.Id + 1);
 
             foreach (var id in firstSitMsgIds)
             {

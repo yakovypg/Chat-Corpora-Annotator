@@ -271,6 +271,28 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #region TagsMethods
 
+        public void ShiftSituationsIds(string tag, int startId)
+        {
+            for (int i = startId; i <= SituationIndex.GetInstance().GetValueCount(tag); ++i)
+            {
+                var messagesIds = SituationIndex.GetInstance().IndexCollection[tag][i];
+
+                foreach (var msgId in messagesIds)
+                {
+                    ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == msgId);
+
+                    if (msg != null)
+                        msg.Source.Situations[tag]--;
+                }
+
+                SituationIndex.GetInstance().DeleteInnerIndexEntry(tag, i);
+                SituationIndex.GetInstance().AddInnerIndexEntry(tag, i - 1, messagesIds);
+
+                SituationsVM.RemoveSituationsCommand?.Execute(new Situation(i, tag));
+                SituationsVM.AddSituationsCommand?.Execute(new Situation(i - 1, tag));
+            }
+        }
+
         public void DeleteOrEditTag(TaggerEventArgs e, bool type, int index = -1)
         {
             RemoveSituationFromMessages(e);
@@ -369,24 +391,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (e.Id >= SituationIndex.GetInstance().GetValueCount(e.Tag) + 1)
                 return;
 
-            for (int i = e.Id + 1; i <= SituationIndex.GetInstance().GetValueCount(e.Tag); ++i)
-            {
-                var messagesIds = SituationIndex.GetInstance().IndexCollection[e.Tag][i];
-
-                foreach (var msgId in messagesIds)
-                {
-                    ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == msgId);
-
-                    if (msg != null)
-                        msg.Source.Situations[e.Tag]--;
-                }
-
-                SituationIndex.GetInstance().DeleteInnerIndexEntry(e.Tag, i);
-                SituationIndex.GetInstance().AddInnerIndexEntry(e.Tag, i - 1, messagesIds);
-
-                SituationsVM.RemoveSituationsCommand?.Execute(new Situation(i, e.Tag));
-                SituationsVM.AddSituationsCommand?.Execute(new Situation(i - 1, e.Tag));
-            }
+            ShiftSituationsIds(e.Tag, e.Id + 1);
         }
 
         #endregion
