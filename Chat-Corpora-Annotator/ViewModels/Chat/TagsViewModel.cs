@@ -48,8 +48,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
             }
 
+            newTags = newTags.OrderBy(t => t.Header);
+
             CurrentTagset = new ObservableCollection<Tag>(newTags);
             OnPropertyChanged(nameof(CurrentTagset));
+
+            _mainWindowVM.ChatVM.SituationsVM.UpdateMessagesTags();
 
             _mainWindowVM.IsProjectChanged = true;
             _mainWindowVM.TagsetName = ProjectInfo.Tagset;
@@ -68,6 +72,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public void ClearData()
         {
             CurrentTagset.Clear();
+
+            _mainWindowVM.TagsetName = "No tagset";
+            _mainWindowVM.IsProjectChanged = true;
         }
 
         private IEnumerable<Tag> GetTagset()

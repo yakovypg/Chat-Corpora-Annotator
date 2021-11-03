@@ -261,7 +261,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             try
             {
                 SituationIndex.GetInstance().FlushIndexToDisk();
-                TagsetIndex.GetInstance().FlushIndexToDisk();
                 UserDictsIndex.GetInstance().FlushIndexToDisk();
             }
             catch (Exception ex)
@@ -380,7 +379,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
             }
 
-            var vm = new TagsetEditorWindowViewModel()
+            var vm = new TagsetEditorWindowViewModel(this)
             {
                 DeactivateAction = () => _tagsetEditorWindow = null
             };

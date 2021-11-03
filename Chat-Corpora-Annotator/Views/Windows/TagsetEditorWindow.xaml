@@ -19,8 +19,8 @@
 
     <DockPanel Margin="5">
         <DockPanel DockPanel.Dock="Top" Height="25">
-            <TextBlock Text="Tagset" Width="auto" DockPanel.Dock="Left"/>
-            <Button Content="Set" Width="100" DockPanel.Dock="Right" Style="{StaticResource BlueCircleButton}"/>
+            <TextBlock DockPanel.Dock="Left" Text="Tagset" Width="auto"/>
+            <Button DockPanel.Dock="Right" Content="Set" Width="100" Style="{StaticResource BlueCircleButton}" Command="{Binding SetTagsetCommand}"/>
             <ComboBox Margin="5, 0" ItemsSource="{Binding Tagsets}" SelectedItem="{Binding SelectedTagset}"/>
         </DockPanel>
 
@@ -35,9 +35,9 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Content="Add tagset" Style="{StaticResource BlueCircleButton}"/>
-            <Button Grid.Column="3" Content="Delete tagset" Style="{StaticResource BlueCircleButton}"/>
-            <Button Grid.Column="5" Content="Rename tagset" Style="{StaticResource BlueCircleButton}"/>
+            <Button Grid.Column="1" Content="Add tagset" Style="{StaticResource BlueCircleButton}" Command="{Binding AddTagsetCommand}"/>
+            <Button Grid.Column="3" Content="Delete tagset" Style="{StaticResource BlueCircleButton}" Command="{Binding DeleteTagsetCommand}"/>
+            <Button Grid.Column="5" Content="Rename tagset" Style="{StaticResource BlueCircleButton}" Command="{Binding RenameTagsetCommand}"/>
         </Grid>
 
         <Grid DockPanel.Dock="Bottom" Height="28" Margin="0, 8, 0, 0">
@@ -51,14 +51,20 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Content="Add tag" Style="{StaticResource BlueCircleButton}"/>
-            <Button Grid.Column="3" Content="Delete tag" Style="{StaticResource BlueCircleButton}"/>
-            <Button Grid.Column="5" Content="Rename tag" Style="{StaticResource BlueCircleButton}"/>
+            <Button Grid.Column="1" Content="Add tag" Style="{StaticResource BlueCircleButton}" Command="{Binding AddTagCommand}"/>
+            <Button Grid.Column="3" Content="Delete tag" Style="{StaticResource BlueCircleButton}" Command="{Binding DeleteTagCommand}"/>
+            <Button Grid.Column="5" Content="Rename tag" Style="{StaticResource BlueCircleButton}" Command="{Binding RenameTagCommand}"/>
         </Grid>
 
         <DockPanel DockPanel.Dock="Bottom" Height="auto">
-            <Button DockPanel.Dock="Right" Width="30"/>
-            <TextBox Margin="0, 0, 5, 0" Text="{Binding ConsoleText, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button DockPanel.Dock="Right" Width="30" Background="{Binding TagCreationBrush}" Command="{Binding ChooseTagCreationColorCommand}"/>
+
+            <TextBox Margin="0, 0, 5, 0" Text="{Binding ConsoleText, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="F5" Command="{Binding ClearConsoleCommand}"/>
+                    <KeyBinding Key="F2" Command="{Binding SetRandomTagCreationColorCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
         </DockPanel>
 
         <Border BorderBrush="Gray" BorderThickness="1" Margin="0, 8, 0, 5">
@@ -69,8 +75,15 @@
                 </TextBlock>
 
                 <ListBox BorderThickness="0"
+                         HorizontalContentAlignment="Stretch"
                          ItemsSource="{Binding CurrentTagset}"
                          SelectedItem="{Binding SelectedTag}">
+
+                    <ListBox.InputBindings>
+                        <KeyBinding Key="F2" Command="{Binding ChangeTagColorCommand}"/>
+                        <KeyBinding Key="Delete" Command="{Binding DeleteTagCommand}"/>
+                        <KeyBinding Key="Enter" Command="{Binding SetTagNameToConsoleCommand}"/>
+                    </ListBox.InputBindings>
 
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type chat:Tag}">

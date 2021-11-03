@@ -344,6 +344,10 @@
     <Resource Include="Resources\Icons\IndexFileWindowIcon.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ColorLibrary\ColorLibrary.csproj">
+      <Project>{A7EFD38E-8FBE-4B2A-8461-2843971A6C9E}</Project>
+      <Name>ColorLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IndexEngine\IndexEngine.csproj">
       <Project>{3a58ab22-7cb7-47da-8b31-f513cc71db3a}</Project>
       <Name>IndexEngine</Name>

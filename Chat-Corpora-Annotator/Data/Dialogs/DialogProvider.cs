@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 
 namespace ChatCorporaAnnotator.Data.Dialogs
 {
@@ -58,6 +59,30 @@ namespace ChatCorporaAnnotator.Data.Dialogs
 
             path = null;
             return false;
+        }
+
+        public static bool GetColor(out Color color, Color startColor)
+        {
+            ColorDialog colorDialog = new ColorDialog()
+            {
+                AnyColor = true,
+                FullOpen = true,
+                Color = startColor
+            };
+
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                color = colorDialog.Color;
+                return true;
+            }
+
+            color = startColor;
+            return false;
+        }
+
+        public static bool GetColor(out Color color)
+        {
+            return GetColor(out color, Color.White);
         }
     }
 }

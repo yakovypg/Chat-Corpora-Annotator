@@ -14,5 +14,10 @@ namespace ChatCorporaAnnotator.Data.Imaging
                 B = color.B
             };
         }
+
+        public static System.Drawing.Color ToColor(Color color)
+        {
+            return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+        }
     }
 }

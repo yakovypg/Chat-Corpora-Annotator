@@ -8,5 +8,10 @@ namespace ChatCorporaAnnotator.Data.Imaging
         {
             return new SolidColorBrush((Color)ColorConverter.ConvertFromString(value));
         }
+
+        public static SolidColorBrush ToSolidColorBrush(System.Drawing.Color color)
+        {
+            return new SolidColorBrush(ColorTransformer.ToWindowsColor(color));
+        }
     }
 }

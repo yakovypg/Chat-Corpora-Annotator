@@ -31,8 +31,7 @@ namespace IndexEngine.Paths
             Data.UserKeys = IndexHelper.LoadUsersFromDisk(UsersPath);
             Data.SelectedFields = IndexHelper.LoadFieldsFromDisk(FieldsPath);
 
-            if (TagsetSet)
-                Tagset = File.ReadAllText(TagsetPath);
+            UpdateTagset();
         }
 
         public static void CreateNewProject(string path, string date, string sender, string text, List<string> fields)
@@ -56,6 +55,21 @@ namespace IndexEngine.Paths
             {
                 if (prop.PropertyType.Name == "String")
                     prop.SetValue(prop, "");
+            }
+        }
+
+        public static void UpdateTagset(string tagset = null)
+        {
+            Tagset = tagset ?? (TagsetSet ? File.ReadAllText(TagsetPath) : null);
+
+            if (!Indexes.TagsetIndex.GetInstance().IndexCollection.ContainsKey(Tagset))
+            {
+                try
+                {
+                    File.Delete(TagsetPath);
+                    Tagset = null;
+                }
+                catch { }
             }
         }
 

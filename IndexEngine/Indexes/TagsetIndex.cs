@@ -11,6 +11,9 @@ namespace IndexEngine.Indexes
 {
     public class TagsetIndex : INestedIndex<string, Dictionary<string, Color>, string, Color>
     {
+        public const string DEFAILT_TAGSET_NAME = "Default";
+        public const string NOT_SELECTED_TAGSET_NAME = "Not selected";
+
         private static readonly Lazy<TagsetIndex> lazy = new Lazy<TagsetIndex>(() => new TagsetIndex());
 
         public static TagsetIndex GetInstance()
@@ -20,27 +23,27 @@ namespace IndexEngine.Indexes
 
         private TagsetIndex()
         {
-            if (!File.Exists(ToolInfo.TagsetColorIndexPath))
-            {
-                AddDefaultTagset();
-            }
-            else
-            {
+            if (File.Exists(ToolInfo.TagsetColorIndexPath))
                 ReadIndexFromDisk();
-            }
-        }
-        public IDictionary<string, Dictionary<string, Color>> IndexCollection { get; private set; } = new BTreeDictionary<string, Dictionary<string, Color>>();
 
-        public int ItemCount { get { return IndexCollection.Count; } }
+            if (!IndexCollection.ContainsKey(NOT_SELECTED_TAGSET_NAME))
+                AddIndexEntry(NOT_SELECTED_TAGSET_NAME, null);
+
+            if (IndexCollection.Count == 1)
+                AddDefaultTagset();
+        }
+
+        public IDictionary<string, Dictionary<string, Color>> IndexCollection { get; private set; } = new BTreeDictionary<string, Dictionary<string, Color>>();
+        public int ItemCount => IndexCollection.Count;
 
         private void AddDefaultTagset()
         {
             var list = new List<string> { "JobSearch", "CodeHelp", "FCCBug", "SoftwareSupport", "OSSelection", "Meeting" };
-            AddIndexEntry("default", null);
+            AddIndexEntry(DEFAILT_TAGSET_NAME, null);
 
             foreach (var tag in list)
             {
-                AddInnerIndexEntry("default", tag, ColorGenerator.GenerateHSLuvColor());
+                AddInnerIndexEntry(DEFAILT_TAGSET_NAME, tag, ColorGenerator.GenerateHSLuvColor());
             }
         }
 
@@ -109,7 +112,7 @@ namespace IndexEngine.Indexes
         {
             if (IndexCollection.ContainsKey(key))
             {
-                if (!IndexCollection[key].ContainsKey(inkey))
+                if (IndexCollection[key].ContainsKey(inkey))
                     IndexCollection[key].Remove(inkey);
             }
         }
