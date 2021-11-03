@@ -51,6 +51,13 @@ namespace ChatCorporaAnnotator.Models.Chat
             BackgroundColor = color;
         }
 
+        public bool EqualsTo(Tag other)
+        {
+            return other != null &&
+                   Header == other.Header &&
+                   BackgroundColor.Equals(other.BackgroundColor);
+        }
+
         public object Clone()
         {
             return new Tag(Header, BackgroundColor);
@@ -66,24 +73,6 @@ namespace ChatCorporaAnnotator.Models.Chat
             return Header;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Tag other &&
-                   Header == other.Header &&
-                   BackgroundColor.Equals(other.BackgroundColor);
-        }
-
-        public override int GetHashCode()
-        {
-            int hashCode = -1869182061;
-
-            hashCode = hashCode * -1521134295 + EqualityComparer<Brush>.Default.GetHashCode(BackgroundBrush);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_header);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Header);
-            hashCode = hashCode * -1521134295 + _backgroundColor.GetHashCode();
-            hashCode = hashCode * -1521134295 + BackgroundColor.GetHashCode();
-
-            return hashCode;
-        }
+        // Do not override Equals and GetHashCode. If you still decide to do this, make sure that the TagsViewModel.SelectedTag can change.
     }
 }

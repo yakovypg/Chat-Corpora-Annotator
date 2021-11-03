@@ -14,6 +14,16 @@ namespace ChatCorporaAnnotator.Data.Windows
             _mainWindow = window ?? throw new Exception("MainWindow not found.");
         }
 
+        public MainWindow GetInstance()
+        {
+            return _mainWindow;
+        }
+
+        public void ResetChatDataGridSelectedItems()
+        {
+            _mainWindow.ChatDataGrid.SelectedItem = null;
+        }
+
         public void ScrollChatDataGridToNearlyTop()
         {
             _mainWindow.ChatDataGrid.ScrollToNearlyTop();

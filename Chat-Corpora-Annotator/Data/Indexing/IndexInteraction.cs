@@ -49,6 +49,22 @@ namespace ChatCorporaAnnotator.Data.Indexing
             return IndexHelper.GetLastMessage().Id;
         }
 
+        public static void UploadDataToMessage(DynamicMessage message)
+        {
+            if (message == null)
+                return;
+
+            var invertedIndex = SituationIndex.GetInstance().InvertedIndex;
+
+            if (!invertedIndex.ContainsKey(message.Id))
+                return;
+
+            var situations = invertedIndex[message.Id];
+
+            foreach (var sit in situations)
+                message.AddSituation(sit.Key, sit.Value);
+        }
+
         public static IEnumerable<ChatMessage> GetMessages()
         {
             IEnumerable<DynamicMessage> messages = MessageContainer.Messages;
@@ -68,6 +84,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
             foreach (int id in taggedMsgIds)
             {
                 DynamicMessage msg = IndexHelper.GetMessage(id - ProjectInteraction.FirstMessageId);
+                UploadDataToMessage(msg);
+
                 messages.Add(msg);
             }
 
@@ -97,6 +115,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
             foreach (int id in msgIds)
             {
                 DynamicMessage msg = IndexHelper.GetMessage(id - ProjectInteraction.FirstMessageId);
+                UploadDataToMessage(msg);
+
                 messages.Add(msg);
             }
 
@@ -114,6 +134,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
             foreach (int id in msgIds)
             {
                 DynamicMessage msg = IndexHelper.GetMessage(id - ProjectInteraction.FirstMessageId);
+                UploadDataToMessage(msg);
+
                 messages.Add(msg);
             }
 

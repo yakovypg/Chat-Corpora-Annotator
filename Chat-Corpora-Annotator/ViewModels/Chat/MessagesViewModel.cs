@@ -1,5 +1,7 @@
-﻿using ChatCorporaAnnotator.Data.Windows.UI;
+﻿using ChatCorporaAnnotator.Data.Windows;
+using ChatCorporaAnnotator.Data.Windows.UI;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -29,7 +31,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             var eventArgs = parameter as SelectionChangedEventArgs;
             var selectedItemsOrganizer = new SelectedItemsOrganizer();
 
-            selectedItemsOrganizer.ChangeSelectedItems(SelectedMessages, eventArgs);
+            selectedItemsOrganizer.ChangeSelectedItems(SelectedMessages, eventArgs, t => t.IsFake);
         }
 
         #endregion
@@ -38,6 +40,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         {
             SelectedMessages = new ObservableCollection<ChatMessage>();
             MessagesCase = new ChatCache(null);
+
+            MessagesCase.MessagesChanged += delegate(ObservableCollection<ChatMessage> messages)
+            {
+                if (!messages.IsNullOrEmpty())
+                    new MainWindowInteract().ResetChatDataGridSelectedItems();
+            };
 
             if (packageChangedHandlers != null)
             {

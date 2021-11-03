@@ -169,6 +169,7 @@
     <Compile Include="Models\Chat\Core\ChatScroller.cs" />
     <Compile Include="Models\Chat\Core\IChatCache.cs" />
     <Compile Include="Models\Chat\Core\IChatScroller.cs" />
+    <Compile Include="Models\Chat\Core\MobileMessageCollection.cs" />
     <Compile Include="Models\Indexing\ProjectInformation.cs" />
     <Compile Include="Models\Serialization\SituationData.cs" />
     <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />

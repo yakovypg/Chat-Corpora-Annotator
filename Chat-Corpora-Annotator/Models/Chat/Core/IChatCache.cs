@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace ChatCorporaAnnotator.Models.Chat.Core
 {
@@ -8,8 +7,6 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         int RetainedItemsCount { get; set; }
         int CurrentPackageItemsCount { get; }
         bool IsPaused { get; }
-
-        ObservableCollection<ChatMessage> CurrentMessages { get; }
 
         IList<ChatMessage> MoveBack(out int scrollIndex);
         IList<ChatMessage> MoveForward(out int scrollIndex);

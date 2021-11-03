@@ -343,7 +343,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 {
                     for (int i = 0; i < tags.Count; ++i)
                     {
-                        if (!tags[i].Equals(projectTags[i]))
+                        if (!tags[i].EqualsTo(projectTags[i]))
                         {
                             updateProjectTags = true;
                             break;

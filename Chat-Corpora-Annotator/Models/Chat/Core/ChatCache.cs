@@ -3,14 +3,12 @@ using ChatCorporaAnnotator.Infrastructure.Extensions;
 using IndexEngine.Paths;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace ChatCorporaAnnotator.Models.Chat.Core
 {
-    internal class ChatCache : IChatCache, INotifyPropertyChanged
+    internal class ChatCache : MobileMessageCollection, IChatCache, INotifyPropertyChanged
     {
         private readonly List<ChatMessage> _savedPackage;
         private readonly List<ChatMessage> _previousPackage;
@@ -24,19 +22,6 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
         public bool IsPaused => _savedPackage.Count > 0;
         public int CurrentPackageItemsCount => _currentPackage.Count;
-
-        private ObservableCollection<ChatMessage> _currentMessages;
-        public ObservableCollection<ChatMessage> CurrentMessages
-        {
-            get => _currentMessages;
-            private set
-            {
-                _currentMessages.Clear();
-                _currentMessages = value;
-
-                OnPropertyChanged(nameof(CurrentMessages));
-            }
-        }
 
         private int _retainedItemsCount = 1;
         public int RetainedItemsCount
@@ -54,18 +39,10 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string property = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-        }
-
-        public ChatCache(IEnumerable<ChatMessage> currentPackage, int retainedItemsCount = 1)
+        public ChatCache(IEnumerable<ChatMessage> currentPackage, int retainedItemsCount = 1) : base(currentPackage)
         {
             if (currentPackage == null)
                 currentPackage = new ChatMessage[0];
-
-            _currentMessages = new ObservableCollection<ChatMessage>(currentPackage);
 
             _savedPackage = new List<ChatMessage>();
             _previousPackage = new List<ChatMessage>();
@@ -92,7 +69,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _currentPackage.Reset(currentMessages);
 
             LoadPreviousPackage();
-            CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
+            SetMessages(_currentPackage);
 
             PackageChanged?.Invoke();
             return new List<ChatMessage>(currentMessages);
@@ -132,7 +109,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _currentPackage.Reset(currentMessages);
 
             LoadNextPackage();
-            CurrentMessages = new ObservableCollection<ChatMessage>(outputMessages);
+            SetMessages(outputMessages);
 
             PackageChanged?.Invoke();
             return outputMessages;
@@ -145,7 +122,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
 
             _currentPackage.Reset(tempMessages ?? new ChatMessage[0]);
 
-            CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
+            SetMessages(_currentPackage);
         }
 
         public void Resume()
@@ -156,7 +133,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _currentPackage.Reset(_savedPackage);
             _savedPackage.Clear();
 
-            CurrentMessages = new ObservableCollection<ChatMessage>(_currentPackage);
+            SetMessages(_currentPackage);
         }
 
         public void Reset()
@@ -174,7 +151,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             var currentMessages = IndexInteraction.GetMessages();
 
             _currentPackage.Reset(currentMessages);
-            CurrentMessages = new ObservableCollection<ChatMessage>(currentMessages);
+            SetMessages(currentMessages);
 
             LoadNextPackage();
             PackageChanged?.Invoke();
@@ -235,7 +212,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             _currentPackage.Reset(currMessages);
             _nextPackage.Reset(nextMessages);
 
-            CurrentMessages = new ObservableCollection<ChatMessage>(outputMessages);
+            SetMessages(outputMessages);
             PackageChanged?.Invoke();
         }
 

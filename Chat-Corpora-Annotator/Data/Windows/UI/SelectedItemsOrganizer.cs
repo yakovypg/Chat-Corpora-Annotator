@@ -1,4 +1,5 @@
-﻿using ChatCorporaAnnotator.Models;
+﻿using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,8 +15,9 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
         /// <typeparam name="T">The type of source items.</typeparam>
         /// <param name="source">The collection to which the elements will be written or deleted from.</param>
         /// <param name="e">The source event args.</param>
+        /// <param name="ignoreItemsPredicate">The predicate that removes some elements from the list of added elements (e.AddedItems).</param>
         /// <remarks>The type of removed and added items must match with T (e.RemovedItems and e.AddedItems).</remarks>
-        public void ChangeSelectedItems<T>(IList<T> source, SelectionChangedEventArgs e)
+        public void ChangeSelectedItems<T>(IList<T> source, SelectionChangedEventArgs e, Predicate<T> ignoreItemsPredicate = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -31,12 +33,15 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
                     source.Remove(removingItem);
             }
 
-            foreach (var item in e.AddedItems)
-            {
-                var addingItem = (T)item;
+            List<T> addedItems = e.AddedItems.ToGenericList<T>();
 
-                if (!source.Contains(addingItem))
-                    source.Add(addingItem);
+            if (ignoreItemsPredicate != null)
+                addedItems.RemoveAll(t => ignoreItemsPredicate(t));
+
+            foreach (var item in addedItems)
+            {
+                if (!source.Contains(item))
+                    source.Add(item);
             }
         }
 

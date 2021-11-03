@@ -20,6 +20,8 @@ namespace ChatCorporaAnnotator.Models.Chat
             ? text.ToString()
             : string.Empty;
 
+        public bool IsFake { get; }
+
         public string TagsPresenter
         {
             get
@@ -72,6 +74,19 @@ namespace ChatCorporaAnnotator.Models.Chat
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
 
+        /// <summary>
+        /// Initializes a new instance of the ChatMessage class which is a fake message.
+        /// </summary>
+        public ChatMessage()
+        {
+            IsFake = true;
+            Source = new DynamicMessage(new List<string>(), new List<string>(), string.Empty, -1);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ChatMessage class.
+        /// </summary>
+        /// <param name="source">The message containing data.</param>
         public ChatMessage(DynamicMessage source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));

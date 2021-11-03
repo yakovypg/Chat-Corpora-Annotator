@@ -1,7 +1,11 @@
 ﻿using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
@@ -37,8 +41,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             var foundMessages = IndexInteraction.GetAllTaggedMessages();
+            var grouppedMessages = GroupMessages(foundMessages);
 
-            _chatVM.MessagesVM.MessagesCase.Pause(foundMessages);
+            _chatVM.MessagesVM.MessagesCase.Pause(grouppedMessages);
             _chatVM.SituationsVM.UpdateMessagesTags();
         }
 
@@ -54,8 +59,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             string tagHeader = _chatVM.TagsVM.SelectedTag.Header;
             var foundMessages = IndexInteraction.GetMessagesByTag(tagHeader);
+            var grouppedMessages = GroupMessages(foundMessages);
 
-            _chatVM.MessagesVM.MessagesCase.Pause(foundMessages);
+            _chatVM.MessagesVM.MessagesCase.Pause(grouppedMessages);
             _chatVM.SituationsVM.UpdateMessagesTags();
         }
 
@@ -71,8 +77,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             var situation = _chatVM.SituationsVM.SelectedSituation;
             var foundMessages = IndexInteraction.GetMessagesBySituation(situation);
+            var grouppedMessages = GroupMessages(foundMessages);
 
-            _chatVM.MessagesVM.MessagesCase.Pause(foundMessages);
+            _chatVM.MessagesVM.MessagesCase.Pause(grouppedMessages);
             _chatVM.SituationsVM.UpdateMessagesTags();
         }
 
@@ -86,6 +93,27 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             ShowAllTaggedMessagesCommand = new RelayCommand(OnShowAllTaggedMessagesCommandExecuted, CanShowAllTaggedMessagesCommandExecute);
             ShowMessagesByTagCommand = new RelayCommand(OnShowMessagesByTagCommandExecuted, CanShowMessagesByTagCommandExecute);
             ShowMessagesBySituationCommand = new RelayCommand(OnShowMessagesBySituationCommandExecuted, CanShowMessagesBySituationCommandExecute);
+        }
+
+        private IEnumerable<ChatMessage> GroupMessages(IEnumerable<ChatMessage> messages)
+        {
+            List<ChatMessage> output = new List<ChatMessage>();
+
+            if (messages.IsNullOrEmpty())
+                return output;
+
+            var groups = messages.GroupBy(t => t.Source.Situations.First());
+
+            foreach (var group in groups)
+            {
+                output.AddRange(group);
+                output.Add(new ChatMessage());
+            }
+
+            if (output.Count != 0)
+                output.RemoveAt(output.Count - 1);
+
+            return output;
         }
     }
 }
