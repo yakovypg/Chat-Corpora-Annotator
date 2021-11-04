@@ -25,6 +25,9 @@ namespace ChatCorporaAnnotator.Models.Timers
         public delegate void SavingStateChangedHandler(ProjectSavingStateEventArgs e);
         public event SavingStateChangedHandler SavingStateChanged;
 
+        public bool MakeDelay { get; set; } = true;
+        public bool ChangeSavingStateAfterSuccessfulIteration { get; set; } = true;
+
         private SaveProjectState _savingState;
         public SaveProjectState SavingState
         {
@@ -46,9 +49,30 @@ namespace ChatCorporaAnnotator.Models.Timers
             _timer.Tick += (object sender, EventArgs e) => _ = SaveAsync();
         }
 
-        public void SaveNow()
+        public Task SaveNow()
         {
+            return SaveAsync();
+        }
+
+        public void SaveAndWait(bool disableDelay = true, int sleepInterval = 40)
+        {
+            bool makeDelay = MakeDelay;
+
+            if (disableDelay)
+                MakeDelay = false;
+
             _ = SaveAsync();
+            WaitSaving(sleepInterval);
+
+            MakeDelay = makeDelay;
+        }
+
+        public void WaitSaving(int sleepInterval = 40)
+        {
+            while (SavingState == SaveProjectState.InProcess)
+            {
+                Thread.Sleep(sleepInterval);
+            }
         }
 
         protected virtual async Task SaveAsync()
@@ -68,8 +92,11 @@ namespace ChatCorporaAnnotator.Models.Timers
                     Tick?.Invoke();
                     stopwatch.Stop();
 
-                    if (stopwatch.ElapsedMilliseconds < MIN_SAVING_TIME)
+                    if (MakeDelay && stopwatch.ElapsedMilliseconds < MIN_SAVING_TIME)
                         Thread.Sleep((int)(MIN_SAVING_TIME - stopwatch.ElapsedMilliseconds));
+
+                    if (ChangeSavingStateAfterSuccessfulIteration)
+                        SavingState = SaveProjectState.ChangesSaved;
 
                     SuccessfulIteration?.Invoke();
                 }

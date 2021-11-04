@@ -452,6 +452,17 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanOpenCorpusCommandExecute(parameter))
                 return;
 
+            if (IsProjectChanged)
+            {
+                var msgRes = RequestProjectSaving();
+
+                if (msgRes == MessageBoxResult.Cancel)
+                    return;
+
+                if (msgRes == MessageBoxResult.Yes)
+                    ProjectStateSavingTimer.SaveAndWait();
+            }
+
             if (!DialogProvider.GetFolderPath(out string path))
                 return;
 
@@ -567,8 +578,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             if (IsProjectChanged)
             {
-                var msgRes = MessageBox.Show("The project has been changed. Save changes?",
-                    "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                var msgRes = RequestProjectSaving();
 
                 if (msgRes == MessageBoxResult.Cancel)
                 {
@@ -628,7 +638,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             StatisticsVM = new StatisticsViewModel();
 
             MemoryCleaninigTimer = new MemoryCleaninigTimer();
-            ProjectStateSavingTimer = new SavingTimer();
+            ProjectStateSavingTimer = new SavingTimer() { ChangeSavingStateAfterSuccessfulIteration = false };
 
             InitProjectStateSavingTimer();
 
@@ -659,15 +669,23 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             #endregion
         }
 
+        #region UserInteractionMethods
+
+        public MessageBoxResult RequestProjectSaving()
+        {
+            return MessageBox.Show("The project has been changed. Save changes?",
+                "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+        }
+
+        #endregion
+
         #region InitializationMethods
 
         private void InitProjectStateSavingTimer()
         {
-            var window = new WindowFinder().Find(typeof(MainWindow));
-
             ProjectStateSavingTimer.Tick += delegate
             {
-                window?.Dispatcher.Invoke(() => SavePresentStateCommand.Execute(null));
+                SavePresentStateCommand.Execute(null);
             };
 
             ProjectStateSavingTimer.SuccessfulIteration += delegate
@@ -707,6 +725,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             ChatVM.SituationsVM.UpdateMessagesTags();
 
             ProjectFileLoadState = FileLoadState.Loaded;
+
+            IsProjectChanged = false;
+            ProjectStateSavingTimer.SavingState = SaveProjectState.ChangesSaved;
 
             ProjectStateSavingTimer.Start();
             MemoryCleaninigTimer.Start();
