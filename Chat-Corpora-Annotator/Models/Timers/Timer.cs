@@ -3,7 +3,7 @@ using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.Models.Timers
 {
-    internal abstract class Timer
+    internal abstract class Timer : ITimer
     {
         protected readonly DispatcherTimer _timer;
 

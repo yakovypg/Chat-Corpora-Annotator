@@ -1,6 +1,6 @@
 ﻿namespace ChatCorporaAnnotator.Models.Indexing
 {
-    internal class ProjectInformation
+    internal class ProjectInformation : IProjectInformation
     {
         public string Name { get; }
         public string WorkingDirectory { get; }

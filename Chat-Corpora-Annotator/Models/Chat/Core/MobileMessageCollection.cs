@@ -6,7 +6,7 @@ using System.Windows.Data;
 
 namespace ChatCorporaAnnotator.Models.Chat.Core
 {
-    internal class MobileMessageCollection : INotifyPropertyChanged
+    internal class MobileMessageCollection : IMobileMessageCollection, INotifyPropertyChanged
     {
         public delegate void MessagesChangedHandler(ObservableCollection<ChatMessage> newMessages);
         public event MessagesChangedHandler MessagesChanged;

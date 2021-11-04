@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChatCorporaAnnotator.Models.Statistics
 {
-    internal class StatisticsCalculator
+    internal class StatisticsCalculator : ICalculator
     {
         public delegate void SuccessfulCalculatingHandler();
         public event SuccessfulCalculatingHandler SuccessfulCalculating;
