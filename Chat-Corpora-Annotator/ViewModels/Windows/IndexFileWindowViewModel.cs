@@ -36,7 +36,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         private DispatcherTimer _waitPageTimer;
 
         private bool _isFileReaded = false;
-        private FileProcessingResult _fileProcessingResult = FileProcessingResult.InProcess;
+        private OperationState _fileProcessingResult = OperationState.InProcess;
 
         public Action FinishAction { get; set; }
         public Action DeactivateAction { get; set; }
@@ -244,7 +244,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanFinishFileIndexingCommandExecute(parameter))
                 return;
 
-            if (_fileProcessingResult == FileProcessingResult.Success)
+            if (_fileProcessingResult == OperationState.Success)
                 FinishAction?.Invoke();
 
             CloseWindowCommand?.Execute(parameter);
@@ -446,13 +446,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         private void WaitPageTimerTick(object sender, EventArgs e)
         {
-            if (_fileProcessingResult == FileProcessingResult.InProcess)
+            if (_fileProcessingResult == OperationState.InProcess)
                 return;
 
             FinishButtonEnabled = true;
             CurrentPageIndex = _pageSwitcher.NextPage();
 
-            if (_fileProcessingResult == FileProcessingResult.Fail)
+            if (_fileProcessingResult == OperationState.Fail)
             {
                 SuccessfulFinishImageVisibility = Visibility.Hidden;
                 FailedFinishImageVisibility = Visibility.Visible;
@@ -525,7 +525,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             var columns = FileColumns.Select(t => t.Header).ToArray();
             var selectedColumns = SelectedFileColumns.Select(t => t.Header).ToList();
 
-            FileProcessingResult fileProcessingResult;
+            OperationState fileProcessingResult;
 
             try
             {
@@ -540,12 +540,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 LuceneService.OpenReader();
 
                 fileProcessingResult = result == 1
-                    ? FileProcessingResult.Success
-                    : FileProcessingResult.Fail;
+                    ? OperationState.Success
+                    : OperationState.Fail;
             }
             catch (Exception ex)
             {
-                fileProcessingResult = FileProcessingResult.Fail;
+                fileProcessingResult = OperationState.Fail;
 
 #if DEBUG
                 new QuickMessage(ex.Message).ShowError();

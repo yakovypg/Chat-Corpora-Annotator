@@ -402,7 +402,9 @@
             <TabControl Grid.Column="2">
                 <TabItem Header="Chat" DataContext="{Binding ChatVM}">
                     <UniformGrid Background="AliceBlue">
-                        <DockPanel Margin="3" Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+                        <DockPanel Margin="3"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+                            
                             <Grid DockPanel.Dock="Top" Height="38" Margin="0, 0, 0, 5">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
@@ -444,6 +446,7 @@
                                           Grid.Column="0"
                                           IsReadOnly="True"
                                           Background="White"
+                                          MinRowHeight="3"
                                           MinColumnWidth="50"
                                           MaxColumnWidth="500"
                                           SelectionUnit="FullRow"
@@ -740,8 +743,114 @@
                     </UniformGrid>
                 </TabItem>
 
-                <TabItem Header="Statistics">
+                <TabItem Header="Statistics" DataContext="{Binding StatisticsVM}">
+                    <TabItem.Resources>
+                        <Style TargetType="DataGrid">
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="MinRowHeight" Value="10"/>
+                            <Setter Property="MinColumnWidth" Value="50"/>
+                            <Setter Property="SelectionUnit" Value="FullRow"/>
+                            <Setter Property="SelectionMode" Value="Extended"/>
+                            <Setter Property="GridLinesVisibility" Value="None"/>
+                            <Setter Property="AutoGenerateColumns" Value="True"/>
 
+                            <Setter Property="CellStyle">
+                                <Setter.Value>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Margin" Value="3"/>
+                                        <Setter Property="FontSize" Value="14"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Foreground" Value="Black"/>
+                                                <Setter Property="Background" Value="#FFCBE8F6"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+
+                            <Setter Property="RowStyle">
+                                <Setter.Value>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="BorderBrush" Value="#FF70C0E7"/>
+                                                <Setter Property="Background" Value="#FFE5F3FB"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Setter.Value>
+                            </Setter>
+                            
+                        </Style>
+                    </TabItem.Resources>
+
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Background="White"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+                            
+                            <DockPanel DockPanel.Dock="Bottom" Height="28">
+                                <Button
+                                    DockPanel.Dock="Left"
+                                    Content="Calculate" Width="100"
+                                    Style="{StaticResource BlueCircleButton}"
+                                    Command="{Binding CalculateStatisticsCommand}">
+                                </Button>
+
+                                <ProgressBar
+                                    Margin="5, 0, 0, 0"
+                                    Minimum="{Binding ProgressBarMinimum}"
+                                    Maximum="{Binding ProgressBarMaximum}"
+                                    Value="{Binding ProgressBarCurrentValue}"
+                                    Style="{StaticResource dd}">
+                                </ProgressBar>
+                            </DockPanel>
+
+                            <Grid Margin="0, 0, 0, 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MinWidth="250"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition MinWidth="250"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <GridSplitter
+                                    Width="3"
+                                    Grid.Column="1"
+                                    Grid.RowSpan="2">
+                                </GridSplitter>
+
+                                <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="Dataset statistics" Style="{StaticResource ListTitleTextBlock}"/>
+                                </Border>
+
+                                <Border Grid.Row="0" Grid.Column="2" BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="Corpus statistics" Style="{StaticResource ListTitleTextBlock}"/>
+                                </Border>
+
+                                <DataGrid
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    ItemsSource="{Binding DatasetStatisticsItems}">
+                                </DataGrid>
+
+                                <DataGrid
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    ItemsSource="{Binding CorpusStatisticsItems}">
+                                </DataGrid>
+                            </Grid>
+                            
+                        </DockPanel>
+                        
+                    </UniformGrid>
                 </TabItem>
 
                 <TabItem Header="Concordance">

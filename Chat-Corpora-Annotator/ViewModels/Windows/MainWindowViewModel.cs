@@ -12,6 +12,7 @@ using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.Models.Timers;
 using ChatCorporaAnnotator.Services;
+using ChatCorporaAnnotator.ViewModels.Analyzers;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
 using ChatCorporaAnnotator.Views.Windows;
@@ -37,6 +38,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public MemoryCleaninigTimer MemoryCleaninigTimer { get; }
 
         public ChatViewModel ChatVM { get; }
+        public StatisticsViewModel StatisticsVM { get; }
 
         #region StaticData
 
@@ -623,6 +625,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public MainWindowViewModel()
         {
             ChatVM = new ChatViewModel(this);
+            StatisticsVM = new StatisticsViewModel();
 
             MemoryCleaninigTimer = new MemoryCleaninigTimer();
             ProjectStateSavingTimer = new SavingTimer();

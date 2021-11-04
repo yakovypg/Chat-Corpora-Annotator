@@ -1,7 +1,8 @@
 ﻿namespace ChatCorporaAnnotator.Infrastructure.Enums
 {
-    internal enum FileProcessingResult
+    internal enum OperationState
     {
+        NotStarted,
         InProcess,
         Success,
         Fail

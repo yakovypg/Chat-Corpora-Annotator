@@ -1,6 +1,7 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
 using ChatCorporaAnnotator.Views.Windows;
 using System;
+using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.Data.Windows
 {
@@ -17,6 +18,16 @@ namespace ChatCorporaAnnotator.Data.Windows
         public MainWindow GetInstance()
         {
             return _mainWindow;
+        }
+
+        public Dispatcher GetDispatcher()
+        {
+            return _mainWindow.Dispatcher;
+        }
+
+        public void InvokeAction(Action action)
+        {
+            _mainWindow.Dispatcher.Invoke(action);
         }
 
         public void ResetChatDataGridSelectedItems()

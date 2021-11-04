@@ -6,10 +6,12 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/ControlTemplates/DatePickerTextBoxes.xaml"/>
+                <ResourceDictionary Source="Resources/ControlTemplates/ProgressBars.xaml"/>
                 <ResourceDictionary Source="Resources/ControlTemplates/Buttons.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/Buttons.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/TextBlocks.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/CheckBoxes.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/ProgressBars.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/Defaults.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
