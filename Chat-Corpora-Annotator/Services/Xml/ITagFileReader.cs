@@ -1,7 +1,7 @@
 ﻿using ChatCorporaAnnotator.Models.Serialization;
 using System.Collections.Generic;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Xml
 {
     internal interface ITagFileReader
     {

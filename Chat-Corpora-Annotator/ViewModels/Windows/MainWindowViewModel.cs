@@ -11,7 +11,7 @@ using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.Models.Timers;
-using ChatCorporaAnnotator.Services;
+using ChatCorporaAnnotator.Services.Xml;
 using ChatCorporaAnnotator.ViewModels.Analyzers;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;

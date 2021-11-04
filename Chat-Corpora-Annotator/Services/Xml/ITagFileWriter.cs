@@ -1,7 +1,7 @@
 ﻿using IndexEngine;
 using System.Collections.Generic;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Xml
 {
     internal interface ITagFileWriter
     {

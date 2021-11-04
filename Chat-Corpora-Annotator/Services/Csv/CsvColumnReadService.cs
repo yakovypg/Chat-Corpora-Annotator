@@ -2,7 +2,7 @@
 using ChatCorporaAnnotator.Models.Indexing;
 using System.Linq;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Csv
 {
     internal class CsvColumnReadService : ICsvColumnReadService
     {

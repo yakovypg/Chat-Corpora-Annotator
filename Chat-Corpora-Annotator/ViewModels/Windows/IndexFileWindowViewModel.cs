@@ -8,7 +8,7 @@ using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Windows;
-using ChatCorporaAnnotator.Services;
+using ChatCorporaAnnotator.Services.Csv;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine;

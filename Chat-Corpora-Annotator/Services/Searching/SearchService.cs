@@ -6,7 +6,7 @@ using Lucene.Net.Search;
 using System;
 using System.Collections.Generic;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Searching
 {
     internal class SearchService : ISearchService
     {

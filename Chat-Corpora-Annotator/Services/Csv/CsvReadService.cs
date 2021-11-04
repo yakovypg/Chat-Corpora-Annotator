@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using SoftCircuits.CsvParser;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Csv
 {
     internal class CsvReadService : ICsvReadService
     {

@@ -4,7 +4,7 @@ using IndexEngine.Paths;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Xml
 {
     internal class TagFileWriter : ITagFileWriter
     {

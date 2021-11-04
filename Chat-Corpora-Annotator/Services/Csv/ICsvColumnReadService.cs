@@ -1,6 +1,6 @@
 ﻿using ChatCorporaAnnotator.Models.Indexing;
 
-namespace ChatCorporaAnnotator.Services
+namespace ChatCorporaAnnotator.Services.Csv
 {
     internal interface ICsvColumnReadService
     {

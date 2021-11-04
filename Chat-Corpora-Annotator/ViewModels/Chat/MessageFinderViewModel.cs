@@ -3,7 +3,7 @@ using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
-using ChatCorporaAnnotator.Services;
+using ChatCorporaAnnotator.Services.Searching;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine;
 using IndexEngine.Paths;
