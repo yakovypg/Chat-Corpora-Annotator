@@ -10,9 +10,11 @@ using IndexEngine.Paths;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Windows
@@ -227,11 +229,16 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanSetTagsetCommandExecute(parameter))
                 return;
 
-            if (SelectedTagset == TagsetIndex.NOT_SELECTED_TAGSET_NAME)
-            {
-                UnloadTagset();
+            var msgResult = new QuickMessage("This will delete all previously tagged messages from the project." +
+                "Are you sure you want to perform this operation?").ShowWarning(MessageBoxButton.YesNo);
+
+            if (msgResult == MessageBoxResult.No)
                 return;
-            }
+
+            UnloadTagset();
+
+            if (SelectedTagset == TagsetIndex.NOT_SELECTED_TAGSET_NAME)
+                return;
 
             try
             {
@@ -308,6 +315,40 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region SystemCommands
 
+        public ICommand CheckProjectTagsetCommand { get; }
+        public bool CanCheckProjectTagsetCommandExecute(object parameter)
+        {
+            return parameter is CancelEventArgs;
+        }
+        public void OnCheckProjectTagsetCommandExecuted(object parameter)
+        {
+            if (!CanCheckProjectTagsetCommandExecute(parameter))
+                return;
+
+            var args = parameter as CancelEventArgs;
+
+            if (_mainWindowVM.TagsetName == "No tagset" || Tagsets.Contains(_mainWindowVM.TagsetName))
+                return;
+
+            var msgResult = new QuickMessage("The tagset list does not contains project tagset. If you do not add the project tagset to this " +
+                "list, all tagged messages will be deleted. Add a project tagset to the list?").ShowWarning(MessageBoxButton.YesNoCancel);
+
+            if (msgResult == MessageBoxResult.Cancel)
+            {
+                args.Cancel = true;
+                return;
+            }
+
+            if (msgResult == MessageBoxResult.Yes)
+            {
+                string projectTagsetName = _mainWindowVM.TagsetName;
+                var projectTagset = _mainWindowVM.ChatVM.TagsVM.CurrentTagset.ToDictionary(t => t.Header, t => t.BackgroundColor);
+
+                Tagsets.Add(projectTagsetName);
+                TagsetIndex.GetInstance().AddIndexEntry(projectTagsetName, projectTagset);
+            }
+        }
+
         public ICommand DeactivateWindowCommand { get; }
         public bool CanDeactivateWindowCommandExecute(object parameter)
         {
@@ -328,31 +369,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                     UnloadTagset();
                     return;
                 }
-
-                var projectTags = _mainWindowVM.ChatVM.TagsVM.CurrentTagset.ToList();
-
-                var tags = TagsetIndex.GetInstance().IndexCollection[_mainWindowVM.TagsetName]
-                    .Select(t => new Tag(t.Key, t.Value)).ToList();
-
-                bool updateProjectTags = tags.Count != projectTags.Count;
-
-                tags.Sort();
-                projectTags.Sort();
-
-                if (!updateProjectTags)
-                {
-                    for (int i = 0; i < tags.Count; ++i)
-                    {
-                        if (!tags[i].EqualsTo(projectTags[i]))
-                        {
-                            updateProjectTags = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (updateProjectTags)
-                    _mainWindowVM.ChatVM.TagsVM.SetTagsetCommand.Execute(tags);
             }
             catch (Exception ex)
             {
@@ -392,6 +408,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             RenameTagsetCommand = new RelayCommand(OnRenameTagsetCommandExecuted, CanRenameTagsetCommandExecute);
             SetTagsetCommand = new RelayCommand(OnSetTagsetCommandExecuted, CanSetTagsetCommandExecute);
 
+            CheckProjectTagsetCommand = new RelayCommand(OnCheckProjectTagsetCommandExecuted, CanCheckProjectTagsetCommandExecute);
             DeactivateWindowCommand = new RelayCommand(OnDeactivateWindowCommandExecuted, CanDeactivateWindowCommandExecute);
         }
 
@@ -410,7 +427,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 ProjectInfo.UpdateTagset();
 
                 _mainWindowVM.ChatVM.TagsVM.ClearData();
-                _mainWindowVM.ChatVM.SituationsVM.UpdateMessagesTags();
+                _mainWindowVM.ChatVM.RemoveAllTagsCommand.Execute(null);
             }
             catch (Exception ex)
             {

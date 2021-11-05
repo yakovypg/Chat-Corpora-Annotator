@@ -219,7 +219,7 @@
                         </Style>
                     </DockPanel.Resources>
 
-                    <Expander Header="Real-time managing" DockPanel.Dock="Top">
+                    <Expander Header="Live filtering" DockPanel.Dock="Top">
                         <Grid>
                             <TextBox
                                 Name="LiveFilteringTextBox"
