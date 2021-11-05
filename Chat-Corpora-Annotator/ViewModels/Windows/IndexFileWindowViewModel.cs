@@ -31,6 +31,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         private const bool HEADER_PARAM = false; // an incomprehensible constant inherited
         private const int WAIT_PAGE_TIMER_INTERVAL = 3000;
 
+        private readonly MainWindowViewModel _mainWindowVM;
+
         private readonly IProject _project;
         private IPageSwitcher _pageSwitcher;
         private DispatcherTimer _waitPageTimer;
@@ -237,7 +239,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand FinishFileIndexingCommand { get; }
         public bool CanFinishFileIndexingCommandExecute(object parameter)
         {
-            return true;
+            return !_mainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive;
         }
         public void OnFinishFileIndexingCommandExecuted(object parameter)
         {
@@ -348,8 +350,10 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
-        public IndexFileWindowViewModel(string filePath)
+        public IndexFileWindowViewModel(MainWindowViewModel mainWindowVM, string filePath)
         {
+            _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
+
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(filePath);
 

@@ -4,11 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChatCorporaAnnotator.Views.Windows"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Height="250" Width="350"
         ResizeMode="NoResize"
         Title="{Binding Title}"
         Icon="/Resources/Icons/MainWindowIcon.png">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding DeactivateWindowCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <DockPanel Margin="5">
         <Grid Height="25" DockPanel.Dock="Top">

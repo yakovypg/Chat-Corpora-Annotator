@@ -2,6 +2,7 @@
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Statistics;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.ViewModels.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +12,8 @@ namespace ChatCorporaAnnotator.ViewModels.Analyzers
 {
     internal class StatisticsViewModel : ViewModel
     {
+        private readonly MainWindowViewModel _mainWindowVM;
+
         public ObservableCollection<StatisticsItem> CorpusStatisticsItems { get; private set; }
         public ObservableCollection<StatisticsItem> DatasetStatisticsItems { get; private set; }
 
@@ -46,7 +49,7 @@ namespace ChatCorporaAnnotator.ViewModels.Analyzers
         public ICommand CalculateStatisticsCommand { get; }
         public bool CanCalculateStatisticsCommandExecute(object parameter)
         {
-            return !IsStatisticsCaulculatingActive;
+            return !IsStatisticsCaulculatingActive && !_mainWindowVM.IsTagsetEditorWindowOpen;
         }
         public void OnCalculateStatisticsCommandExecuted(object parameter)
         {
@@ -87,8 +90,10 @@ namespace ChatCorporaAnnotator.ViewModels.Analyzers
 
         #endregion
 
-        public StatisticsViewModel()
+        public StatisticsViewModel(MainWindowViewModel mainWindowVM)
         {
+            _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
+
             DatasetStatisticsItems = new ObservableCollection<StatisticsItem>();
             CorpusStatisticsItems = new ObservableCollection<StatisticsItem>();
 

@@ -13,6 +13,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
     {
         #region Actions
 
+        public Action DeactivateAction { get; set; }
         public Func<Situation, Situation, Tuple<bool, string>> CheckDataFunc { get; set; }
         public Func<Situation, Situation, bool> MergeSituationsFunc { get; set; }
 
@@ -74,6 +75,19 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public ICommand CloseWindowCommand { get; }
 
+        public ICommand DeactivateWindowCommand { get; }
+        public bool CanDeactivateWindowCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnDeactivateWindowCommandExecuted(object parameter)
+        {
+            if (!CanDeactivateWindowCommandExecute(parameter))
+                return;
+
+            DeactivateAction?.Invoke();
+        }
+
         public ICommand PerformMergeActionCommand { get; }
         public bool CanPerformMergeActionCommandExecute(object parameter)
         {
@@ -117,6 +131,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             SecondSelectedSituation = situations.First();
 
             CloseWindowCommand = new CloseWindowCommand();
+            DeactivateWindowCommand = new RelayCommand(OnDeactivateWindowCommandExecuted, CanDeactivateWindowCommandExecute);
             PerformMergeActionCommand = new RelayCommand(OnPerformMergeActionCommandExecuted, CanPerformMergeActionCommandExecute);
         }
     }

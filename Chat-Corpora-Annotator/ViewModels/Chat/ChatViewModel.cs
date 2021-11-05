@@ -131,7 +131,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand AddTagCommand { get; }
         public bool CanAddTagCommandExecute(object parameter)
         {
-            return parameter is SituationData || (MessagesVM.SelectedMessages.Count > 0 && TagsVM.SelectedTag != null);
+            return !MainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive &&
+                   (parameter is SituationData || (MessagesVM.SelectedMessages.Count > 0 && TagsVM.SelectedTag != null));
         }
         public void OnAddTagCommandExecuted(object parameter)
         {
@@ -175,7 +176,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand RemoveTagCommand { get; }
         public bool CanRemoveTagCommandExecute(object parameter)
         {
-            return MessagesVM.SelectedMessages.Count > 0;
+            return !MainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive && MessagesVM.SelectedMessages.Count > 0;
         }
         public void OnRemoveTagCommandExecuted(object parameter)
         {
@@ -206,7 +207,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand RemoveAllTagsCommand { get; }
         public bool CanRemoveAllTagsCommandExecute(object parameter)
         {
-            return SituationsVM.TaggedMessagesIds.Count > 0;
+            return !MainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive && SituationsVM.TaggedMessagesIds.Count > 0;
         }
         public void OnRemoveAllTagsCommandExecuted(object parameter)
         {

@@ -53,6 +53,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region States
 
+        public bool IsIndexFileWindowOpen => _indexFileWindow != null;
+        public bool IsTagsetEditorWindowOpen => _tagsetEditorWindow != null;
+
         private bool _isFileLoaded = false;
         public bool IsFileLoaded
         {
@@ -307,7 +310,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand ImportXmlCommand { get; }
         public bool CanImportXmlCommandExecute(object parameter)
         {
-            return IsFileLoaded;
+            return IsFileLoaded && !StatisticsVM.IsStatisticsCaulculatingActive;
         }
         public void OnImportXmlCommandExecuted(object parameter)
         {
@@ -368,7 +371,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand ShowTagsetEditorCommand { get; }
         public bool CanShowTagsetEditorCommandExecute(object parameter)
         {
-            return true;
+            return !StatisticsVM.IsStatisticsCaulculatingActive;
         }
         public void OnShowTagsetEditorCommandExecuted(object parameter)
         {
@@ -421,7 +424,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             try
             {
-                indexFileWindowVM = new IndexFileWindowViewModel(path)
+                indexFileWindowVM = new IndexFileWindowViewModel(this, path)
                 {
                     FinishAction = () => OnFileLoaded(),
                     DeactivateAction = () => _indexFileWindow = null
@@ -445,7 +448,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand OpenCorpusCommand { get; }
         public bool CanOpenCorpusCommandExecute(object parameter)
         {
-            return true;
+            return !StatisticsVM.IsStatisticsCaulculatingActive;
         }
         public void OnOpenCorpusCommandExecuted(object parameter)
         {
@@ -635,7 +638,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public MainWindowViewModel()
         {
             ChatVM = new ChatViewModel(this);
-            StatisticsVM = new StatisticsViewModel();
+            StatisticsVM = new StatisticsViewModel(this);
 
             MemoryCleaninigTimer = new MemoryCleaninigTimer();
             ProjectStateSavingTimer = new SavingTimer() { ChangeSavingStateAfterSuccessfulIteration = false };
@@ -673,8 +676,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public MessageBoxResult RequestProjectSaving()
         {
-            return MessageBox.Show("The project has been changed. Save changes?",
-                "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            return new QuickMessage("The project has been changed. Save changes?").ShowQuestion(MessageBoxButton.YesNoCancel);
         }
 
         #endregion

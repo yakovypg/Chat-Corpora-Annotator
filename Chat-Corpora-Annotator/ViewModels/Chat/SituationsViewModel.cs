@@ -117,7 +117,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand MergeSituationsCommand { get; }
         public bool CanMergeSituationsCommandExecute(object parameter)
         {
-            return Situations.Count >= 2;
+            return !_mainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive && Situations.Count >= 2;
         }
         public void OnMergeSituationsCommandExecuted(object parameter)
         {
@@ -149,7 +149,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand CrossMergeSituationsCommand { get; }
         public bool CanCrossMergeSituationsCommandExecute(object parameter)
         {
-            return Situations.Count >= 2;
+            return !_mainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive && Situations.Count >= 2;
         }
         public void OnCrossMergeSituationsCommandExecuted(object parameter)
         {
@@ -180,7 +180,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand DeleteSituationCommand { get; }
         public bool CanDeleteSituationCommandExecute(object parameter)
         {
-            return SelectedSituation != null;
+            return !_mainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive && SelectedSituation != null;
         }
         public void OnDeleteSituationCommandExecuted(object parameter)
         {
@@ -203,7 +203,9 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand ChangeSituationTagCommand { get; }
         public bool CanChangeSituationTagCommandExecute(object parameter)
         {
-            return SelectedSituation != null && _mainWindowVM.ChatVM.TagsVM.SelectedTag != null;
+            return !_mainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive &&
+                   _mainWindowVM.ChatVM.TagsVM.SelectedTag != null &&
+                   SelectedSituation != null;
         }
         public void OnChangeSituationTagCommandExecuted(object parameter)
         {
@@ -228,7 +230,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
         public ICommand ShowSelectedSituationInfoCommand { get; }
         public bool CanShowSelectedSituationInfoCommandExecute(object parameter)
         {
-            return SelectedSituation != null;
+            return !_mainWindowVM.StatisticsVM.IsStatisticsCaulculatingActive && SelectedSituation != null;
         }
         public void OnShowSelectedSituationInfoCommandExecuted(object parameter)
         {
