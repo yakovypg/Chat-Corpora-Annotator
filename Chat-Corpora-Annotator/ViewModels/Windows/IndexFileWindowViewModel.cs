@@ -483,7 +483,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             {
                 var columnReader = new CsvColumnReadService();
 
-                string filePath = _project.FilePath;
+                string filePath = _project.CsvFilePath;
                 string delimiter = SelectedDelimiter.Source;
 
                 _isFileReaded = columnReader.TryGetColumns(filePath, delimiter, out FileColumn[] columns);
@@ -520,8 +520,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         private void IndexFile()
         {
-            string filePath = _project.FilePath;
-            string projectPath = _project.WorkingDirectory;
+            string filePath = _project.CsvFilePath;
+            string projectFilePath = _project.ConfigFilePath;
 
             string dateColumn = SelectedDateColumn.Header;
             string senderColumn = SelectedSenderColumn.Header;
@@ -534,12 +534,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             try
             {
-                ProjectInfo.CreateNewProject(projectPath, dateColumn, senderColumn, textColumn, selectedColumns);
+                ProjectInfo.CreateNewProject(projectFilePath, dateColumn, senderColumn, textColumn, selectedColumns);
                 LuceneService.OpenNewIndex();
 
                 //Counting the number of lines is necessary here, but it is not clear why and how it works
                 var reader = new CsvReadService();
-                reader.GetLineCount(_project.FilePath, HEADER_PARAM);
+                reader.GetLineCount(_project.CsvFilePath, HEADER_PARAM);
 
                 int result = IndexHelper.PopulateIndex(filePath, columns, HEADER_PARAM);
                 LuceneService.OpenReader();

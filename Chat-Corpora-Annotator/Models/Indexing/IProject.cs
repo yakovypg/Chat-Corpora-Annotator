@@ -3,7 +3,8 @@
     internal interface IProject
     {
         string Name { get; }
-        string FilePath { get; }
+        string CsvFilePath { get; }
+        string ConfigFilePath { get; }
         string WorkingDirectory { get; }
 
         ProjectInformation GetInfo();

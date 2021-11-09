@@ -379,6 +379,7 @@
     <Compile Include="Containers\ActiveDate.cs" />
     <Compile Include="Containers\ActiveDateParser.cs" />
     <Compile Include="Containers\DynamicMessage.cs" />
+    <Compile Include="Containers\Project.cs" />
     <Compile Include="Data\Paths\ProjectData.cs" />
     <Compile Include="Data\Serialization\TagFileRules.cs" />
     <Compile Include="NLP\CoreAnalyzer.cs" />

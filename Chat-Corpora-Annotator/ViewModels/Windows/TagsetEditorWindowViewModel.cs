@@ -243,7 +243,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             try
             {
                 File.WriteAllText(ProjectInfo.TagsetPath, SelectedTagset);
-                ProjectInfo.UpdateTagset(SelectedTagset);
+                ProjectInfo.TryUpdateTagset(SelectedTagset);
 
                 var tagsetCopy = CurrentTagset.Select(t => t.Clone() as Tag).ToArray();
                 _mainWindowVM.ChatVM.TagsVM.SetTagsetCommand.Execute(tagsetCopy);
@@ -424,7 +424,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 if (ProjectInfo.TagsetSet)
                     File.Delete(ProjectInfo.TagsetPath);
 
-                ProjectInfo.UpdateTagset();
+                ProjectInfo.TryUpdateTagset();
 
                 _mainWindowVM.ChatVM.TagsVM.ClearData();
                 _mainWindowVM.ChatVM.RemoveAllTagsCommand.Execute(null);

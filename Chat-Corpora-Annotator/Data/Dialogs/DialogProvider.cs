@@ -5,6 +5,15 @@ namespace ChatCorporaAnnotator.Data.Dialogs
 {
     internal static class DialogProvider
     {
+        public static bool GetCcaFilePath(out string path)
+        {
+            int filterIndex = 0;
+            string title = "Open cca file";
+            string filter = "CCA files|*.cca";
+
+            return GetFilePath(out path, title, filter, filterIndex);
+        }
+
         public static bool GetCsvFilePath(out string path)
         {
             int filterIndex = 0;

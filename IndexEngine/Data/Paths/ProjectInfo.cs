@@ -1,4 +1,5 @@
-﻿using IndexEngine.Indexes;
+﻿using IndexEngine.Containers;
+using IndexEngine.Indexes;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -10,7 +11,9 @@ namespace IndexEngine.Data.Paths
         public static void LoadProject(string path)
         {
             UnloadData();
-            SetPaths(path);
+
+            var project = new Project(path);
+            SetPaths(project);
 
             var list = IndexHelper.LoadInfoFromDisk(KeyPath);
             SetKeys(list["DateFieldKey"], list["SenderFieldKey"], list["TextFieldKey"]);
@@ -20,16 +23,20 @@ namespace IndexEngine.Data.Paths
             Data.UserKeys = IndexHelper.LoadUsersFromDisk(UsersPath);
             Data.SelectedFields = IndexHelper.LoadFieldsFromDisk(FieldsPath);
 
-            UpdateTagset();
+            TryUpdateTagset();
         }
 
         public static void CreateNewProject(string path, string date, string sender, string text, List<string> fields)
         {
             UnloadData();
-            SetPaths(path);
+
+            var project = Project.Create(path);
+
+            SetPaths(project);
             SetKeys(date, sender, text);
             SetSelectedFields(fields);
         }
+
         public static void UnloadData()
         {
             Data.MessagesPerDay.Clear();
@@ -47,43 +54,51 @@ namespace IndexEngine.Data.Paths
             }
         }
 
-        public static void UpdateTagset(string tagset = null)
+        public static bool TryUpdateTagset(string tagset = null)
         {
             Tagset = tagset ?? (TagsetSet ? File.ReadAllText(TagsetPath) : null);
 
-            if (!Indexes.TagsetIndex.GetInstance().IndexCollection.ContainsKey(Tagset))
+            if (!TagsetIndex.GetInstance().IndexCollection.ContainsKey(Tagset))
             {
                 try
                 {
                     File.Delete(TagsetPath);
                     Tagset = null;
                 }
-                catch { }
+                catch
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
 
         private static void SetSelectedFields(List<string> fields)
         {
             Data.SelectedFields = fields;
         }
-        private static void SetPaths(string path)
+
+        private static void SetPaths(Project project)
         {
-            IndexPath = path;
-            Name = Path.GetFileNameWithoutExtension(IndexPath);
+            IndexPath = project.WorkingDirectory;
+            Name = project.Name;
 
-            InfoPath = IndexPath + @"\info\";
-            KeyPath = InfoPath + Name + @"-info.txt";
-            FieldsPath = InfoPath + Name + @"-fields.txt";
-            UsersPath = InfoPath + Name + @"-users.txt";
-            StatsPath = InfoPath + Name + @"-stats.txt";
+            project.Paths.TryGetValue("Info", out string infoFolder);
+            InfoPath = Path.Combine(IndexPath, infoFolder) + @"\";
 
-            SavedTagsPath = InfoPath + Name + @"-savedtags.txt";
-            SavedTagsPathTemp = InfoPath + Name + @"-savedtagsnew.txt";
-            TagCountsPath = InfoPath + Name + @"-tagcounts.txt";
-            TagsetPath = InfoPath + Name + @"-tagset.txt";
-            SituationsPath = InfoPath + Name + @"-situations.txt";
-            ActiveDatesPath = InfoPath + Name + @"-activedates.txt";
-            OutputXmlFilePath = InfoPath + @"\output.xml";
+            KeyPath = Path.Combine(InfoPath, Name + "-info.txt");
+            FieldsPath = Path.Combine(InfoPath, Name + "-fields.txt");
+            UsersPath = Path.Combine(InfoPath, Name + "-users.txt");
+            StatsPath = Path.Combine(InfoPath, Name + "-stats.txt");
+
+            SavedTagsPath = Path.Combine(InfoPath, Name + "-savedtags.txt");
+            SavedTagsPathTemp = Path.Combine(InfoPath, Name + "-savedtagsnew.txt");
+            TagCountsPath = Path.Combine(InfoPath, Name + "-tagcounts.txt");
+            TagsetPath = Path.Combine(InfoPath, Name + "-tagset.txt");
+            SituationsPath = Path.Combine(InfoPath, Name + "-situations.txt");
+            ActiveDatesPath = Path.Combine(InfoPath, Name + "-activedates.txt");
+            OutputXmlFilePath = Path.Combine(InfoPath, "output.xml");
         }
 
         private static void SetKeys(string date, string sender, string text)

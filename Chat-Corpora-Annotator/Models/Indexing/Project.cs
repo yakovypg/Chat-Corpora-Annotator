@@ -7,13 +7,15 @@ namespace ChatCorporaAnnotator.Models.Indexing
     internal class Project : IProject
     {
         public string Name { get; }
-        public string FilePath { get; }
+        public string CsvFilePath { get; }
         public string WorkingDirectory { get; private set; }
+
+        public string ConfigFilePath => Path.Combine(WorkingDirectory, Name + ".cca");
 
         public Project(string filePath, bool initializeImmediately = false)
         {
-            FilePath = filePath;
-            Name = Path.GetFileNameWithoutExtension(FilePath);
+            CsvFilePath = filePath;
+            Name = Path.GetFileNameWithoutExtension(CsvFilePath);
 
             if (initializeImmediately)
                 Initialize();
@@ -53,8 +55,8 @@ namespace ChatCorporaAnnotator.Models.Indexing
 
         public void Delete()
         {
-            if (File.Exists(FilePath))
-                File.Delete(FilePath);
+            if (File.Exists(CsvFilePath))
+                File.Delete(CsvFilePath);
 
             if (Directory.Exists(WorkingDirectory))
                 Directory.Delete(WorkingDirectory);

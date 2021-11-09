@@ -466,7 +466,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                     ProjectStateSavingTimer.SaveAndWait();
             }
 
-            if (!DialogProvider.GetFolderPath(out string path))
+            if (!DialogProvider.GetCcaFilePath(out string path))
                 return;
 
             try
