@@ -3,7 +3,7 @@ using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.ViewModels.Base;
-using IndexingServices.Containers;
+using IndexEngine.Containers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

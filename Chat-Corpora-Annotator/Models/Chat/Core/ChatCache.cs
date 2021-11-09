@@ -1,6 +1,6 @@
 ﻿using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
-using IndexEngine.Paths;
+using IndexEngine.Data.Paths;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

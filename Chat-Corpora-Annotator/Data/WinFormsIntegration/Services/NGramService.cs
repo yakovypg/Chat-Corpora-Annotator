@@ -1,7 +1,7 @@
 ﻿using CSharpTest.Net.Collections;
 using CSharpTest.Net.Serialization;
-using IndexEngine;
-using IndexEngine.Paths;
+using IndexEngine.Data.Paths;
+using IndexEngine.Search;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.TokenAttributes;
 using System;

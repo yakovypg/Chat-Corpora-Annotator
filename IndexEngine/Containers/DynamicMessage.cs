@@ -3,7 +3,7 @@ using Lucene.Net.Documents;
 using System;
 using System.Collections.Generic;
 
-namespace IndexEngine
+namespace IndexEngine.Containers
 {
     public static class MessageContainer
     {

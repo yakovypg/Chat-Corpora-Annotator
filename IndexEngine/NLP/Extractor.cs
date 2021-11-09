@@ -2,7 +2,8 @@
 using edu.stanford.nlp.pipeline;
 using edu.stanford.nlp.trees;
 using edu.stanford.nlp.util;
-using IndexEngine.Paths;
+using IndexEngine.Data.Paths;
+using IndexEngine.Search;
 using java.util;
 using NounPhraseAlgorithm;
 using System;

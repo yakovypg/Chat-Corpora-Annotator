@@ -1,5 +1,5 @@
-﻿using IndexEngine;
-using IndexEngine.Paths;
+﻿using IndexEngine.Data.Paths;
+using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Text;

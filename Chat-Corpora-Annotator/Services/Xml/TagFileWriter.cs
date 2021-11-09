@@ -1,6 +1,7 @@
-﻿using IndexEngine;
+﻿using IndexEngine.Containers;
+using IndexEngine.Data.Paths;
 using IndexEngine.Data.Serialization;
-using IndexEngine.Paths;
+using IndexEngine.Search;
 using System.Collections.Generic;
 using System.Xml;
 

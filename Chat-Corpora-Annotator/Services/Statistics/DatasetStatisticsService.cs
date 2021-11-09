@@ -1,5 +1,5 @@
-﻿using IndexEngine;
-using IndexEngine.Paths;
+﻿using IndexEngine.Data.Paths;
+using IndexEngine.Search;
 using Lucene.Net.Documents;
 using Lucene.Net.Search;
 using System;

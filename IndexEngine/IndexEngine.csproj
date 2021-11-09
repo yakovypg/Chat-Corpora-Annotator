@@ -379,8 +379,8 @@
     <Compile Include="Containers\ActiveDateParser.cs" />
     <Compile Include="Containers\DynamicMessage.cs" />
     <Compile Include="Data\Serialization\TagFileRules.cs" />
-    <Compile Include="Extractor\CoreAnalyzer.cs" />
-    <Compile Include="Extractor\Extractor.cs" />
+    <Compile Include="NLP\CoreAnalyzer.cs" />
+    <Compile Include="NLP\Extractor.cs" />
     <Compile Include="Indexes\Index.cs" />
     <Compile Include="Indexes\IndexHelper.cs" />
     <Compile Include="Indexes\NGramIndex.cs" />

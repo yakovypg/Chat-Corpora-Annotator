@@ -41,7 +41,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             SelectedMessages = new ObservableCollection<ChatMessage>();
             MessagesCase = new ChatCache(null);
 
-            MessagesCase.MessagesChanged += delegate(ObservableCollection<ChatMessage> messages)
+            MessagesCase.MessagesChanged += delegate (ObservableCollection<ChatMessage> messages)
             {
                 if (!messages.IsNullOrEmpty())
                     new MainWindowInteract().ResetChatDataGridSelectedItems();

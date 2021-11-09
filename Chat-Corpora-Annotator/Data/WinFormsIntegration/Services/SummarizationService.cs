@@ -1,5 +1,5 @@
-﻿using IndexEngine;
-using IndexEngine.Paths;
+﻿using IndexEngine.Containers;
+using IndexEngine.Data.Paths;
 using OpenTextSummarizer;
 using System;
 using System.Collections.Generic;

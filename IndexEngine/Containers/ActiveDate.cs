@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IndexingServices.Containers
+namespace IndexEngine.Containers
 {
     // Do not use MessageId in the Equals(), GetHashCode(), operator==()
 

@@ -1,6 +1,6 @@
 using ColorLibrary;
 using CSharpTest.Net.Collections;
-using IndexEngine.Paths;
+using IndexEngine.Data.Paths;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,6 @@
 ﻿using ChatCorporaAnnotator.Models.Serialization;
+using IndexEngine.Data.Paths;
 using IndexEngine.Data.Serialization;
-using IndexEngine.Paths;
 using System.Collections.Generic;
 using System.Xml;
 

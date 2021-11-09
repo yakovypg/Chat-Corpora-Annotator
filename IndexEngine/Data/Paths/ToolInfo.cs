@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IndexEngine.Paths
+namespace IndexEngine.Data.Paths
 {
     public static class ToolInfo
     {

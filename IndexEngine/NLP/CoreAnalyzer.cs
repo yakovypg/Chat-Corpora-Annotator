@@ -2,7 +2,7 @@
 using edu.stanford.nlp.pipeline;
 using edu.stanford.nlp.trees;
 using edu.stanford.nlp.util;
-using IndexEngine.Paths;
+using IndexEngine.Data.Paths;
 using java.util;
 
 namespace IndexEngine.NLP

@@ -1,4 +1,5 @@
-﻿using IndexEngine.Paths;
+﻿using IndexEngine.Containers;
+using IndexEngine.Data.Paths;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Analysis.TokenAttributes;
@@ -12,7 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace IndexEngine
+namespace IndexEngine.Search
 {
 
     public static class LuceneService

@@ -1,11 +1,12 @@
 ﻿using CSharpTest.Net.Collections;
+using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 
-namespace IndexEngine.Paths
+namespace IndexEngine.Data.Paths
 {
     public class ProjectData
     {

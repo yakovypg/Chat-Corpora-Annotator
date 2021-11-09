@@ -6,7 +6,7 @@ using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Windows;
 using ChatCorporaAnnotator.Views.Windows;
-using IndexEngine;
+using IndexEngine.Containers;
 using IndexEngine.Indexes;
 using System;
 using System.Collections.Generic;

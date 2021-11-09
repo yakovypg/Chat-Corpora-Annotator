@@ -4,7 +4,7 @@ using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.Views.Windows;
-using IndexEngine.Paths;
+using IndexEngine.Data.Paths;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;

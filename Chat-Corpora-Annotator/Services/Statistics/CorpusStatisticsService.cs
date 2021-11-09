@@ -1,6 +1,6 @@
-﻿using IndexEngine;
+﻿using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
-using IndexEngine.Paths;
+using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;

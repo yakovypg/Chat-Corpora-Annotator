@@ -1,7 +1,7 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Messages;
-using IndexEngine;
+using IndexEngine.Containers;
 using IndexEngine.Indexes;
 using System.Collections.Generic;
 using System.Linq;

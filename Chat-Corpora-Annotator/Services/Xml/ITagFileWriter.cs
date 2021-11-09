@@ -1,4 +1,4 @@
-﻿using IndexEngine;
+﻿using IndexEngine.Containers;
 using System.Collections.Generic;
 
 namespace ChatCorporaAnnotator.Services.Xml

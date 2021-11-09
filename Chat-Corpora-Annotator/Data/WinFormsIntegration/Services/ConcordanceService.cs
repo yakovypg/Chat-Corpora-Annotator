@@ -1,4 +1,4 @@
-﻿using IndexEngine;
+﻿using IndexEngine.Search;
 using Lucene.Net.Documents;
 using Lucene.Net.Search;
 using System.Collections.Generic;

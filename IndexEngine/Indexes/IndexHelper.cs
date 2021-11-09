@@ -1,6 +1,7 @@
 ﻿using CSharpTest.Net.Collections;
-using IndexEngine.Paths;
-using IndexingServices.Containers;
+using IndexEngine.Containers;
+using IndexEngine.Data.Paths;
+using IndexEngine.Search;
 using Lucene.Net.Documents;
 using SoftCircuits.CsvParser;
 using System;
@@ -10,7 +11,7 @@ using System.IO;
 using System.Linq;
 using Wintellect.PowerCollections;
 
-namespace IndexEngine
+namespace IndexEngine.Indexes
 {
     public static class IndexHelper
     {
