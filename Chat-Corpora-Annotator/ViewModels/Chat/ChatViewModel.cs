@@ -145,8 +145,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             {
                 args = new TaggerEventArgs()
                 {
-                    Id = sitData.Id,
-                    Tag = sitData.Header,
+                    SituationId = sitData.Id,
+                    TagHeader = sitData.Header,
                     MessagesIds = sitData.Messages
                 };
             }
@@ -154,14 +154,14 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             {
                 args = new TaggerEventArgs()
                 {
-                    Id = SituationIndex.GetInstance().GetValueCount(TagsVM.SelectedTag.Header),
-                    Tag = TagsVM.SelectedTag.Header,
+                    SituationId = SituationIndex.GetInstance().GetValueCount(TagsVM.SelectedTag.Header),
+                    TagHeader = TagsVM.SelectedTag.Header,
                     MessagesIds = new List<int>()
                 };
 
                 foreach (var msg in MessagesVM.SelectedMessages)
                 {
-                    if (!msg.Source.Situations.ContainsKey(args.Tag))
+                    if (!msg.Source.Situations.ContainsKey(args.TagHeader))
                         args.MessagesIds.Add(msg.Source.Id);
                 }
             }
@@ -194,8 +194,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
                 foreach (var situation in msg.Source.Situations.ToArray())
                 {
-                    args.Tag = situation.Key;
-                    args.Id = situation.Value;
+                    args.TagHeader = situation.Key;
+                    args.SituationId = situation.Value;
 
                     RemoveTag(args);
                 }
@@ -294,25 +294,23 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             }
         }
 
-        public void DeleteOrEditTag(TaggerEventArgs e, bool type, int index = -1)
+        public void DeleteTag(TaggerEventArgs e)
         {
             RemoveSituationFromMessages(e);
+            MainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
+            RemoveSituation(e);
+        }
 
-            if (type)
-            {
-                MainWindowVM.SituationsCount = SituationIndex.GetInstance().ItemCount;
-            }
-            else if (index == -1)
-            {
-                EditTag(e);
-            }
-
+        public void ChangeSituationTag(TagEditingEventArgs e)
+        {
+            RemoveSituationFromMessages(e);
+            EditTag(e);
             RemoveSituation(e);
         }
 
         private void AddTag(TaggerEventArgs e)
         {
-            SituationIndex.GetInstance().AddInnerIndexEntry(e.Tag, e.Id, e.MessagesIds);
+            SituationIndex.GetInstance().AddInnerIndexEntry(e.TagHeader, e.SituationId, e.MessagesIds);
 
             foreach (var msgId in e.MessagesIds)
             {
@@ -321,23 +319,23 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 if (msg == null)
                     continue;
 
-                var situation = new Situation(e.Id, e.Tag);
+                var situation = new Situation(e.SituationId, e.TagHeader);
                 msg.AddSituation(situation, TagsVM.CurrentTagset);
 
                 SituationsVM.TaggedMessagesIds.Add(msgId);
             }
 
-            int sitId = SituationIndex.GetInstance().GetValueCount(e.Tag) - 1;
-            var sit = new Situation(sitId, e.Tag);
+            int sitId = SituationIndex.GetInstance().GetValueCount(e.TagHeader) - 1;
+            var sit = new Situation(sitId, e.TagHeader);
 
             SituationsVM.AddSituationsCommand?.Execute(sit);
         }
 
-        private void EditTag(TaggerEventArgs e)
+        private void EditTag(TagEditingEventArgs e)
         {
-            string tag = e.AdditionalInfo["Change"].ToString();
+            string tag = e.NewHeader;
             int count = SituationIndex.GetInstance().GetValueCount(tag);
-            List<int> msgIds = SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id];
+            List<int> msgIds = SituationIndex.GetInstance().IndexCollection[e.TagHeader][e.SituationId];
 
             SituationIndex.GetInstance().AddInnerIndexEntry(tag, count, msgIds);
 
@@ -362,37 +360,37 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (msg == null)
                 return;
 
-            msg.RemoveSituation(e.Tag, TagsVM.CurrentTagset);
+            msg.RemoveSituation(e.TagHeader, TagsVM.CurrentTagset);
 
             if (msg.Source.Situations.Count == 0)
                 SituationsVM.TaggedMessagesIds.Remove(msg.Source.Id);
 
-            SituationIndex.GetInstance().DeleteMessageFromSituationAndIndex(e.Tag, e.Id, e.MessagesIds[0]);
+            SituationIndex.GetInstance().DeleteMessageFromSituationAndIndex(e.TagHeader, e.SituationId, e.MessagesIds[0]);
 
-            if (SituationIndex.GetInstance().GetInnerValueCount(e.Tag, e.Id) == 0)
-                DeleteOrEditTag(e, true);
+            if (SituationIndex.GetInstance().GetInnerValueCount(e.TagHeader, e.SituationId) == 0)
+                DeleteTag(e);
         }
 
         private void RemoveSituationFromMessages(TaggerEventArgs e)
         {
-            foreach (var id in SituationIndex.GetInstance().IndexCollection[e.Tag][e.Id])
+            foreach (var id in SituationIndex.GetInstance().IndexCollection[e.TagHeader][e.SituationId])
             {
                 ChatMessage msg = MessagesVM.MessagesCase.CurrentMessages.FirstOrDefault(t => t.Source.Id == id);
 
                 if (msg != null)
-                    msg.RemoveSituation(e.Tag, TagsVM.CurrentTagset);
+                    msg.RemoveSituation(e.TagHeader, TagsVM.CurrentTagset);
             }
         }
 
         private void RemoveSituation(TaggerEventArgs e)
         {
-            SituationIndex.GetInstance().DeleteInnerIndexEntry(e.Tag, e.Id);
-            SituationsVM.RemoveSituationsCommand.Execute(new Situation(e.Id, e.Tag));
+            SituationIndex.GetInstance().DeleteInnerIndexEntry(e.TagHeader, e.SituationId);
+            SituationsVM.RemoveSituationsCommand.Execute(new Situation(e.SituationId, e.TagHeader));
 
-            if (e.Id >= SituationIndex.GetInstance().GetValueCount(e.Tag) + 1)
+            if (e.SituationId >= SituationIndex.GetInstance().GetValueCount(e.TagHeader) + 1)
                 return;
 
-            ShiftSituationsIds(e.Tag, e.Id + 1);
+            ShiftSituationsIds(e.TagHeader, e.SituationId + 1);
         }
 
         #endregion

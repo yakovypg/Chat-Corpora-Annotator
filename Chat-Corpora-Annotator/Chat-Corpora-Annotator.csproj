@@ -124,11 +124,13 @@
     <Compile Include="Infrastructure\AppEventArgs\ChatScrollingEventArgs.cs" />
     <Compile Include="Infrastructure\AppEventArgs\LuceneQueryEventArgs.cs" />
     <Compile Include="Infrastructure\AppEventArgs\ProjectSavingStateEventArgs.cs" />
+    <Compile Include="Infrastructure\AppEventArgs\TagEditingEventArgs.cs" />
     <Compile Include="Infrastructure\AppEventArgs\TaggerEventArgs.cs" />
     <Compile Include="Infrastructure\Commands\CloseWindowCommand.cs" />
     <Compile Include="Infrastructure\Enums\FileLoadState.cs" />
     <Compile Include="Infrastructure\Enums\OperationState.cs" />
     <Compile Include="Infrastructure\Enums\SaveProjectState.cs" />
+    <Compile Include="Infrastructure\Enums\TagEditType.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
     <Compile Include="Models\Chat\Core\ChatCache.cs" />

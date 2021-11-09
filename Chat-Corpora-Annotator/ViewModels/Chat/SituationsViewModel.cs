@@ -189,12 +189,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             var args = new TaggerEventArgs()
             {
-                Id = SelectedSituation.Id,
-                Tag = SelectedSituation.Header,
+                SituationId = SelectedSituation.Id,
+                TagHeader = SelectedSituation.Header,
                 MessagesIds = new List<int>()
             };
 
-            _mainWindowVM.ChatVM.DeleteOrEditTag(args, true);
+            _mainWindowVM.ChatVM.DeleteTag(args);
             UpdateMessagesTags();
 
             _mainWindowVM.IsProjectChanged = true;
@@ -212,14 +212,13 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanChangeSituationTagCommandExecute(parameter))
                 return;
 
-            var args = new TaggerEventArgs
+            var args = new TagEditingEventArgs(_mainWindowVM.ChatVM.TagsVM.SelectedTag.Header)
             {
-                Id = SelectedSituation.Id,
-                Tag = SelectedSituation.Header,
-                AdditionalInfo = new Dictionary<string, object>() { { "Change", _mainWindowVM.ChatVM.TagsVM.SelectedTag.Header } }
+                SituationId = SelectedSituation.Id,
+                TagHeader = SelectedSituation.Header
             };
 
-            _mainWindowVM.ChatVM.DeleteOrEditTag(args, false);
+            _mainWindowVM.ChatVM.ChangeSituationTag(args);
             _mainWindowVM.IsProjectChanged = true;
         }
 
