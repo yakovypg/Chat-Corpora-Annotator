@@ -1,22 +1,10 @@
-﻿using CSharpTest.Net.Collections;
-using IndexEngine.Indexes;
-using System;
+﻿using IndexEngine.Indexes;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
 
 namespace IndexEngine.Data.Paths
 {
-    public class ProjectData
-    {
-        public BTreeDictionary<DateTime, int> MessagesPerDay { get; set; } = new BTreeDictionary<DateTime, int>();
-        public HashSet<string> UserKeys { get; set; } = new HashSet<string>();
-        public Dictionary<string, Color> UserColors { get; set; } = new Dictionary<string, Color>();
-        public List<string> SelectedFields { get; set; } = new List<string>();
-        public int LineCount { get; set; }
-    }
-
     public static class ProjectInfo
     {
         public static void LoadProject(string path)

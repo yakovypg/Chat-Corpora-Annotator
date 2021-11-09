@@ -7,11 +7,12 @@
     <ProjectGuid>{3A58AB22-7CB7-47DA-8B31-F513CC71DB3A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IndexingServices</RootNamespace>
+    <RootNamespace>IndexEngine</RootNamespace>
     <AssemblyName>IndexingServices</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -378,6 +379,7 @@
     <Compile Include="Containers\ActiveDate.cs" />
     <Compile Include="Containers\ActiveDateParser.cs" />
     <Compile Include="Containers\DynamicMessage.cs" />
+    <Compile Include="Data\Paths\ProjectData.cs" />
     <Compile Include="Data\Serialization\TagFileRules.cs" />
     <Compile Include="NLP\CoreAnalyzer.cs" />
     <Compile Include="NLP\Extractor.cs" />
