@@ -57,6 +57,16 @@ namespace ChatCorporaAnnotator.Services.Statistics
             ProgressChanged?.Invoke(ProgressChangedEventInterval, CurrentProgressValue);
         }
 
+        protected int SafeDivide(int x, int y)
+        {
+            return y != 0 ? (x / y) : 0;
+        }
+
+        protected double SafeDivide(double x, double y)
+        {
+            return y != 0 ? (x / y) : 0;
+        }
+
         public abstract void CalculateAll();
     }
 }

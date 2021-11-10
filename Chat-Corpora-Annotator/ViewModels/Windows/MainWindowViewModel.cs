@@ -788,6 +788,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             ProjectFileLoadState = FileLoadState.InProcess;
 
+            StatisticsVM.ClearData();
             ChatVM.ResetDataCommand.Execute(null);
             ChatVM.SituationsVM.UpdateMessagesTags();
 

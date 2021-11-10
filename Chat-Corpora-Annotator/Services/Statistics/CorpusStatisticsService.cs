@@ -70,6 +70,7 @@ namespace ChatCorporaAnnotator.Services.Statistics
                 {
                     count += dict.Value.Count;
                     int prev = dict.Value[0];
+
                     foreach (var index in dict.Value)
                     {
                         if (index - prev > 1)
@@ -88,16 +89,16 @@ namespace ChatCorporaAnnotator.Services.Statistics
             }
 
             NumberOfDocs = count;
-            AverageMessagesPerUnit = count / sitcount;
+            AverageMessagesPerUnit = SafeDivide(count, sitcount);
             NumberOfSymbols = symcount;
-            AverageLength = symcount / count;
-            AverageWindowLength = windows.Sum() / (windows.Count > 0 ? windows.Count : 1);
-            AverageUsersPerSituation = userPerSituationPerTagCounts.Values.Sum() / sitcount;
+            AverageLength = SafeDivide(symcount , count);
+            AverageWindowLength = SafeDivide(windows.Sum(), windows.Count);
+            AverageUsersPerSituation = SafeDivide(userPerSituationPerTagCounts.Values.Sum(), sitcount);
 
             foreach (var kvp in userPerSituationPerTagCounts)
             {
                 int valueCount = SituationIndex.GetInstance().GetValueCount(kvp.Key);
-                AverageUsersInSituationPerTag[kvp.Key] = kvp.Value / (valueCount > 0 ? valueCount : 1);
+                AverageUsersInSituationPerTag[kvp.Key] = SafeDivide(kvp.Value, valueCount);
 
                 SituationsPerTag.Add(kvp.Key, SituationIndex.GetInstance().GetValueCount(kvp.Key));
                 AllFields.Add("Average number of users in " + kvp.Key, AverageUsersInSituationPerTag[kvp.Key]);

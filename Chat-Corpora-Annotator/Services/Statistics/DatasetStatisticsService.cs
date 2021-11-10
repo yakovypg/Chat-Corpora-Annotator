@@ -80,7 +80,7 @@ namespace ChatCorporaAnnotator.Services.Statistics
 
         private void SetAvgLength()
         {
-            AverageLength = NumberOfSymbols / (double)NumberOfDocs;
+            AverageLength = SafeDivide(NumberOfSymbols, NumberOfDocs);
             AllFields.Add("Average length of a message", AverageLength);
 
             IncreaseProgressValue();
@@ -88,7 +88,7 @@ namespace ChatCorporaAnnotator.Services.Statistics
 
         private void SetAverageMessagesPerDay()
         {
-            AverageMessagesPerUnit = NumberOfDocs / (double)ProjectInfo.Data.MessagesPerDay.Keys.Count;
+            AverageMessagesPerUnit = SafeDivide(NumberOfDocs, ProjectInfo.Data.MessagesPerDay.Keys.Count);
             AllFields.Add("Average number of messages per day", AverageMessagesPerUnit);
 
             IncreaseProgressValue();

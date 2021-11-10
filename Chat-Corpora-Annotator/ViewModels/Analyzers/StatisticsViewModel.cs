@@ -68,7 +68,10 @@ namespace ChatCorporaAnnotator.ViewModels.Analyzers
 
             calculator.FailedCalculating += delegate (Exception ex)
             {
-                new QuickMessage("Failed to calculate statistics.").ShowError();
+                new QuickMessage($"Failed to calculate statistics. {ex.Message}").ShowError();
+
+                ProgressBarCurrentValue = 0;
+                IsStatisticsCaulculatingActive = false;
             };
 
             calculator.SuccessfulCalculating += delegate
@@ -98,6 +101,16 @@ namespace ChatCorporaAnnotator.ViewModels.Analyzers
             CorpusStatisticsItems = new ObservableCollection<StatisticsItem>();
 
             CalculateStatisticsCommand = new RelayCommand(OnCalculateStatisticsCommandExecuted, CanCalculateStatisticsCommandExecute);
+        }
+
+        public void ClearData()
+        {
+            CorpusStatisticsItems.Clear();
+            DatasetStatisticsItems.Clear();
+
+            ProgressBarMinimum = 0;
+            ProgressBarMaximum = 100;
+            ProgressBarCurrentValue = 0;
         }
 
         private void DisplayCorpusStatistics(IEnumerable<StatisticsItem> stats)
