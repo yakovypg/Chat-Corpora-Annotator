@@ -140,6 +140,10 @@
     <Compile Include="Models\Chat\Core\IMessageCollection.cs" />
     <Compile Include="Models\Chat\Core\IMobileMessageCollection.cs" />
     <Compile Include="Models\Chat\Core\MobileMessageCollection.cs" />
+    <Compile Include="Models\History\IRecentProject.cs" />
+    <Compile Include="Models\History\RecentProject.cs" />
+    <Compile Include="Models\History\RecentProjectProvider.cs" />
+    <Compile Include="Models\History\RecentProjectParser.cs" />
     <Compile Include="Models\Indexing\IProjectInformation.cs" />
     <Compile Include="Models\Indexing\ProjectInformation.cs" />
     <Compile Include="Models\Serialization\ISituationData.cs" />

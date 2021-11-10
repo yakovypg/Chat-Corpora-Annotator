@@ -7,6 +7,7 @@ using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using ChatCorporaAnnotator.Models.History;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Serialization;
@@ -22,6 +23,7 @@ using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,6 +41,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public ChatViewModel ChatVM { get; }
         public StatisticsViewModel StatisticsVM { get; }
+
+        public RecentProjectProvider RecentProjectProvider { get; }
 
         #region StaticData
 
@@ -399,6 +403,23 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region TopBarCommands
 
+        #region HistoryCommands
+
+        public ICommand ClearRecentProjectsCommand { get; }
+        public bool CanClearRecentProjectsCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnClearRecentProjectsCommandExecuted(object parameter)
+        {
+            if (!CanClearRecentProjectsCommandExecute(parameter))
+                return;
+
+            RecentProjectProvider.Clear();
+        }
+
+        #endregion
+
         #region IndexFileCommands
 
         public ICommand IndexNewFileCommand { get; }
@@ -426,7 +447,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             {
                 indexFileWindowVM = new IndexFileWindowViewModel(this, path)
                 {
-                    FinishAction = () => OnFileLoaded(),
+                    FinishAction = t => OnFileLoaded(new ProjectInformation(t.Name, t.WorkingDirectory)),
                     DeactivateAction = () => _indexFileWindow = null
                 };
             }
@@ -469,6 +490,21 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!DialogProvider.GetCcaFilePath(out string path))
                 return;
 
+            LoadProjectCommand.Execute(path);
+        }
+
+        public ICommand LoadProjectCommand { get; }
+        public bool CanLoadProjectCommandExecute(object parameter)
+        {
+            return parameter is string && !StatisticsVM.IsStatisticsCaulculatingActive;
+        }
+        public void OnLoadProjectCommandExecuted(object parameter)
+        {
+            if (!CanLoadProjectCommandExecute(parameter))
+                return;
+
+            string path = parameter as string;
+
             try
             {
                 SituationIndex.GetInstance().UnloadData();
@@ -480,10 +516,11 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                     return;
                 }
 
-                string dirName = System.IO.Path.GetDirectoryName(path);
-                ProjectInteraction.ProjectInfo = new ProjectInformation(dirName, path);
+                string projectName = Directory.GetParent(path).Name;
+                string workingDirectory = Path.GetDirectoryName(path);
+                var projectInfo = new ProjectInformation(projectName, workingDirectory);
 
-                OnFileLoaded();
+                OnFileLoaded(projectInfo);
             }
             catch
             {
@@ -572,13 +609,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             var args = parameter as CancelEventArgs;
 
-            ProjectStateSavingTimer.Stop();
-            MemoryCleaninigTimer.Stop();
-
-            CloseIndexFileWindowCommand.Execute(null);
-            CloseTagsetEditorWindowCommand.Execute(null);
-            CloseMessageExplorerWindowsCommand.Execute(null);
-
             if (IsProjectChanged)
             {
                 var msgRes = RequestProjectSaving();
@@ -592,6 +622,15 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 if (msgRes == MessageBoxResult.Yes)
                     SavePresentStateCommand.Execute(null);
             }
+
+            ProjectStateSavingTimer.Stop();
+            MemoryCleaninigTimer.Stop();
+
+            CloseIndexFileWindowCommand.Execute(null);
+            CloseTagsetEditorWindowCommand.Execute(null);
+            CloseMessageExplorerWindowsCommand.Execute(null);
+
+            SaveRecentProjects(RecentProjectProvider.RecentProjects);
         }
 
         public ICommand CloseIndexFileWindowCommand { get; }
@@ -643,12 +682,18 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             MemoryCleaninigTimer = new MemoryCleaninigTimer();
             ProjectStateSavingTimer = new SavingTimer() { ChangeSavingStateAfterSuccessfulIteration = false };
 
+            var recentProjects = LoadRecentProjects();
+            RecentProjectProvider = new RecentProjectProvider(recentProjects);
+
             InitProjectStateSavingTimer();
 
             #region CommandsInitialization
 
+            ClearRecentProjectsCommand = new RelayCommand(OnClearRecentProjectsCommandExecuted, CanClearRecentProjectsCommandExecute);
+
             IndexNewFileCommand = new RelayCommand(OnIndexNewFileCommandExecuted, CanIndexNewFileCommandExecute);
             OpenCorpusCommand = new RelayCommand(OnOpenCorpusCommandExecuted, CanOpenCorpusCommandExecute);
+            LoadProjectCommand = new RelayCommand(OnLoadProjectCommandExecuted, CanLoadProjectCommandExecute);
 
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
@@ -717,9 +762,29 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
+        #region DataMethods
+
+        private HashSet<RecentProject> LoadRecentProjects()
+        {
+            if (!ToolInfo.TryReadRecentProjectsFile(out string[] data))
+                return new HashSet<RecentProject>();
+
+            return RecentProjectParser.TryParse(data, out HashSet<RecentProject> projects)
+                ? projects
+                : new HashSet<RecentProject>();
+        }
+
+        private bool SaveRecentProjects(IEnumerable<IRecentProject> recentProjects)
+        {
+            string[] data = RecentProjectParser.Save(recentProjects);
+            return ToolInfo.TryWriteRecentProjectsFile(data);
+        }
+
+        #endregion
+
         #region FileLoadMethods
 
-        private void OnFileLoaded()
+        private void OnFileLoaded(IProjectInformation projectInfo)
         {
             ProjectFileLoadState = FileLoadState.InProcess;
 
@@ -733,6 +798,11 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             ProjectStateSavingTimer.Start();
             MemoryCleaninigTimer.Start();
+
+            ProjectInteraction.ProjectInfo = new ProjectInformation(projectInfo.Name, projectInfo.WorkingDirectory);
+            RecentProject recentProject = new RecentProject(projectInfo.Name, projectInfo.ConfigFilePath);
+
+            RecentProjectProvider.AddProject(recentProject);
         }
 
         #endregion

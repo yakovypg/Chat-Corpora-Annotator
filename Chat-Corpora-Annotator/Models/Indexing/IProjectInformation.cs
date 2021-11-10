@@ -4,5 +4,6 @@
     {
         string Name { get; }
         string WorkingDirectory { get; }
+        string ConfigFilePath { get; }
     }
 }

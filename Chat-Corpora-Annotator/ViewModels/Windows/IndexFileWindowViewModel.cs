@@ -41,7 +41,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         private bool _isFileReaded = false;
         private OperationState _fileProcessingResult = OperationState.InProcess;
 
-        public Action FinishAction { get; set; }
+        public Action<IProject> FinishAction { get; set; }
         public Action DeactivateAction { get; set; }
 
         public ObservableCollection<FileColumn> FileColumns { get; private set; }
@@ -248,7 +248,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
 
             if (_fileProcessingResult == OperationState.Success)
-                FinishAction?.Invoke();
+                FinishAction?.Invoke(_project);
 
             CloseWindowCommand?.Execute(parameter);
         }
