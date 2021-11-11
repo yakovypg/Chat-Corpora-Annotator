@@ -43,7 +43,7 @@ namespace IndexEngine.Search
                 foreach (var doc in docs.ScoreDocs)
                 {
                     Document idoc = LuceneService.Searcher.IndexReader.Document(doc.Doc);
-                    results.Add(idoc.GetField("id").GetInt32Value().Value);
+                    results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
                 }
             }
 
@@ -157,7 +157,7 @@ namespace IndexEngine.Search
             foreach (var doc in docs.ScoreDocs)
             {
                 Document idoc = LuceneService.Searcher.IndexReader.Document(doc.Doc);
-                results.Add(idoc.GetField("id").GetInt32Value().Value);
+                results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
             }
 
             List<int> ret = results.ToList();
@@ -174,7 +174,7 @@ namespace IndexEngine.Search
             foreach (var doc in docs.ScoreDocs)
             {
                 Document idoc = LuceneService.Searcher.IndexReader.Document(doc.Doc);
-                results.Add(idoc.GetField("id").GetInt32Value().Value);
+                results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
             }
 
             List<int> ret = results.ToList();

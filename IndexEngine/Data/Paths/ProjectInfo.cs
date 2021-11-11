@@ -98,11 +98,13 @@ namespace IndexEngine.Data.Paths
             TagsetPath = Path.Combine(InfoPath, Name + "-tagset.txt");
             SituationsPath = Path.Combine(InfoPath, Name + "-situations.txt");
             ActiveDatesPath = Path.Combine(InfoPath, Name + "-activedates.txt");
-            OutputXmlFilePath = Path.Combine(InfoPath, "output.xml");
+            OutputXmlFilePath = Path.Combine(InfoPath, "outputXml.xml");
+            OutputCsvFilePath = Path.Combine(InfoPath, "outputCsv.csv");
         }
 
         private static void SetKeys(string date, string sender, string text)
         {
+            IdKey = "id";
             DateFieldKey = date;
             SenderFieldKey = sender;
             TextFieldKey = text;
@@ -119,6 +121,7 @@ namespace IndexEngine.Data.Paths
         public static string DateFieldKey { get; private set; }
         public static string TextFieldKey { get; private set; }
         public static string SenderFieldKey { get; private set; }
+        public static string IdKey { get; private set; }
 
         public static string SituationsPath { get; private set; }
         public static string TagCountsPath { get; private set; }
@@ -127,6 +130,7 @@ namespace IndexEngine.Data.Paths
         public static string TagsetPath { get; private set; }
         public static string ActiveDatesPath { get; private set; }
         public static string OutputXmlFilePath { get; private set; }
+        public static string OutputCsvFilePath { get; private set; }
 
         public static string Tagset { get; private set; }
         public static bool TagsetSet { get { return File.Exists(TagsetPath); } }

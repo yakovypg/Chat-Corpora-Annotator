@@ -126,7 +126,7 @@ namespace IndexEngine.Search
 
         public static DynamicMessage RetrieveMessageById(int id)
         {
-            var query = NumericRangeQuery.NewInt32Range("id", id, id, true, true);
+            var query = NumericRangeQuery.NewInt32Range(ProjectInfo.IdKey, id, id, true, true);
 
             ScoreDoc doc = LuceneService.Searcher.Search(query, 1).ScoreDocs.FirstOrDefault();
             List<string> data = new List<string>();
@@ -137,7 +137,7 @@ namespace IndexEngine.Search
                 data.Add(idoc.GetField(field).GetStringValue());
             }
 
-            return new DynamicMessage(data, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, idoc.GetField("id").GetInt32Value().Value);
+            return new DynamicMessage(data, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
         }
 
         public static bool OpenIndex()

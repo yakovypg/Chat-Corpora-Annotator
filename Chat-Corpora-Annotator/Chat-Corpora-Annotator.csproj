@@ -128,6 +128,7 @@
     <Compile Include="Infrastructure\AppEventArgs\TaggerEventArgs.cs" />
     <Compile Include="Infrastructure\Commands\CloseWindowCommand.cs" />
     <Compile Include="Infrastructure\Enums\FileLoadState.cs" />
+    <Compile Include="Infrastructure\Enums\MessageMarkType.cs" />
     <Compile Include="Infrastructure\Enums\OperationState.cs" />
     <Compile Include="Infrastructure\Enums\SaveProjectState.cs" />
     <Compile Include="Infrastructure\Enums\TagEditType.cs" />
@@ -140,6 +141,8 @@
     <Compile Include="Models\Chat\Core\IMessageCollection.cs" />
     <Compile Include="Models\Chat\Core\IMobileMessageCollection.cs" />
     <Compile Include="Models\Chat\Core\MobileMessageCollection.cs" />
+    <Compile Include="Models\Containers\IMessageMark.cs" />
+    <Compile Include="Models\Containers\MessageMark.cs" />
     <Compile Include="Models\History\IRecentProject.cs" />
     <Compile Include="Models\History\RecentProject.cs" />
     <Compile Include="Models\History\RecentProjectProvider.cs" />
@@ -156,6 +159,9 @@
     <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />
     <Compile Include="Models\Timers\SavingTimer.cs" />
     <Compile Include="Models\Timers\Timer.cs" />
+    <Compile Include="Services\Csv\CsvExportService.cs" />
+    <Compile Include="Services\Csv\CsvWriteService.cs" />
+    <Compile Include="Services\Csv\ICsvWriteService.cs" />
     <Compile Include="Services\Searching\ISearchService.cs" />
     <Compile Include="Services\Xml\ITagFileReader.cs" />
     <Compile Include="Services\Xml\ITagFileWriter.cs" />

@@ -111,7 +111,7 @@ namespace IndexEngine.NLP
                         //Does this need to be a switch case?
                         if (em.entityType() == "DATE")
                         {
-                            var datekey = document.GetField("id").GetInt32Value().Value;
+                            var datekey = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                             if (!DateList.ContainsKey(datekey))
                             {
                                 DateList.Add(datekey, em.text());
@@ -125,7 +125,7 @@ namespace IndexEngine.NLP
                         {
 
 
-                            var timekey = document.GetField("id").GetInt32Value().Value;
+                            var timekey = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                             if (!TimeList.ContainsKey(timekey))
                             {
                                 TimeList.Add(timekey, em.text());
@@ -138,7 +138,7 @@ namespace IndexEngine.NLP
 
                         if (em.entityType() == "LOCATION")
                         {
-                            var lockey = document.GetField("id").GetInt32Value().Value;
+                            var lockey = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                             if (!LocList.ContainsKey(lockey))
                             {
                                 LocList.Add(lockey, em.text());
@@ -150,7 +150,7 @@ namespace IndexEngine.NLP
                         }
                         if (em.entityType() == "ORGANIZATION")
                         {
-                            var orgkey = document.GetField("id").GetInt32Value().Value;
+                            var orgkey = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                             if (!OrgList.ContainsKey(orgkey))
                             {
                                 OrgList.Add(orgkey, em.text());
@@ -163,7 +163,7 @@ namespace IndexEngine.NLP
 
                         if (em.entityType() == "URL")
                         {
-                            var urlkey = document.GetField("id").GetInt32Value().Value;
+                            var urlkey = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                             if (!URLList.ContainsKey(urlkey))
                             {
                                 URLList.Add(urlkey, em.text());
@@ -201,7 +201,7 @@ namespace IndexEngine.NLP
 
                 }
             }
-            NounPhrases.Add(document.GetField("id").GetInt32Value().Value, nouns);
+            NounPhrases.Add(document.GetField(ProjectInfo.IdKey).GetInt32Value().Value, nouns);
 
 
         }
@@ -216,12 +216,12 @@ namespace IndexEngine.NLP
                     Lucene.Net.Documents.Document document = LuceneService.DirReader.Document(i);
                     CoreDocument coredoc = GetAnnotatedDocument(document.GetField(ProjectInfo.TextFieldKey).GetStringValue());
                     ExtractNERTags(coredoc, document);
-                    //IsQuestionList.Add(document.GetField("id").GetStringValue(), DetectQuestion(coredoc));
+                    //IsQuestionList.Add(document.GetField(ProjectInfo.IdKey).GetStringValue(), DetectQuestion(coredoc));
                     if (DetectQuestion(coredoc))
                     {
-                        IsQuestionList.Add(document.GetField("id").GetInt32Value().Value);
+                        IsQuestionList.Add(document.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
                     }
-                    ExtractKeyPhrases(coredoc, document.GetField("id").GetInt32Value().Value);
+                    ExtractKeyPhrases(coredoc, document.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
                     System.Console.WriteLine(i);
                 }
 

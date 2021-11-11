@@ -49,7 +49,9 @@ namespace ChatCorporaAnnotator.ViewModels.Analyzers
         public ICommand CalculateStatisticsCommand { get; }
         public bool CanCalculateStatisticsCommandExecute(object parameter)
         {
-            return !IsStatisticsCaulculatingActive && !_mainWindowVM.IsTagsetEditorWindowOpen;
+            return !IsStatisticsCaulculatingActive &&
+                   !_mainWindowVM.IsTagsetEditorWindowOpen &&
+                   !_mainWindowVM.IsCsvFileExportingActive;
         }
         public void OnCalculateStatisticsCommandExecuted(object parameter)
         {

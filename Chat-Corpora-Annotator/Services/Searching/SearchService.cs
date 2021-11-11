@@ -63,7 +63,7 @@ namespace ChatCorporaAnnotator.Services.Searching
                 }
 
                 DynamicMessage message = new DynamicMessage(data, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey,
-                    idoc.GetField("id").GetInt32Value().Value);
+                idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
 
                 searchResults.Add(message);
             }

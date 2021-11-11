@@ -214,7 +214,7 @@ namespace IndexEngine.Indexes
                 DateTime fullDate = DateTools.StringToDate(dateString);
                 DateTime shortDate = new DateTime(fullDate.Year, fullDate.Month, fullDate.Day);
 
-                int messageId = document.GetField("id").GetInt32Value().Value;
+                int messageId = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                 var activeDate = new ActiveDate(shortDate, messageId);
 
                 dates.Add(activeDate);
@@ -233,7 +233,7 @@ namespace IndexEngine.Indexes
                 msgData.Add(document.GetField(field).GetStringValue());
             }
 
-            int id = document.GetField("id").GetInt32Value().Value;
+            int id = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
             return new DynamicMessage(msgData, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, id);
         }
 
@@ -265,7 +265,7 @@ namespace IndexEngine.Indexes
                     msgData.Add(document.GetField(field).GetStringValue());
                 }
 
-                int id = document.GetField("id").GetInt32Value().Value;
+                int id = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                 DynamicMessage msg = new DynamicMessage(msgData, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, id);
 
                 messages.Add(msg);
@@ -295,7 +295,7 @@ namespace IndexEngine.Indexes
                     msgData.Add(document.GetField(field).GetStringValue());
                 }
 
-                int id = document.GetField("id").GetInt32Value().Value;
+                int id = document.GetField(ProjectInfo.IdKey).GetInt32Value().Value;
                 DynamicMessage msg = new DynamicMessage(msgData, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, id);
 
                 messages.Add(msg);
@@ -342,7 +342,7 @@ namespace IndexEngine.Indexes
                     temp.Add(document.GetField(field).GetStringValue());
                 }
 
-                DynamicMessage message = new DynamicMessage(temp, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, document.GetField("id").GetInt32Value().Value);
+                DynamicMessage message = new DynamicMessage(temp, ProjectInfo.Data.SelectedFields, ProjectInfo.DateFieldKey, document.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
                 messages.Add(message);
             }
 
@@ -391,7 +391,7 @@ namespace IndexEngine.Indexes
                         }
 
                         Document document = new Document();
-                        document.Add(new Int32Field("id", indexingValue, Field.Store.YES));
+                        document.Add(new Int32Field(ProjectInfo.IdKey, indexingValue, Field.Store.YES));
 
                         indexingValue++;
 

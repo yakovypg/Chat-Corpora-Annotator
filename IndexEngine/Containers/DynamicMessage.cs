@@ -2,6 +2,7 @@
 using Lucene.Net.Documents;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IndexEngine.Containers
 {
@@ -89,6 +90,24 @@ namespace IndexEngine.Containers
                     }
                 }
             }
+        }
+
+        public string[] GetContent(string[] fields)
+        {
+            if (fields == null || fields.Length == 0)
+                fields = Contents.Keys.ToArray();
+
+            string[] items = new string[fields.Length];
+
+            for (int i = 0; i < fields.Length; ++i)
+            {
+                if (!Contents.TryGetValue(fields[i], out object value))
+                    throw new Exception($"Message does not contain the field {fields[i]}.");
+
+                items[i] = value.ToString();
+            }
+
+            return items;
         }
     }
 }

@@ -12,6 +12,7 @@ using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.Models.Timers;
+using ChatCorporaAnnotator.Services.Csv;
 using ChatCorporaAnnotator.Services.Xml;
 using ChatCorporaAnnotator.ViewModels.Analyzers;
 using ChatCorporaAnnotator.ViewModels.Base;
@@ -36,6 +37,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         private IndexFileWindow _indexFileWindow;
         private TagsetEditorWindow _tagsetEditorWindow;
 
+        private CsvExportService _csvExportService;
+
         public SavingTimer ProjectStateSavingTimer { get; }
         public MemoryCleaninigTimer MemoryCleaninigTimer { get; }
 
@@ -59,6 +62,19 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public bool IsIndexFileWindowOpen => _indexFileWindow != null;
         public bool IsTagsetEditorWindowOpen => _tagsetEditorWindow != null;
+
+        public bool IsCsvFileExportingNotActive => !IsCsvFileExportingActive;
+
+        private bool _isCsvFileExportingActive = false;
+        public bool IsCsvFileExportingActive
+        {
+            get => _isCsvFileExportingActive;
+            private set
+            {
+                SetValue(ref _isCsvFileExportingActive, value);
+                OnPropertyChanged(nameof(IsCsvFileExportingNotActive));
+            }
+        }
 
         private bool _isFileLoaded = false;
         public bool IsFileLoaded
@@ -305,6 +321,26 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             {
                 new QuickMessage($"Error: {ex.Message}").ShowError();
             }
+        }
+
+        public ICommand ExportCsvCommand { get; }
+        public bool CanExportCsvCommandExecute(object parameter)
+        {
+            return IsFileLoaded && !StatisticsVM.IsStatisticsCaulculatingActive;
+        }
+        public void OnExportCsvCommandExecuted(object parameter)
+        {
+            if (!CanExportCsvCommandExecute(parameter))
+                return;
+
+            _csvExportService = new CsvExportService()
+            {
+                SuccessfulExportingAction = () => IsCsvFileExportingActive = false,
+                FailedExportingAction = t => new QuickMessage("Failed to export .csv file").ShowError()
+            };
+
+            if (_csvExportService.StartExporting(ProjectInfo.OutputCsvFilePath))
+                IsCsvFileExportingActive = true;
         }
 
         #endregion
@@ -631,6 +667,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             CloseMessageExplorerWindowsCommand.Execute(null);
 
             SaveRecentProjects(RecentProjectProvider.RecentProjects);
+
+            if (_csvExportService != null && _csvExportService.ExportingState == OperationState.InProcess)
+                _csvExportService.StopExportingAndWait(1000);
         }
 
         public ICommand CloseIndexFileWindowCommand { get; }
@@ -700,6 +739,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             ExtractFileCommand = new RelayCommand(OnExtractFileCommandExecuted, CanExtractFileCommandExecute);
 
             ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
+            ExportCsvCommand = new RelayCommand(OnExportCsvCommandExecuted, CanExportCsvCommandExecute);
             SavePresentStateCommand = new RelayCommand(OnSavePresentStateCommandExecuted, CanSavePresentStateCommandExecute);
             SavePresentStateByButtonCommand = new RelayCommand(OnSavePresentStateByButtonCommandExecuted, CanSavePresentStateByButtonCommandExecute);
 
