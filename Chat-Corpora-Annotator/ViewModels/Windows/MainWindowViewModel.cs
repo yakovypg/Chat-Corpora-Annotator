@@ -809,9 +809,10 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!ToolInfo.TryReadRecentProjectsFile(out string[] data))
                 return new HashSet<RecentProject>();
 
-            return RecentProjectParser.TryParse(data, out HashSet<RecentProject> projects)
-                ? projects
-                : new HashSet<RecentProject>();
+            RecentProjectParser.TryParse(data, out HashSet<RecentProject> projects);
+            projects?.RemoveWhere(t => !File.Exists(t.Path));
+
+            return projects;
         }
 
         private bool SaveRecentProjects(IEnumerable<IRecentProject> recentProjects)
