@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="Resources/ControlTemplates/Buttons.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/Buttons.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/TextBlocks.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/TextBoxes.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/CheckBoxes.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/ProgressBars.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/Defaults.xaml"/>

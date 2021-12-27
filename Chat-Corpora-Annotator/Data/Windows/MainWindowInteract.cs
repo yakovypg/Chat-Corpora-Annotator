@@ -1,6 +1,8 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
 using ChatCorporaAnnotator.Views.Windows;
+using ScintillaNET;
 using System;
+using System.Windows.Controls;
 using System.Windows.Threading;
 
 namespace ChatCorporaAnnotator.Data.Windows
@@ -8,6 +10,9 @@ namespace ChatCorporaAnnotator.Data.Windows
     internal class MainWindowInteract
     {
         private readonly MainWindow _mainWindow;
+
+        public DataGrid ChatDataGrid => _mainWindow.ChatDataGrid;
+        public Scintilla ConcordanceViewer => (Scintilla)_mainWindow.ConcordanceViewerHost.Child;
 
         public MainWindowInteract()
         {
@@ -53,6 +58,21 @@ namespace ChatCorporaAnnotator.Data.Windows
         public void ScrollToVerticalOffset(double offset)
         {
             _mainWindow.ChatDataGrid.ScrollToVerticalOffset(offset);
+        }
+
+        public void ClearConcordanceViewer()
+        {
+            ConcordanceViewer.Text = string.Empty;
+        }
+
+        public void AddTextToConcordanceViewer(string text)
+        {
+            ConcordanceViewer.AddText(text);
+        }
+
+        public void AddLineToConcordanceViewer(string text)
+        {
+            ConcordanceViewer.AddText(text + "\n");
         }
     }
 }

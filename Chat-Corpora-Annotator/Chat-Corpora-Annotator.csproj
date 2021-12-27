@@ -47,6 +47,9 @@
     <Reference Include="CsvParser, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SoftCircuits.CsvParser.3.0.0\lib\netstandard2.0\CsvParser.dll</HintPath>
     </Reference>
+    <Reference Include="EasyScintilla, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyScintilla.1.0.5\lib\net40\EasyScintilla.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
@@ -85,6 +88,9 @@
     <Reference Include="Remotion.Linq, Version=1.13.183.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.1.13.183.0\lib\net35\Remotion.Linq.dll</HintPath>
     </Reference>
+    <Reference Include="ScintillaNET, Version=3.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\jacobslusser.ScintillaNET.3.6.3\lib\net40\ScintillaNET.dll</HintPath>
+    </Reference>
     <Reference Include="Spatial4n.Core, Version=0.3.0.0, Culture=neutral, PublicKeyToken=9f9456e1ca16d45e, processorArchitecture=MSIL">
       <HintPath>..\packages\Spatial4n.Core.0.3\lib\net40\Spatial4n.Core.dll</HintPath>
     </Reference>
@@ -98,6 +104,7 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -159,6 +166,8 @@
     <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />
     <Compile Include="Models\Timers\SavingTimer.cs" />
     <Compile Include="Models\Timers\Timer.cs" />
+    <Compile Include="Services\Concordance\ConcordanceService.cs" />
+    <Compile Include="Services\Concordance\IConcordanceService.cs" />
     <Compile Include="Services\Csv\CsvExportService.cs" />
     <Compile Include="Services\Csv\CsvWriteService.cs" />
     <Compile Include="Services\Csv\ICsvWriteService.cs" />
@@ -176,6 +185,7 @@
     <Compile Include="ViewModels\Analyzers\StatisticsViewModel.cs" />
     <Compile Include="ViewModels\Chat\MessageFilterViewModel.cs" />
     <Compile Include="ViewModels\Chat\MessageFinderViewModel.cs" />
+    <Compile Include="ViewModels\Concordance\ConcordanceViewModel.cs" />
     <Compile Include="ViewModels\Windows\MergeSituationsWindowViewModel.cs" />
     <Compile Include="ViewModels\Windows\TagsetEditorWindowViewModel.cs" />
     <Compile Include="Views\Windows\MergeSituationsWindow.xaml.cs">
@@ -218,6 +228,10 @@
     <Page Include="Resources\Styles\TextBlocks.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Styles\TextBoxes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\IndexFileWindow.xaml">
       <SubType>Designer</SubType>

@@ -17,6 +17,7 @@ using ChatCorporaAnnotator.Services.Xml;
 using ChatCorporaAnnotator.ViewModels.Analyzers;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
+using ChatCorporaAnnotator.ViewModels.Concordance;
 using ChatCorporaAnnotator.Views.Windows;
 using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
@@ -44,6 +45,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public ChatViewModel ChatVM { get; }
         public StatisticsViewModel StatisticsVM { get; }
+        public ConcordanceViewModel ConcordanceVM { get; }
 
         public RecentProjectProvider RecentProjectProvider { get; }
 
@@ -717,6 +719,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             ChatVM = new ChatViewModel(this);
             StatisticsVM = new StatisticsViewModel(this);
+            ConcordanceVM = new ConcordanceViewModel();
 
             MemoryCleaninigTimer = new MemoryCleaninigTimer();
             ProjectStateSavingTimer = new SavingTimer() { ChangeSavingStateAfterSuccessfulIteration = false };

@@ -9,6 +9,7 @@
         xmlns:chat="clr-namespace:ChatCorporaAnnotator.Models.Chat"
         xmlns:b="clr-namespace:ChatCorporaAnnotator.Infrastructure.Behaviors.Static"
         xmlns:controls="clr-namespace:ChatCorporaAnnotator.Data.Windows.Controls"
+        xmlns:scintilla="clr-namespace:ScintillaNET;assembly=ScintillaNET"
         mc:Ignorable="d"
         Icon="/Resources/Icons/MainWindowIcon.png"
         Title="Chat Corpora Annotator"
@@ -881,8 +882,41 @@
                     </UniformGrid>
                 </TabItem>
 
-                <TabItem Header="Concordance">
+                <TabItem Header="Concordance" DataContext="{Binding ConcordanceVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Background="White"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
 
+                            <DockPanel Margin="0, 0, 0, 5" DockPanel.Dock="Top">
+                                <Button
+                                    Content="Show"
+                                    Width="100"
+                                    DockPanel.Dock="Right"
+                                    Command="{Binding ShowConcordanceCommand}"
+                                    Style="{StaticResource BlueCircleButton}">
+                                </Button>
+
+                                <ComboBox Width="100"
+                                          Margin="5, 0"
+                                          DockPanel.Dock="Right"
+                                          SelectedItem="{Binding CharsCount}"
+                                          ItemsSource="{Binding CharsCountCollection}">
+                                </ComboBox>
+
+                                <TextBox Text="{Binding Term, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ShowConcordanceCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </DockPanel>
+
+                            <WindowsFormsHost Name="ConcordanceViewerHost">
+                                <scintilla:Scintilla/>
+                            </WindowsFormsHost>
+                        </DockPanel>
+                        
+                    </UniformGrid>
                 </TabItem>
 
                 <TabItem Header="N-gram Search">
