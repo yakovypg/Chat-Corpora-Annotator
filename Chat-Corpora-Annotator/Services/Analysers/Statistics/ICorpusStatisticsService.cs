@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChatCorporaAnnotator.Services.Statistics
+namespace ChatCorporaAnnotator.Services.Analysers.Statistics
 {
     internal interface ICorpusStatisticsService : IStatisticsService
     {

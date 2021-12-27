@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ChatCorporaAnnotator.Services.Statistics
+namespace ChatCorporaAnnotator.Services.Analysers.Statistics
 {
     internal interface IStatisticsService
     {

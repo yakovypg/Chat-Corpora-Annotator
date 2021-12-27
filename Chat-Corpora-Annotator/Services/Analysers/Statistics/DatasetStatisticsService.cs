@@ -4,7 +4,7 @@ using Lucene.Net.Documents;
 using Lucene.Net.Search;
 using System;
 
-namespace ChatCorporaAnnotator.Services.Statistics
+namespace ChatCorporaAnnotator.Services.Analysers.Statistics
 {
     internal class DatasetStatisticsService : StatisticsService
     {

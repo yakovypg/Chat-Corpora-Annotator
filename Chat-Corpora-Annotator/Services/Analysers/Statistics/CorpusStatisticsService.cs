@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ChatCorporaAnnotator.Services.Statistics
+namespace ChatCorporaAnnotator.Services.Analysers.Statistics
 {
     internal class CorpusStatisticsService : StatisticsService, ICorpusStatisticsService
     {

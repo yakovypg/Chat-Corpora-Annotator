@@ -1,5 +1,5 @@
 ﻿using ChatCorporaAnnotator.Infrastructure.Enums;
-using ChatCorporaAnnotator.Services.Statistics;
+using ChatCorporaAnnotator.Services.Analysers.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;

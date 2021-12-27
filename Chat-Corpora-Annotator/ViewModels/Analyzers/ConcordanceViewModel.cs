@@ -1,6 +1,6 @@
 ﻿using ChatCorporaAnnotator.Data.Windows;
-using ChatCorporaAnnotator.Data.WinFormsIntegration.Services;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Services.Analysers.Concordance;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine.Data.Paths;
 using IndexEngine.Search;
@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
-namespace ChatCorporaAnnotator.ViewModels.Concordance
+namespace ChatCorporaAnnotator.ViewModels.Analyzers
 {
     internal class ConcordanceViewModel : ViewModel
     {
@@ -69,7 +69,7 @@ namespace ChatCorporaAnnotator.ViewModels.Concordance
 
         public ConcordanceViewModel()
         {
-            CharsCountCollection = new ObservableCollection<int>(Enumerable.Range(5, 30));
+            CharsCountCollection = new ObservableCollection<int>(Enumerable.Range(5, 26));
             CharsCount = CharsCountCollection[0];
 
             ShowConcordanceCommand = new RelayCommand(OnShowConcordanceCommandExecuted, CanShowConcordanceCommandExecute);

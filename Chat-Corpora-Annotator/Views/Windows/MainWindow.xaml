@@ -897,7 +897,7 @@
                                     Style="{StaticResource BlueCircleButton}">
                                 </Button>
 
-                                <ComboBox Width="100"
+                                <ComboBox Width="60"
                                           Margin="5, 0"
                                           DockPanel.Dock="Right"
                                           SelectedItem="{Binding CharsCount}"
@@ -919,8 +919,58 @@
                     </UniformGrid>
                 </TabItem>
 
-                <TabItem Header="N-gram Search">
+                <TabItem Header="N-gram Search" DataContext="{Binding NGramsVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Background="White"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
 
+                            <DockPanel Margin="0, 0, 0, 5" DockPanel.Dock="Top">
+                                <Button
+                                    Content="Search"
+                                    Width="100"
+                                    DockPanel.Dock="Right"
+                                    Command="{Binding SearchNGramsCommand}"
+                                    Style="{StaticResource BlueCircleButton}">
+                                </Button>
+
+                                <Button
+                                    Content="Build index"
+                                    Width="110"
+                                    Margin="5, 0"
+                                    DockPanel.Dock="Right"
+                                    Command="{Binding BuildIndexCommand}"
+                                    Style="{StaticResource BlueCircleButton}">
+                                </Button>
+
+                                <TextBox Text="{Binding NGram, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding SearchNGramsCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </DockPanel>
+
+                            <TabControl>
+                                <TabItem Header="Bigrams">
+                                    <DataGrid ItemsSource="{Binding Bigrams}"/>
+                                </TabItem>
+
+                                <TabItem Header="Trigrams">
+                                    <DataGrid ItemsSource="{Binding Trigrams}"/>
+                                </TabItem>
+
+                                <TabItem Header="4-grams">
+                                    <DataGrid ItemsSource="{Binding FourGrams}"/>
+                                </TabItem>
+
+                                <TabItem Header="5-grams">
+                                    <DataGrid ItemsSource="{Binding FiveGrams}"/>
+                                </TabItem>
+                            </TabControl>
+                            
+                        </DockPanel>
+                        
+                    </UniformGrid>
                 </TabItem>
 
                 <TabItem Header="Keyword Analysis">

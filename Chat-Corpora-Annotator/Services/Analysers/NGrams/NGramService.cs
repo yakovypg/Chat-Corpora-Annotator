@@ -9,16 +9,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
+namespace ChatCorporaAnnotator.Services.Analysers.NGrams
 {
-    public class NGramService : INGramService
+    internal class NGramService : INGramService
     {
         private BPlusTree<string, int> FullIndex { get; set; }
         private BPlusTree<string, int>.OptionsV2 Options { get; set; }
-        private BulkInsertOptions bulkOptions { get; set; }
+        private BulkInsertOptions BulkOptions { get; set; }
 
         public bool IndexExists { get; private set; }
-        public bool IndexIsRead { get; private set; } = false;
+        public bool IndexIsRead { get; private set; }
+
+        public NGramService()
+        {
+            CheckIndex();
+        }
 
         public void CheckIndex()
         {
@@ -46,6 +51,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
         public void ReadIndexFromDisk()
         {
             SetTreeOptions();
+
             FullIndex = new BPlusTree<string, int>(Options);
             IndexExists = true;
             IndexIsRead = true;
@@ -54,8 +60,12 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
         private void SetTreeOptions()
         {
             Options = new BPlusTree<string, int>.OptionsV2(PrimitiveSerializer.String, PrimitiveSerializer.Int32);
-            bulkOptions = new BulkInsertOptions();
-            bulkOptions.DuplicateHandling = DuplicateHandling.FirstValueWins;
+            
+            BulkOptions = new BulkInsertOptions
+            {
+                DuplicateHandling = DuplicateHandling.FirstValueWins
+            };
+
             Options.CalcBTreeOrder(48, 4);
             Options.CreateFile = CreatePolicy.IfNeeded;
             Options.StoragePerformance = StoragePerformance.Fastest;
@@ -64,9 +74,12 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
 
         public void BuildFullIndex()
         {
+            FullIndex?.Dispose();
             SetTreeOptions();
+
             FullIndex = new BPlusTree<string, int>(Options);
-            Dictionary<string, int> grams = new Dictionary<string, int>();
+
+            var grams = new Dictionary<string, int>();
 
             for (int i = 0; i < LuceneService.DirReader.MaxDoc; i++)
             {
@@ -81,22 +94,24 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
                 }
             }
 
-            FullIndex.BulkInsert(grams, bulkOptions);
-            grams = null;
+            FullIndex.BulkInsert(grams, BulkOptions);
+
             IndexExists = true;
             IndexIsRead = true;
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         public List<string> GetNGrams(string TextFieldKey, string document)
         {
-            List<string> ngrams = new List<string>();
+            var ngrams = new List<string>();
 
             if (LuceneService.NGrammer != null)
             {
                 TokenStream stream = LuceneService.NGrammer.GetTokenStream(TextFieldKey, new StringReader(document));
                 var charTermAttribute = stream.AddAttribute<ICharTermAttribute>();
+                
                 stream.Reset();
 
                 while (stream.IncrementToken())
@@ -108,6 +123,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
                 stream.ClearAttributes();
                 stream.End();
                 stream.Dispose();
+
                 return ngrams;
             }
             else
@@ -118,10 +134,10 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
 
         public List<BTreeDictionary<string, int>> GetReadableResultsForTerm(string term)
         {
-            BTreeDictionary<string, int> bi = new BTreeDictionary<string, int>();
-            BTreeDictionary<string, int> tri = new BTreeDictionary<string, int>();
-            BTreeDictionary<string, int> four = new BTreeDictionary<string, int>();
-            BTreeDictionary<string, int> five = new BTreeDictionary<string, int>();
+            var bi = new BTreeDictionary<string, int>();
+            var tri = new BTreeDictionary<string, int>();
+            var four = new BTreeDictionary<string, int>();
+            var five = new BTreeDictionary<string, int>();
 
             foreach (var kvp in FullIndex)
             {
@@ -131,43 +147,24 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
                 {
                     switch (arr.Length)
                     {
-                        case 2:
-                            bi.Add(kvp);
-                            break;
-                        case 3:
-                            tri.Add(kvp);
-                            break;
-                        case 4:
-                            four.Add(kvp);
-                            break;
-                        case 5:
-                            five.Add(kvp);
-                            break;
-                        default:
-                            Console.WriteLine("Whoops");
-                            break;
+                        case 2: bi.Add(kvp); break;
+                        case 3: tri.Add(kvp); break;
+                        case 4: four.Add(kvp); break;
+                        case 5: five.Add(kvp); break;
+                        default: throw new Exception("Unknown n-gram.");
                     }
                 }
             }
 
-            var ret = new List<BTreeDictionary<string, int>>();
-            ret.Add(bi);
-            ret.Add(tri);
-            ret.Add(four);
-            ret.Add(five);
+            var output = new List<BTreeDictionary<string, int>>
+            {
+                bi,
+                tri,
+                four,
+                five
+            };
 
-            return ret;
+            return output;
         }
-    }
-
-    public interface INGramService
-    {
-        List<BTreeDictionary<string, int>> GetReadableResultsForTerm(string term);
-        void ReadIndexFromDisk();
-
-        void BuildFullIndex();
-        void CheckIndex();
-        bool IndexExists { get; }
-        bool IndexIsRead { get; }
     }
 }

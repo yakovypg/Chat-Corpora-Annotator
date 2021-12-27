@@ -1,7 +1,7 @@
 ﻿using Lucene.Net.Search;
 using System.Collections.Generic;
 
-namespace ChatCorporaAnnotator.Services.Concordance
+namespace ChatCorporaAnnotator.Services.Analysers.Concordance
 {
     internal interface IConcordanceService
     {
