@@ -137,6 +137,7 @@
     <Compile Include="Infrastructure\Enums\TagEditType.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
+    <Compile Include="Infrastructure\Extensions\IListExtensions.cs" />
     <Compile Include="Models\Chat\Core\ChatCache.cs" />
     <Compile Include="Models\Chat\Core\ChatScroller.cs" />
     <Compile Include="Models\Chat\Core\IChatCache.cs" />
@@ -188,12 +189,16 @@
     <Compile Include="ViewModels\Analyzers\ConcordanceViewModel.cs" />
     <Compile Include="ViewModels\Analyzers\NGramsViewModel.cs" />
     <Compile Include="ViewModels\Windows\MergeSituationsWindowViewModel.cs" />
+    <Compile Include="ViewModels\Windows\QueryLanguageWindowViewModel.cs" />
     <Compile Include="ViewModels\Windows\TagsetEditorWindowViewModel.cs" />
     <Compile Include="Views\Windows\MergeSituationsWindow.xaml.cs">
       <DependentUpon>MergeSituationsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\MessageExplorerWindow.xaml.cs">
       <DependentUpon>MessageExplorerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\QueryLanguageWindow.xaml.cs">
+      <DependentUpon>QueryLanguageWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\TagsetEditorWindow.xaml.cs">
       <DependentUpon>TagsetEditorWindow.xaml</DependentUpon>
@@ -215,6 +220,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Resources\Styles\CheckBoxes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\DataGrids.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -310,6 +319,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\MessageExplorerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\QueryLanguageWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

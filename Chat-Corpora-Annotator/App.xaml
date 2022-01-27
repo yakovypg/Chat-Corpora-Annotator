@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="Resources/Styles/TextBoxes.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/CheckBoxes.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/ProgressBars.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/DataGrids.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/Defaults.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
