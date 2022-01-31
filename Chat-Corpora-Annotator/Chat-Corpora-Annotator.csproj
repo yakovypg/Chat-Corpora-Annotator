@@ -112,6 +112,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\Indexing\ProjectInteraction.cs" />
+    <Compile Include="Data\Parsers\Suggester\ChatBaseVisitor.cs" />
+    <Compile Include="Data\Parsers\Suggester\ChatLexer.cs" />
+    <Compile Include="Data\Parsers\Suggester\ChatParser.cs" />
+    <Compile Include="Data\Parsers\Suggester\ChatVisitor.cs" />
+    <Compile Include="Data\Parsers\Suggester\MyChatVisitor.cs" />
+    <Compile Include="Data\Parsers\Suggester\QueryParser.cs" />
     <Compile Include="Data\Windows\Controls\HighlightedTextBlock.cs" />
     <Compile Include="Data\Windows\Input\MouseInteract.cs" />
     <Compile Include="Data\Windows\MainWindowInteract.cs" />
@@ -135,6 +141,7 @@
     <Compile Include="Infrastructure\Enums\OperationState.cs" />
     <Compile Include="Infrastructure\Enums\SaveProjectState.cs" />
     <Compile Include="Infrastructure\Enums\TagEditType.cs" />
+    <Compile Include="Infrastructure\Extensions\Controls\ComboBoxExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\IListExtensions.cs" />
@@ -161,6 +168,8 @@
     <Compile Include="Models\Statistics\IStatisticsItem.cs" />
     <Compile Include="Models\Statistics\StatisticsCalculator.cs" />
     <Compile Include="Models\Statistics\StatisticsItem.cs" />
+    <Compile Include="Models\Suggester\IUserDictionaryItem.cs" />
+    <Compile Include="Models\Suggester\UserDictionaryItem.cs" />
     <Compile Include="Models\Timers\ITimer.cs" />
     <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />
     <Compile Include="Models\Timers\SavingTimer.cs" />
@@ -352,6 +361,11 @@
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
+    <None Include="Data\Parsers\Suggester\Chat.g4" />
+    <None Include="Data\Parsers\Suggester\Chat.interp" />
+    <None Include="Data\Parsers\Suggester\Chat.tokens" />
+    <None Include="Data\Parsers\Suggester\ChatLexer.interp" />
+    <None Include="Data\Parsers\Suggester\ChatLexer.tokens" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

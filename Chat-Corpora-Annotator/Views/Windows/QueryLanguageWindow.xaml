@@ -74,135 +74,144 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Name="btn1"
+                    <Button Name="SelectBtn"
                             Grid.Column="0"
                             Content="select"
-                            Style="{StaticResource RedButton}">
-                        
+                            Style="{StaticResource RedButton}"
+                            Background="{Binding SelectBtnBackground}">
+
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn1}"
+                                    CommandParameter="{Binding ElementName=SelectBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn2"
+                    <Button Name="AndBtn"
                             Grid.Column="1"
                             Content="and"
-                            Style="{StaticResource RedButton}">
+                            Style="{StaticResource RedButton}"
+                            Background="{Binding AndBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn2}"
+                                    CommandParameter="{Binding ElementName=AndBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn3"
+                    <Button Name="OrBtn"
                             Grid.Column="2"
                             Content="or"
-                            Style="{StaticResource RedButton}">
+                            Style="{StaticResource RedButton}"
+                            Background="{Binding OrBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn3}"
+                                    CommandParameter="{Binding ElementName=OrBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn4"
+                    <Button Name="NotBtn"
                             Grid.Column="3"
                             Content="not"
-                            Style="{StaticResource RedButton}">
+                            Style="{StaticResource RedButton}"
+                            Background="{Binding NotBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn4}"
+                                    CommandParameter="{Binding ElementName=NotBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn5"
+                    <Button Name="NumBtn"
                             Grid.Column="4"
                             Content="num"
-                            Style="{StaticResource GreenButton}">
+                            Style="{StaticResource GreenButton}"
+                            Background="{Binding NumBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn5}"
+                                    CommandParameter="{Binding ElementName=NumBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn6"
+                    <Button Name="CommaBtn"
                             Grid.Column="5"
                             Content=","
-                            Style="{StaticResource GreenButton}">
+                            Style="{StaticResource GreenButton}"
+                            Background="{Binding CommaBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn6}"
+                                    CommandParameter="{Binding ElementName=CommaBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-                    
-                    <Button Name="btn7"
+
+                    <Button Name="SemicolonBtn"
                             Grid.Column="6"
                             Content=";"
-                            Style="{StaticResource GreenButton}">
+                            Style="{StaticResource GreenButton}"
+                            Background="{Binding SemicolonBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn7}"
+                                    CommandParameter="{Binding ElementName=SemicolonBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn8"
+                    <Button Name="LeftBracketBtn"
                             Grid.Column="7"
                             Content="("
-                            Style="{StaticResource GreenButton}">
+                            Style="{StaticResource GreenButton}"
+                            Background="{Binding LeftBracketBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn8}"
+                                    CommandParameter="{Binding ElementName=LeftBracketBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn9"
+                    <Button Name="RightBracketBtn"
                             Grid.Column="8"
                             Content=")"
-                            Style="{StaticResource GreenButton}">
+                            Style="{StaticResource GreenButton}"
+                            Background="{Binding RightBracketBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn9}"
+                                    CommandParameter="{Binding ElementName=RightBracketBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
@@ -223,128 +232,136 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <Button Name="btn10"
+                    <Button Name="HasWordOfDictBtn"
                             Grid.Row="0"
                             Grid.Column="0"
                             Content="haswordofdict()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasWordOfDictBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn10}"
+                                    CommandParameter="{Binding ElementName=HasWordOfDictBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn11"
+                    <Button Name="HasUserMentionedBtn"
                             Grid.Row="1"
                             Grid.Column="0"
                             Content="hasusermentioned()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasUserMentionedBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn11}"
+                                    CommandParameter="{Binding ElementName=HasUserMentionedBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn12"
+                    <Button Name="ByUserBtn"
                             Grid.Row="2"
                             Grid.Column="0"
                             Content="byuser()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding ByUserBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn12}"
+                                    CommandParameter="{Binding ElementName=ByUserBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn13"
+                    <Button Name="InwinBtn"
                             Grid.Row="3"
                             Grid.Column="0"
                             Content="inwin"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding InwinBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn13}"
+                                    CommandParameter="{Binding ElementName=InwinBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn14"
+                    <Button Name="HasOrganizationBtn"
                             Grid.Row="0"
                             Grid.Column="1"
                             Content="hasorganization()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasOrganizationBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn14}"
+                                    CommandParameter="{Binding ElementName=HasOrganizationBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn15"
+                    <Button Name="HasTimeBtn"
                             Grid.Row="1"
                             Grid.Column="1"
                             Content="hastime()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasTimeBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn15}"
+                                    CommandParameter="{Binding ElementName=HasTimeBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn16"
+                    <Button Name="HasLocationBtn"
                             Grid.Row="2"
                             Grid.Column="1"
                             Content="haslocation()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasLocationBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn16}"
+                                    CommandParameter="{Binding ElementName=HasLocationBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="btn17"
+                    <Button Name="HasDateBtn"
                             Grid.Row="3"
                             Grid.Column="1"
                             Content="hasdate()"
-                            Style="{StaticResource BlueButton}">
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasDateBtnBackground}">
 
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                            <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
-                                    CommandParameter="{Binding ElementName=btn17}"
+                                    CommandParameter="{Binding ElementName=HasDateBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
@@ -448,6 +465,13 @@
 
                         </ItemsControl>
                     </Border>
+
+                    <Popup
+                        StaysOpen="False"
+                        Placement="Mouse"
+                        IsOpen="{Binding IsQueryItemPopupOpen}"
+                        Child="{Binding QueryItemPopupChild}">
+                    </Popup>
 
                     <TextBox
                         Text="{Binding QueryText}"                     
