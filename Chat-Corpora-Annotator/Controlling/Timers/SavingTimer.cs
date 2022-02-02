@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-namespace ChatCorporaAnnotator.Models.Timers
+namespace ChatCorporaAnnotator.Controlling.Timers
 {
     internal class SavingTimer : Timer
     {

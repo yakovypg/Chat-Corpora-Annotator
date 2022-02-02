@@ -20,6 +20,10 @@ namespace ChatCorporaAnnotator.Models.Chat
             ? text.ToString()
             : string.Empty;
 
+        public DateTime SentDate => TryGetSentDate(out DateTime sentDate)
+            ? sentDate
+            : throw new Exception("Date field not found.");
+
         public bool IsFake { get; }
 
         public string TagsPresenter

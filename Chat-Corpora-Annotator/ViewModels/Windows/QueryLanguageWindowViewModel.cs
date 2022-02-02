@@ -7,6 +7,7 @@ using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Suggester;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine.Containers;
+using IndexEngine.Data.Paths;
 using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,50 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
     {
         private const int DRAG_DROP_SWITCH_PAUSE = 1000;
 
-        private readonly MainWindowViewModel _mainWindowVM;
-
         private delegate void LastQueryItemChangedHandler();
         private event LastQueryItemChangedHandler LastQueryItemChanged;
 
+        private readonly ChatColumnCreator _chatColumnCreator;
+
+        public MainWindowViewModel MainWindowVM { get; }
         public Action DeactivateAction { get; set; }
-        public ObservableCollection<UserDictionaryItem> UserDictionary { get; }
+
+        public ObservableCollection<DataGridColumn> MessageContainerColumns { get; }
+
+        #region UserDictionaryItems
+
+        public ObservableCollection<IUserDictionaryItem> UserDictionary { get; private set; }
+        public ObservableCollection<string> CurrentUserDictItemWords { get; private set; }
+
+        private string _dictEditorConsoleText;
+        public string DictEditorConsoleText
+        {
+            get => _dictEditorConsoleText;
+            set => SetValue(ref _dictEditorConsoleText, value);
+        }
+
+        private string _selectedUserDictItemWord;
+        public string SelectedUserDictItemWord
+        {
+            get => _selectedUserDictItemWord;
+            set => SetValue(ref _selectedUserDictItemWord, value);
+        }
+
+        private IUserDictionaryItem _selectedUserDictItem;
+        public IUserDictionaryItem SelectedUserDictItem
+        {
+            get => _selectedUserDictItem;
+            set
+            {
+                if (!SetValue(ref _selectedUserDictItem, value))
+                    return;
+
+                CurrentUserDictItemWords = new ObservableCollection<string>(value.Words);
+                OnPropertyChanged(nameof(CurrentUserDictItemWords));
+            }
+        }
+
+        #endregion
 
         #region QueryItems
 
@@ -43,8 +81,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         private List<int> _hits = new List<int>();
 
+        public ObservableCollection<ChatMessage> CurrentGroupMessages { get; private set; }
         public ObservableCollection<Button> QueryItems { get; }
-        public ObservableCollection<ChatMessage> CurrentSituation { get; private set; }
 
         private string _queryText = string.Empty;
         public string QueryText
@@ -164,13 +202,20 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
-        #region VisibilityItems
+        #region ItemsVisibility
 
         private Visibility _queryTextBoxVisibility = Visibility.Visible;
         public Visibility QueryTextBoxVisibility
         {
             get => _queryTextBoxVisibility;
             set => SetValue(ref _queryTextBoxVisibility, value);
+        }
+
+        private Visibility _dictionaryEditorPanelVisibility = Visibility.Hidden;
+        public Visibility DictionaryEditorPanelVisibility
+        {
+            get => _dictionaryEditorPanelVisibility;
+            set => SetValue(ref _dictionaryEditorPanelVisibility, value);
         }
 
         #endregion
@@ -392,26 +437,103 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             _queryResult = QueryParser.Parse(query);
 
-            CurrentSuggestionIndex = 0;
+            CurrentSuggestionIndex = 1;
             SuggestionsCount = _queryResult.Count;
 
             UpdateQueryResultInfo();
-            DisplaySituation(CurrentSuggestionIndex);
+            DisplaySituation(CurrentSuggestionIndex - 1);
         }
 
         #endregion
 
         #region UserDictionaryCommands
 
-        public ICommand ShowDictionaryEditorCommand { get; }
-        public bool CanShowDictionaryEditorCommandExecute(object parameter)
+        public ICommand SwitchDictionaryEditorVisibilityCommand { get; }
+        public bool CanSwitchDictionaryEditorVisibilityCommandExecute(object parameter)
         {
             return true;
         }
-        public void OnShowDictionaryEditorCommandExecuted(object parameter)
+        public void OnSwitchDictionaryEditorVisibilityCommandExecuted(object parameter)
         {
-            if (!CanShowDictionaryEditorCommandExecute(parameter))
+            if (!CanSwitchDictionaryEditorVisibilityCommandExecute(parameter))
                 return;
+
+            DictionaryEditorPanelVisibility = DictionaryEditorPanelVisibility == Visibility.Hidden
+                ? Visibility.Visible
+                : Visibility.Hidden;
+        }
+
+        public ICommand RemoveDictItemCommand { get; }
+        public bool CanRemoveDictItemCommandExecute(object parameter)
+        {
+            return SelectedUserDictItem != null;
+        }
+        public void OnRemoveDictItemCommandExecuted(object parameter)
+        {
+            if (!CanRemoveDictItemCommandExecute(parameter))
+                return;
+
+            UserDictionary.Remove(SelectedUserDictItem);
+            SelectedUserDictItem = UserDictionary.FirstOrDefault();
+        }
+
+        public ICommand AddUserDictItemCommand { get; }
+        public bool CanAddUserDictItemCommandExecute(object parameter)
+        {
+            if (string.IsNullOrEmpty(DictEditorConsoleText))
+                return false;
+
+            foreach (var item in UserDictionary)
+            {
+                if (item.Name == DictEditorConsoleText)
+                    return false;
+            }
+
+            return true;
+        }
+        public void OnAddUserDictItemCommandExecuted(object parameter)
+        {
+            if (!CanAddUserDictItemCommandExecute(parameter))
+                return;
+
+            var item = new UserDictionaryItem(DictEditorConsoleText);
+
+            UserDictionary.Add(item);
+            SelectedUserDictItem = item;
+
+            DictEditorConsoleText = string.Empty;
+        }
+
+        public ICommand AddWordToUserDictItemCommand { get; }
+        public bool CanAddWordToUserDictItemCommandExecute(object parameter)
+        {
+            return !string.IsNullOrEmpty(DictEditorConsoleText) &&
+                   SelectedUserDictItem != null &&
+                   SelectedUserDictItem.CanAddWordToContent(DictEditorConsoleText);
+        }
+        public void OnAddWordToUserDictItemCommandExecuted(object parameter)
+        {
+            if (!CanAddWordToUserDictItemCommandExecute(parameter))
+                return;
+
+            SelectedUserDictItem.AddWordToContent(DictEditorConsoleText);
+            CurrentUserDictItemWords.Add(DictEditorConsoleText);
+
+            DictEditorConsoleText = string.Empty;
+        }
+
+        public ICommand RemoveWordFromUserDictItemCommand { get; }
+        public bool CanRemoveWordFromUserDictItemCommandExecute(object parameter)
+        {
+            return !string.IsNullOrEmpty(SelectedUserDictItemWord);
+        }
+        public void OnRemoveWordFromUserDictItemCommandExecuted(object parameter)
+        {
+            if (!CanRemoveWordFromUserDictItemCommandExecute(parameter))
+                return;
+
+            SelectedUserDictItem.RemoveWordFromContent(SelectedUserDictItemWord);
+            CurrentUserDictItemWords.Remove(SelectedUserDictItemWord);
         }
 
         #endregion
@@ -421,7 +543,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand ShowPreviousSuggestionCommand { get; }
         public bool CanShowPreviousSuggestionCommandExecute(object parameter)
         {
-            return CurrentSuggestionIndex > 0;
+            return CurrentSuggestionIndex > 1;
         }
         public void OnShowPreviousSuggestionCommandExecuted(object parameter)
         {
@@ -429,13 +551,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
 
             CurrentSuggestionIndex--;
-            DisplaySituation(CurrentSuggestionIndex);
+            DisplaySituation(CurrentSuggestionIndex - 1);
         }
 
         public ICommand ShowNextSuggestionCommand { get; }
         public bool CanShowNextSuggestionCommandExecute(object parameter)
         {
-            return CurrentSuggestionIndex < SuggestionsCount - 1;
+            return CurrentSuggestionIndex < SuggestionsCount;
         }
         public void OnShowNextSuggestionCommandExecuted(object parameter)
         {
@@ -443,7 +565,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
 
             CurrentSuggestionIndex++;
-            DisplaySituation(CurrentSuggestionIndex);
+            DisplaySituation(CurrentSuggestionIndex - 1);
         }
 
         #endregion
@@ -521,10 +643,16 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public QueryLanguageWindowViewModel(MainWindowViewModel mainWindowVM)
         {
-            _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
+            MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
+
+            _chatColumnCreator = new ChatColumnCreator();
 
             QueryItems = new ObservableCollection<Button>();
-            UserDictionary = new ObservableCollection<UserDictionaryItem>();
+            CurrentGroupMessages = new ObservableCollection<ChatMessage>();
+            UserDictionary = new ObservableCollection<IUserDictionaryItem>();
+
+            var generatedColumns = _chatColumnCreator.GenerateChatColumns(ProjectInfo.Data.SelectedFields, false);
+            MessageContainerColumns = new ObservableCollection<DataGridColumn>(generatedColumns);
 
             _orderedButtonBackgrounds = new SolidColorBrush[]
             {
@@ -557,7 +685,11 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             ClearQueryCommand = new RelayCommand(OnClearQueryCommandExecuted, CanClearQueryCommandExecute);
             RunQueryCommand = new RelayCommand(OnRunQueryCommandExecuted, CanRunQueryCommandExecute);
 
-            ShowDictionaryEditorCommand = new RelayCommand(OnShowDictionaryEditorCommandExecuted, CanShowDictionaryEditorCommandExecute);
+            SwitchDictionaryEditorVisibilityCommand = new RelayCommand(OnSwitchDictionaryEditorVisibilityCommandExecuted, CanSwitchDictionaryEditorVisibilityCommandExecute);
+            RemoveDictItemCommand = new RelayCommand(OnRemoveDictItemCommandExecuted, CanRemoveDictItemCommandExecute);
+            AddUserDictItemCommand = new RelayCommand(OnAddUserDictItemCommandExecuted, CanAddUserDictItemCommandExecute);
+            AddWordToUserDictItemCommand = new RelayCommand(OnAddWordToUserDictItemCommandExecuted, CanAddWordToUserDictItemCommandExecute);
+            RemoveWordFromUserDictItemCommand = new RelayCommand(OnRemoveWordFromUserDictItemCommandExecuted, CanRemoveWordFromUserDictItemCommandExecute);
 
             ShowPreviousSuggestionCommand = new RelayCommand(OnShowPreviousSuggestionCommandExecuted, CanShowPreviousSuggestionCommandExecute);
             ShowNextSuggestionCommand = new RelayCommand(OnShowNextSuggestionCommandExecuted, CanShowNextSuggestionCommandExecute);
@@ -640,30 +772,34 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             }
 
             var hits = new List<int>();
-            var currentSituation = new List<DynamicMessage>();
+            var groupMessages = new List<DynamicMessage>();
 
             foreach (var list in _queryResult[index])
                 hits.AddRange(list);
 
             hits.Sort();
-            _hits = hits;
 
-            currentSituation.Add(LuceneService.RetrieveMessageById(hits.Min() - 2));
-            currentSituation.Add(LuceneService.RetrieveMessageById(hits.Min() - 1));
+            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Min() - 2));
+            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Min() - 1));
 
             for (int i = hits[0]; i <= hits[hits.Count - 1]; ++i)
-                currentSituation.Add(LuceneService.RetrieveMessageById(i));
+                groupMessages.Add(LuceneService.RetrieveMessageById(i));
 
-            currentSituation.Add(LuceneService.RetrieveMessageById(hits.Max() + 1));
-            currentSituation.Add(LuceneService.RetrieveMessageById(hits.Max() + 2));
+            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Max() + 1));
+            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Max() + 2));
 
-            CurrentSituation = new ObservableCollection<ChatMessage>(
-                currentSituation.Select(t => new ChatMessage(t)).ToArray());
+            CurrentGroupMessages = new ObservableCollection<ChatMessage>(
+                groupMessages.Select(t => new ChatMessage(t)).OrderBy(t => t.SentDate).ToArray());
 
-            OnPropertyChanged(nameof(CurrentSituation));
+            _hits = hits;
 
-            //SetColumns();
-            //suggesterView.Sort(suggesterView.AllColumns.Find(x => x.Text.Equals(ProjectInfo.DateFieldKey)), SortOrder.Ascending);
+            foreach (var msg in CurrentGroupMessages)
+            {
+                if (_hits.Contains(msg.Source.Id))
+                    msg.BackgroundBrush = Brushes.Pink;
+            }
+            
+            OnPropertyChanged(nameof(CurrentGroupMessages));
         }
 
         #endregion

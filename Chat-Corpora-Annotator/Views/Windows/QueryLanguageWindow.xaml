@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:ChatCorporaAnnotator.Models.Suggester"
+        xmlns:b="clr-namespace:ChatCorporaAnnotator.Infrastructure.Behaviors.Static"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Icon="/Resources/Icons/MainWindowIcon.png"
@@ -391,19 +393,111 @@
                     <Button
                         Grid.Column="2"
                         Content="Edit dict"
-                        Command="{Binding ShowDictionaryEditorCommand}">
+                        Command="{Binding SwitchDictionaryEditorVisibilityCommand}">
                     </Button>
                 </Grid>
 
-                <DataGrid
-                    Grid.Row="3"
-                    Margin="5, 0, 0, 0"
-                    Style="{StaticResource BlueGlassDataGrid}"
-                    ItemsSource="{Binding UserDictionary}">
-                </DataGrid>
+                <Grid Grid.Row="3" Margin="5, 0, 0, 0">
+                    <Grid.Resources>
+                        <Style TargetType="DataGrid" BasedOn="{StaticResource BlueGlassDataGrid}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=DictionaryEditorPanel, Path=Visibility}" Value="Visible">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Resources>
+
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding UserDictionary}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}"/>
+                            <DataGridTextColumn Header="Content" Binding="{Binding Path=Content}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DockPanel Name="ImportQueriesPanel" Visibility="{Binding ImportQueriesPanelVisibility}">
+                    </DockPanel>
+                </Grid>
             </Grid>
 
+            <DockPanel Name="DictionaryEditorPanel"
+                  Grid.Row="0"
+                  Grid.Column="0"
+                  Margin="5, 0, 0, 0"
+                  Background="AliceBlue"
+                  Visibility="{Binding DictionaryEditorPanelVisibility}">
+
+                <DockPanel DockPanel.Dock="Top" Height="27">
+                    <TextBlock DockPanel.Dock="Left" Text="Dictionary item" Width="auto"/>
+                    <Button DockPanel.Dock="Right" Content="Remove" Width="90" Style="{StaticResource BlueCircleButton}" Command="{Binding RemoveDictItemCommand}"/>
+
+                    <ComboBox Margin="5, 0" SelectedItem="{Binding SelectedUserDictItem}" ItemsSource="{Binding UserDictionary}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:IUserDictionaryItem}">
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </DockPanel>
+
+                <Grid DockPanel.Dock="Bottom" Height="27" Margin="0, 8, 0, 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="1" Content="Add item" Style="{StaticResource BlueCircleButton}" Command="{Binding AddUserDictItemCommand}"/>
+                    <Button Grid.Column="3" Content="Add word" Style="{StaticResource BlueCircleButton}" Command="{Binding AddWordToUserDictItemCommand}"/>
+                    <Button Grid.Column="5" Content="Del word" Style="{StaticResource BlueCircleButton}" Command="{Binding RemoveWordFromUserDictItemCommand}"/>
+                    <Button Grid.Column="7" Content="Hide" Style="{StaticResource BlueCircleButton}" Command="{Binding SwitchDictionaryEditorVisibilityCommand}"/>
+                </Grid>
+
+                <TextBox DockPanel.Dock="Bottom" Height="28" Text="{Binding DictEditorConsoleText, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding AddWordToUserDictItemCommand}"/>
+                        <KeyBinding Key="Enter" Modifiers="Ctrl" Command="{Binding AddUserDictItemCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+
+                <Border BorderBrush="Gray" BorderThickness="1" Margin="0, 5, 0, 5">
+                    <DockPanel Background="White">
+                        <TextBlock
+                            Text="Words"
+                            Style="{StaticResource ListTitleTextBlock}">
+                        </TextBlock>
+
+                        <ListBox BorderThickness="0"
+                                HorizontalContentAlignment="Stretch"
+                                ItemsSource="{Binding CurrentUserDictItemWords}"
+                                SelectedItem="{Binding SelectedUserDictItemWord}">
+
+                            <ListBox.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding RemoveWordFromUserDictItemCommand}"/>
+                            </ListBox.InputBindings>
+                        </ListBox>
+
+                    </DockPanel>
+                </Border>
+            </DockPanel>
+
             <Grid Grid.Row="0" Grid.Column="2">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=DictionaryEditorPanel, Path=Visibility}" Value="Visible">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                
                 <Grid.RowDefinitions>
                     <RowDefinition Height="32"/>
                     <RowDefinition MinHeight="100"/>
@@ -485,8 +579,52 @@
                     Height="3">
                 </GridSplitter>
 
-                <DataGrid Grid.Row="3" Background="White">
+                <DataGrid Name="MessagesDataGrid"
+                          Grid.Row="3"
+                          IsReadOnly="True"
+                          Background="White"
+                          MinRowHeight="3"
+                          MinColumnWidth="50"
+                          MaxColumnWidth="500"
+                          SelectionUnit="FullRow"
+                          SelectionMode="Extended"
+                          GridLinesVisibility="None"
+                          AutoGenerateColumns="False"  
+                          b:DataGridColumnsBehavior.BindableColumns="{Binding MessageContainerColumns}"
+                          ItemsSource="{Binding CurrentGroupMessages}">
+
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF26A0DA"/>
+                    </DataGrid.Resources>
+
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Foreground" Value="Black"/>
+                                    <Setter Property="Background" Value="#FFCBE8F6"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
+                            <EventSetter Event="MouseDoubleClick" Handler="MessagesDataGridRow_MouseDoubleClick"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="BorderBrush" Value="#FF70C0E7"/>
+                                    <Setter Property="Background" Value="#FFE5F3FB"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    
                 </DataGrid>
+                
             </Grid>
 
             <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">

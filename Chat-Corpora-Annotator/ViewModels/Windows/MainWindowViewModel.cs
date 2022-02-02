@@ -1,4 +1,6 @@
-﻿using ChatCorporaAnnotator.Data.Dialogs;
+﻿using ChatCorporaAnnotator.Controlling.Controllers;
+using ChatCorporaAnnotator.Controlling.Timers;
+using ChatCorporaAnnotator.Data.Dialogs;
 using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Data.Windows.UI;
@@ -11,7 +13,6 @@ using ChatCorporaAnnotator.Models.History;
 using ChatCorporaAnnotator.Models.Indexing;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.Models.Serialization;
-using ChatCorporaAnnotator.Models.Timers;
 using ChatCorporaAnnotator.Services.Csv;
 using ChatCorporaAnnotator.Services.Xml;
 using ChatCorporaAnnotator.ViewModels.Analyzers;

@@ -1,4 +1,4 @@
-﻿namespace ChatCorporaAnnotator.Models.Timers
+﻿namespace ChatCorporaAnnotator.Controlling.Timers
 {
     internal interface ITimer
     {

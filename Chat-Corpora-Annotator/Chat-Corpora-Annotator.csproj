@@ -111,6 +111,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controlling\Controllers\ITaskController.cs" />
+    <Compile Include="Controlling\Controllers\TaskController.cs" />
     <Compile Include="Data\Indexing\ProjectInteraction.cs" />
     <Compile Include="Data\Parsers\Suggester\ChatBaseVisitor.cs" />
     <Compile Include="Data\Parsers\Suggester\ChatLexer.cs" />
@@ -141,10 +143,12 @@
     <Compile Include="Infrastructure\Enums\OperationState.cs" />
     <Compile Include="Infrastructure\Enums\SaveProjectState.cs" />
     <Compile Include="Infrastructure\Enums\TagEditType.cs" />
+    <Compile Include="Infrastructure\Enums\TaskFeature.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\ComboBoxExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\Controls\DataGridExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\ListExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\IListExtensions.cs" />
+    <Compile Include="Models\Chat\ChatColumnCreator.cs" />
     <Compile Include="Models\Chat\Core\ChatCache.cs" />
     <Compile Include="Models\Chat\Core\ChatScroller.cs" />
     <Compile Include="Models\Chat\Core\IChatCache.cs" />
@@ -170,10 +174,10 @@
     <Compile Include="Models\Statistics\StatisticsItem.cs" />
     <Compile Include="Models\Suggester\IUserDictionaryItem.cs" />
     <Compile Include="Models\Suggester\UserDictionaryItem.cs" />
-    <Compile Include="Models\Timers\ITimer.cs" />
-    <Compile Include="Models\Timers\MemoryCleaninigTimer.cs" />
-    <Compile Include="Models\Timers\SavingTimer.cs" />
-    <Compile Include="Models\Timers\Timer.cs" />
+    <Compile Include="Controlling\Timers\ITimer.cs" />
+    <Compile Include="Controlling\Timers\MemoryCleaninigTimer.cs" />
+    <Compile Include="Controlling\Timers\SavingTimer.cs" />
+    <Compile Include="Controlling\Timers\Timer.cs" />
     <Compile Include="Services\Analysers\Concordance\ConcordanceService.cs" />
     <Compile Include="Services\Analysers\Concordance\IConcordanceService.cs" />
     <Compile Include="Services\Analysers\NGrams\INGramService.cs" />

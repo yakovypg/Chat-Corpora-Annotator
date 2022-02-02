@@ -1,14 +1,11 @@
 ﻿using ChatCorporaAnnotator.Data.Windows;
-using ChatCorporaAnnotator.Data.Windows.Controls;
 using ChatCorporaAnnotator.Infrastructure.AppEventArgs;
 using ChatCorporaAnnotator.Infrastructure.Commands;
-using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Models.Chat;
 using ChatCorporaAnnotator.Models.Chat.Core;
 using ChatCorporaAnnotator.Models.Serialization;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Windows;
-using IndexEngine.Containers;
 using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
 using System;
@@ -17,7 +14,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.ViewModels.Chat
@@ -51,13 +47,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #region ChatView
 
-        public const string TAG_COLUMN_HEADER = "Tag";
+        private readonly ChatColumnCreator _chatColumnCreator;
 
         public ChatScroller Scroller { get; private set; }
         public ObservableCollection<DataGridColumn> ChatColumns { get; private set; }
-
-        public double ChatTextFontSize { get; set; } = 14.0;
-        public Thickness ChatTextPadding { get; set; } = new Thickness(5, 3, 5, 3);
 
         #endregion
 
@@ -77,8 +70,12 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 ? fields
                 : ProjectInfo.Data.SelectedFields;
 
-            var columns = GenerateChatColumns(selectedFields);
-            SetChatColumns(columns);
+            var columns = _chatColumnCreator.GenerateChatColumns(selectedFields, true);
+
+            ChatColumns.Clear();
+
+            foreach (var column in columns)
+                ChatColumns.Add(column);
         }
 
         #endregion
@@ -245,6 +242,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             Scroller = new ChatScroller(MessagesVM.MessagesCase);
             ChatColumns = new ObservableCollection<DataGridColumn>();
 
+            _chatColumnCreator = new ChatColumnCreator();
+
             SetChatColumnsCommand = new RelayCommand(OnSetChatColumnsCommandExecuted, CanSetChatColumnsCommandExecute);
 
             ResetDataCommand = new RelayCommand(OnResetDataCommandExecuted, CanResetDataCommandExecute);
@@ -395,7 +394,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
         #endregion
 
-        #region ColumnsUpdatingMethods
+        #region ChatColumnMethods
 
         public void UpdateColumnsTemplate()
         {
@@ -404,118 +403,10 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!(textColumn is DataGridTemplateColumn textTemplateColumn))
                 return;
 
-            var newTextColumn = CreateHighlightedChatColumn(ProjectInfo.TextFieldKey);
+            var newTextColumn = _chatColumnCreator.CreateHighlightedChatColumn(ProjectInfo.TextFieldKey,
+                MessageFinderVM.HighlightText, MessageFinderVM.IgnoreCase, MessageFinderVM.HighlightBrush);
+
             textTemplateColumn.CellTemplate = newTextColumn.CellTemplate;
-        }
-
-        public void SetChatColumns(IEnumerable<DataGridColumn> columns)
-        {
-            ChatColumns.Clear();
-
-            foreach (var column in columns)
-                ChatColumns.Add(column);
-        }
-
-        #endregion
-
-        #region ColumnsGenerationMethods
-
-        private DataGridTemplateColumn[] GenerateChatColumns(List<string> selectedFields)
-        {
-            if (selectedFields.IsNullOrEmpty())
-                return new DataGridTemplateColumn[0];
-
-            var fields = new List<string>(selectedFields);
-
-            if (fields.Remove(ProjectInfo.TextFieldKey))
-                fields.Insert(0, ProjectInfo.TextFieldKey);
-
-            if (fields.Remove(ProjectInfo.DateFieldKey))
-                fields.Insert(0, ProjectInfo.DateFieldKey);
-
-            if (fields.Remove(ProjectInfo.SenderFieldKey))
-                fields.Insert(0, ProjectInfo.SenderFieldKey);
-
-            fields.Insert(0, TAG_COLUMN_HEADER);
-
-            var columns = new DataGridTemplateColumn[fields.Count];
-
-            for (int i = 0; i < fields.Count; ++i)
-            {
-                string currField = fields[i];
-
-                var column = currField == ProjectInfo.TextFieldKey
-                    ? CreateHighlightedChatColumn(currField)
-                    : CreateDefaultChatColumn(currField);
-
-                columns[i] = column;
-            }
-
-            return columns;
-        }
-
-        private DataGridTemplateColumn CreateDefaultChatColumn(string fieldKey)
-        {
-            var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
-            textBlockFactory.SetValue(TextBlock.PaddingProperty, ChatTextPadding);
-            textBlockFactory.SetValue(TextBlock.FontSizeProperty, ChatTextFontSize);
-            textBlockFactory.SetValue(TextBlock.TextWrappingProperty, TextWrapping.Wrap);
-
-            if (fieldKey != TAG_COLUMN_HEADER)
-                textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"Source.Contents[{fieldKey}]"));
-            else
-                textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding($"TagsPresenter"));
-
-            if (fieldKey == ProjectInfo.SenderFieldKey)
-                textBlockFactory.SetBinding(TextBlock.ForegroundProperty, new Binding($"SenderColor"));
-
-            var columnDataTemplate = new DataTemplate(typeof(DynamicMessage))
-            {
-                VisualTree = textBlockFactory
-            };
-
-            var column = new DataGridTemplateColumn()
-            {
-                Header = fieldKey,
-                CellTemplate = columnDataTemplate
-            };
-
-            if (fieldKey == TAG_COLUMN_HEADER)
-                column.MaxWidth = 300;
-
-            return column;
-        }
-
-        private DataGridTemplateColumn CreateHighlightedChatColumn(string fieldKey)
-        {
-            var textBlockFactory = new FrameworkElementFactory(typeof(HighlightedTextBlock));
-
-            textBlockFactory.SetValue(Control.PaddingProperty, ChatTextPadding);
-            textBlockFactory.SetValue(Control.FontSizeProperty, ChatTextFontSize);
-            textBlockFactory.SetValue(HighlightedTextBlock.TextWrappingProperty, TextWrapping.Wrap);
-
-            textBlockFactory.SetValue(HighlightedTextBlock.IgnoreCaseProperty, MessageFinderVM.IgnoreCase);
-            textBlockFactory.SetValue(HighlightedTextBlock.HighlightBrushProperty, MessageFinderVM.HighlightBrush);
-            textBlockFactory.SetValue(HighlightedTextBlock.HighlightedTextProperty, MessageFinderVM.HighlightText);
-
-            if (fieldKey != TAG_COLUMN_HEADER)
-                textBlockFactory.SetBinding(HighlightedTextBlock.TextProperty, new Binding($"Source.Contents[{fieldKey}]"));
-
-            if (fieldKey == ProjectInfo.SenderFieldKey)
-                textBlockFactory.SetBinding(Control.ForegroundProperty, new Binding($"SenderColor"));
-
-            var columnDataTemplate = new DataTemplate(typeof(DynamicMessage))
-            {
-                VisualTree = textBlockFactory
-            };
-
-            var column = new DataGridTemplateColumn()
-            {
-                Header = fieldKey,
-                CellTemplate = columnDataTemplate
-            };
-
-            return column;
         }
 
         #endregion
