@@ -172,6 +172,8 @@
     <Compile Include="Models\Statistics\IStatisticsItem.cs" />
     <Compile Include="Models\Statistics\StatisticsCalculator.cs" />
     <Compile Include="Models\Statistics\StatisticsItem.cs" />
+    <Compile Include="Models\Suggester\IImportedQuery.cs" />
+    <Compile Include="Models\Suggester\ImportedQuery.cs" />
     <Compile Include="Models\Suggester\IUserDictionaryItem.cs" />
     <Compile Include="Models\Suggester\UserDictionaryItem.cs" />
     <Compile Include="Controlling\Timers\ITimer.cs" />

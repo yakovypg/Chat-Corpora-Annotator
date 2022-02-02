@@ -1,4 +1,5 @@
-﻿using ChatCorporaAnnotator.Data.Parsers.Suggester;
+﻿using ChatCorporaAnnotator.Data.Dialogs;
+using ChatCorporaAnnotator.Data.Parsers.Suggester;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
@@ -12,6 +13,7 @@ using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -126,6 +128,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
+        #region ImportedQueryItems
+
+        public ObservableCollection<IImportedQuery> ImportedQueries { get; private set; }
+        public IImportedQuery SelectedImportedQuery { get; set; }
+
+        #endregion
+
         #region StaticItems
 
         private static readonly Color DefaultButtonBackgroundColor = Colors.Transparent;
@@ -216,6 +225,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             get => _dictionaryEditorPanelVisibility;
             set => SetValue(ref _dictionaryEditorPanelVisibility, value);
+        }
+
+        private Visibility _importQueriesPanelVisibility = Visibility.Hidden;
+        public Visibility ImportQueriesPanelVisibility
+        {
+            get => _importQueriesPanelVisibility;
+            set => SetValue(ref _importQueriesPanelVisibility, value);
         }
 
         #endregion
@@ -362,17 +378,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 : Visibility.Hidden;
         }
 
-        public ICommand ImportQueriesCommand { get; }
-        public bool CanImportQueriesCommandExecute(object parameter)
-        {
-            return true;
-        }
-        public void OnImportQueriesCommandExecuted(object parameter)
-        {
-            if (!CanImportQueriesCommandExecute(parameter))
-                return;
-        }
-
         public ICommand AddElementToQueryTextCommand { get; }
         public bool CanAddElementToQueryTextCommandExecute(object parameter)
         {
@@ -442,6 +447,113 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             UpdateQueryResultInfo();
             DisplaySituation(CurrentSuggestionIndex - 1);
+        }
+
+        #endregion
+
+        #region ImportQueriesCommands
+
+        public ICommand ImportQueriesCommand { get; }
+        public bool CanImportQueriesCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnImportQueriesCommandExecuted(object parameter)
+        {
+            if (!CanImportQueriesCommandExecute(parameter))
+                return;
+
+            DialogProvider.GetQueriesFilePath(out string path);
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            string[] lines;
+
+            try
+            {
+                lines = File.ReadAllLines(path);
+            }
+            catch (Exception ex)
+            {
+                new QuickMessage(ex.Message).ShowError();
+                return;
+            }
+
+            if (lines.IsNullOrEmpty())
+            {
+                new QuickMessage("File is empty.").ShowInformation();
+                return;
+            }
+
+            IImportedQuery[] queries = new IImportedQuery[lines.Length];
+
+            for (int i = 0; i < lines.Length; i++)
+                queries[i] = ImportedQuery.Parse(lines[i], ':');
+
+            ImportedQueries = new ObservableCollection<IImportedQuery>(queries);
+            OnPropertyChanged(nameof(ImportedQueries));
+
+            ImportQueriesPanelVisibility = Visibility.Visible;
+        }
+
+        public ICommand LoadImportedQueryCommand { get; }
+        public bool CanLoadImportedQueryCommandExecute(object parameter)
+        {
+            return SelectedImportedQuery != null;
+        }
+        public void OnLoadImportedQueryCommandExecuted(object parameter)
+        {
+            if (!CanLoadImportedQueryCommandExecute(parameter))
+                return;
+
+            QueryText = SelectedImportedQuery.Content;
+        }
+
+        public ICommand RemoveImportedQueryCommand { get; }
+        public bool CanRemoveImportedQueryCommandExecute(object parameter)
+        {
+            return SelectedImportedQuery != null;
+        }
+        public void OnRemoveImportedQueryCommandExecuted(object parameter)
+        {
+            if (!CanRemoveImportedQueryCommandExecute(parameter))
+                return;
+
+            int index = ImportedQueries.IndexOf(SelectedImportedQuery);
+            ImportedQueries.Remove(SelectedImportedQuery);
+
+            SelectedImportedQuery = ImportedQueries.Count == 0 || index == 0
+                ? ImportedQueries.FirstOrDefault()
+                : ImportedQueries[index - 1];
+        }
+
+        public ICommand RemoveAllImportedQueriesCommand { get; }
+        public bool CanRemoveAllImportedQueriesCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnRemoveAllImportedQueriesCommandExecuted(object parameter)
+        {
+            if (!CanRemoveAllImportedQueriesCommandExecute(parameter))
+                return;
+
+            ImportedQueries.Clear();
+        }
+
+        public ICommand SwitchImportQueriesPanelVisibilityCommand { get; }
+        public bool CanSwitchImportQueriesPanelVisibilityCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnSwitchImportQueriesPanelVisibilityCommandExecuted(object parameter)
+        {
+            if (!CanSwitchImportQueriesPanelVisibilityCommandExecute(parameter))
+                return;
+
+            ImportQueriesPanelVisibility = ImportQueriesPanelVisibility == Visibility.Hidden
+                ? Visibility.Visible
+                : Visibility.Hidden;
         }
 
         #endregion
@@ -639,7 +751,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             }
         }
 
-       #endregion
+        #endregion
 
         public QueryLanguageWindowViewModel(MainWindowViewModel mainWindowVM)
         {
@@ -680,10 +792,15 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             #region InitializeCommands
 
             SwitchModeCommand = new RelayCommand(OnSwitchModeCommandExecuted, CanSwitchModeCommandExecute);
-            ImportQueriesCommand = new RelayCommand(OnImportQueriesCommandExecuted, CanImportQueriesCommandExecute);
             AddElementToQueryTextCommand = new RelayCommand(OnAddElementToQueryTextCommandExecuted, CanAddElementToQueryTextCommandExecute);
             ClearQueryCommand = new RelayCommand(OnClearQueryCommandExecuted, CanClearQueryCommandExecute);
             RunQueryCommand = new RelayCommand(OnRunQueryCommandExecuted, CanRunQueryCommandExecute);
+
+            ImportQueriesCommand = new RelayCommand(OnImportQueriesCommandExecuted, CanImportQueriesCommandExecute);
+            LoadImportedQueryCommand = new RelayCommand(OnLoadImportedQueryCommandExecuted, CanLoadImportedQueryCommandExecute);
+            RemoveImportedQueryCommand = new RelayCommand(OnRemoveImportedQueryCommandExecuted, CanRemoveImportedQueryCommandExecute);
+            RemoveAllImportedQueriesCommand = new RelayCommand(OnRemoveAllImportedQueriesCommandExecuted, CanRemoveAllImportedQueriesCommandExecute);
+            SwitchImportQueriesPanelVisibilityCommand = new RelayCommand(OnSwitchImportQueriesPanelVisibilityCommandExecuted, CanSwitchImportQueriesPanelVisibilityCommandExecute);
 
             SwitchDictionaryEditorVisibilityCommand = new RelayCommand(OnSwitchDictionaryEditorVisibilityCommandExecuted, CanSwitchDictionaryEditorVisibilityCommandExecute);
             RemoveDictItemCommand = new RelayCommand(OnRemoveDictItemCommandExecuted, CanRemoveDictItemCommandExecute);
@@ -953,6 +1070,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 Foreground = source.Foreground,
                 BorderBrush = source.BorderBrush,
                 BorderThickness = source.BorderThickness,
+                FontFamily = source.FontFamily,
                 FontSize = source.FontSize,
 
                 AllowDrop = true,

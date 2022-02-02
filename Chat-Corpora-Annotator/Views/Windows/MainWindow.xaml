@@ -623,63 +623,10 @@
                                                         MaxWidth="70"
                                                         MaxHeight="70"
                                                         Icon="Solid_Sync"
+                                                        Spin="True"
+                                                        SpinDuration="6"
                                                         HorizontalAlignment="Center"
-                                                        RenderTransformOrigin="0.5, 0.5"
                                                         Foreground="{StaticResource ActiveDatesWaitingImageForegroundGradient}">
-
-                                                        <fa:ImageAwesome.RenderTransform>
-                                                            <RotateTransform x:Name="AnimatedRotateTransform" Angle="0"/>
-                                                        </fa:ImageAwesome.RenderTransform>
-
-                                                        <!-- ImageAwesome animation (requires a lot of memory)
-                                                    
-                                                        <fa:ImageAwesome.Triggers>
-                                                            <EventTrigger RoutedEvent="fa:ImageAwesome.Loaded">
-                                                                <EventTrigger.Actions>
-
-                                                                    <BeginStoryboard>
-                                                                        <Storyboard>
-                                                                            <DoubleAnimation
-                                                                                Duration="0:0:6"
-                                                                                To="360"
-                                                                                RepeatBehavior="Forever"
-                                                                                Storyboard.TargetProperty="Angle"
-                                                                                Storyboard.TargetName="AnimatedRotateTransform">
-                                                                            </DoubleAnimation>
-                                                                        </Storyboard>
-                                                                    </BeginStoryboard>
-
-                                                                    <BeginStoryboard>
-                                                                        <Storyboard>
-                                                                            <ColorAnimation
-                                                                                Duration="0:0:3"
-                                                                                To="BlueViolet"
-                                                                                AutoReverse="True"
-                                                                                RepeatBehavior="Forever"
-                                                                                Storyboard.TargetProperty="Foreground.GradientStops[0].Color">
-                                                                            </ColorAnimation>
-                                                                        </Storyboard>
-                                                                    </BeginStoryboard>
-
-                                                                    <BeginStoryboard>
-                                                                        <Storyboard>
-                                                                            <ColorAnimation
-                                                                                Duration="0:0:3"
-                                                                                To="Orange"
-                                                                                AutoReverse="True"
-                                                                                RepeatBehavior="Forever"
-                                                                                Storyboard.TargetProperty="Foreground.GradientStops[1].Color">
-                                                                            </ColorAnimation>
-                                                                        </Storyboard>
-                                                                    </BeginStoryboard>
-
-                                                                </EventTrigger.Actions>
-                                                            </EventTrigger>
-
-                                                        </fa:ImageAwesome.Triggers>
-                                                    
-                                                        -->
-
                                                     </fa:ImageAwesome>
                                                 </UniformGrid>
 

@@ -32,6 +32,15 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
+        public static bool GetQueriesFilePath(out string path)
+        {
+            int filterIndex = 0;
+            string title = "Open queries file";
+            string filter = "All files|*.*";
+
+            return GetFilePath(out path, title, filter, filterIndex);
+        }
+
         public static bool GetFilePath(out string path, string title = null, string filter = null, int filterIndex = 0)
         {
             var _openFileDialog = new OpenFileDialog()
