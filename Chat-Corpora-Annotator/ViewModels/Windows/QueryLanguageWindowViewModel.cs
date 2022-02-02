@@ -9,10 +9,12 @@ using ChatCorporaAnnotator.Models.Suggester;
 using ChatCorporaAnnotator.ViewModels.Base;
 using IndexEngine.Containers;
 using IndexEngine.Data.Paths;
+using IndexEngine.Indexes;
 using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -65,6 +67,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             {
                 if (!SetValue(ref _selectedUserDictItem, value))
                     return;
+
+                if (value == null || value.Words.Count == 0)
+                {
+                    CurrentUserDictItemWords?.Clear();
+                    return;
+                }
 
                 CurrentUserDictItemWords = new ObservableCollection<string>(value.Words);
                 OnPropertyChanged(nameof(CurrentUserDictItemWords));
@@ -731,6 +739,42 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region SystemCommands
 
+        public ICommand SaveUserDictionaryCommand { get; }
+        public bool CanSaveUserDictionaryCommandExecute(object parameter)
+        {
+            return parameter is CancelEventArgs;
+        }
+        public void OnSaveUserDictionaryCommandExecuted(object parameter)
+        {
+            if (!CanSaveUserDictionaryCommandExecute(parameter))
+                return;
+
+            UserDictsIndex index = UserDictsIndex.GetInstance();
+
+            Dictionary<string, List<string>> indexCollection = UserDictionary.ToDictionary(
+                t => t.Name,
+                t => new List<string>(t.Words));
+
+            index.RedefineData(indexCollection);
+
+            try
+            {
+                index.FlushIndexToDisk();
+                index.UnloadData();
+            }
+            catch (Exception ex)
+            {
+                var msgRes = new QuickMessage($"The dictionary could not be saved. Reason: {ex.Message}" +
+                    "\n\nClose without saving?").ShowError(MessageBoxButton.YesNo);
+
+                if (msgRes == MessageBoxResult.No)
+                {
+                    var eventArgs = parameter as CancelEventArgs;
+                    eventArgs.Cancel = true;
+                }
+            }
+        }
+
         public ICommand DeactivateWindowCommand { get; }
         public bool CanDeactivateWindowCommandExecute(object parameter)
         {
@@ -761,10 +805,15 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             QueryItems = new ObservableCollection<Button>();
             CurrentGroupMessages = new ObservableCollection<ChatMessage>();
-            UserDictionary = new ObservableCollection<IUserDictionaryItem>();
 
             var generatedColumns = _chatColumnCreator.GenerateChatColumns(ProjectInfo.Data.SelectedFields, false);
             MessageContainerColumns = new ObservableCollection<DataGridColumn>(generatedColumns);
+
+            var userDictItems = LoadUserDictionaryItems();
+            UserDictionary = new ObservableCollection<IUserDictionaryItem>(userDictItems);
+
+            CurrentUserDictItemWords = new ObservableCollection<string>();
+            SelectedUserDictItem = UserDictionary.FirstOrDefault();
 
             _orderedButtonBackgrounds = new SolidColorBrush[]
             {
@@ -814,10 +863,32 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             DragButtonCommand = new RelayCommand(OnDragButtonCommandExecuted, CanDragButtonCommandExecute);
             WrapPanelTakeDropCommand = new RelayCommand(OnWrapPanelTakeDropCommandExecuted, CanWrapPanelTakeDropCommandExecute);
 
+            SaveUserDictionaryCommand = new RelayCommand(OnSaveUserDictionaryCommandExecuted, CanSaveUserDictionaryCommandExecute);
             DeactivateWindowCommand = new RelayCommand(OnDeactivateWindowCommandExecuted, CanDeactivateWindowCommandExecute);
             
             #endregion
         }
+
+        #region UserDictionaryMethods
+
+        private IEnumerable<IUserDictionaryItem> LoadUserDictionaryItems()
+        {
+            UserDictsIndex index = UserDictsIndex.GetInstance();
+
+            try
+            {
+                index.ReadIndexFromDisk();
+            }
+            catch { }
+
+            IUserDictionaryItem[] items = index.IndexCollection
+                .Select(t => new UserDictionaryItem(t.Key, t.Value.ToArray()))
+                .ToArray();
+
+            return items;
+        }
+
+        #endregion
 
         #region QueryMethods
 

@@ -17,6 +17,9 @@
         <i:EventTrigger EventName="Closed">
             <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding DeactivateWindowCommand}"/>
         </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding SaveUserDictionaryCommand}"/>
+        </i:EventTrigger>
     </i:Interaction.Triggers>
 
     <UniformGrid Background="AliceBlue">

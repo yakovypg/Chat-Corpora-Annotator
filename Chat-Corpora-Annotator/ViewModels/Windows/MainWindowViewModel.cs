@@ -290,7 +290,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             try
             {
                 SituationIndex.GetInstance().FlushIndexToDisk();
-                UserDictsIndex.GetInstance().FlushIndexToDisk();
             }
             catch (Exception ex)
             {

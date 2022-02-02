@@ -72,6 +72,12 @@ namespace IndexEngine.Indexes
             IndexCollection.Clear();
         }
 
+        public void RedefineData(Dictionary<string, List<string>> newIndexCollection)
+        {
+            IndexCollection.Clear();
+            IndexCollection = newIndexCollection ?? new Dictionary<string, List<string>>();
+        }
+
         public void UpdateIndexEntry(string key, List<string> value)
         {
             throw new NotImplementedException();
