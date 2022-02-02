@@ -448,16 +448,27 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 ? CreateQueryFromItems()
                 : QueryText;
 
-            _queryResult = QueryParser.Parse(query);
+            try
+            {
+                _queryResult = QueryParser.Parse(query);
 
-            CurrentSuggestionIndex = 1;
-            SuggestionsCount = _queryResult.Count;
+                CurrentSuggestionIndex = 1;
+                SuggestionsCount = _queryResult.Count;
 
-            UpdateQueryResultInfo();
-            DisplaySituation(CurrentSuggestionIndex - 1);
+                UpdateQueryResultInfo();
+                DisplaySituation(CurrentSuggestionIndex - 1);
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                new QuickMessage(ex.Message).ShowError();
+#else
+                new QuickMessage("The query could not be executed.").ShowError();
+#endif
+            }
         }
 
-        #endregion
+#endregion
 
         #region ImportQueriesCommands
 
