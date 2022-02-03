@@ -1023,6 +1023,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 lastOperator = lastOperator.Remove(leftBracketIndex) + "()";
             }
 
+            if (char.IsDigit(lastOperator[0]))
+                lastOperator = "num";
+
             for (int i = 0; i < HighlightRules[lastOperator].Length; ++i)
             {
                 _orderedButtonBackgrounds[i].Color = HighlightRules[lastOperator][i] == 1
@@ -1050,7 +1053,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             {
                 Width = 100,
                 Height = 20,
-                FontSize = 12
+                FontSize = 10,
+                Padding = new Thickness(6, 0, 6, 0)
             };
 
             comboBox.SetItems(selectedIndex, true, UserDictionary.ToArray());
