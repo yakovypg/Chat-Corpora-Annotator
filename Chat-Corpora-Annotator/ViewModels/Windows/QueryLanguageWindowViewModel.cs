@@ -817,7 +817,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             QueryItems = new ObservableCollection<Button>();
             CurrentGroupMessages = new ObservableCollection<ChatMessage>();
 
-            var generatedColumns = _chatColumnCreator.GenerateChatColumns(ProjectInfo.Data.SelectedFields, false);
+            var generatedColumns = _chatColumnCreator.GenerateChatColumns(ProjectInfo.Data.SelectedFields, false, false);
             MessageContainerColumns = new ObservableCollection<DataGridColumn>(generatedColumns);
 
             var userDictItems = LoadUserDictionaryItems();

@@ -27,7 +27,7 @@ namespace ChatCorporaAnnotator.Models.Chat
             TextPadding = textPadding;
         }
 
-        public DataGridTemplateColumn[] GenerateChatColumns(List<string> selectedFields, bool makeTextColumnHighlightable)
+        public DataGridTemplateColumn[] GenerateChatColumns(List<string> selectedFields, bool insertTagColumn, bool makeTextColumnHighlightable)
         {
             if (selectedFields.IsNullOrEmpty())
                 return new DataGridTemplateColumn[0];
@@ -43,7 +43,8 @@ namespace ChatCorporaAnnotator.Models.Chat
             if (fields.Remove(ProjectInfo.SenderFieldKey))
                 fields.Insert(0, ProjectInfo.SenderFieldKey);
 
-            fields.Insert(0, TAG_COLUMN_HEADER);
+            if (insertTagColumn)
+                fields.Insert(0, TAG_COLUMN_HEADER);
 
             var columns = new DataGridTemplateColumn[fields.Count];
 

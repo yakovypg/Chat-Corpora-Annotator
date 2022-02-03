@@ -626,7 +626,7 @@
                     </Popup>
 
                     <TextBox
-                        Text="{Binding QueryText}"                     
+                        Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"                     
                         Visibility="{Binding QueryTextBoxVisibility}"
                         Style="{StaticResource MultilineTextBox}">
                     </TextBox>

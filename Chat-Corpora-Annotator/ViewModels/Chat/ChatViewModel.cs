@@ -70,7 +70,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 ? fields
                 : ProjectInfo.Data.SelectedFields;
 
-            var columns = _chatColumnCreator.GenerateChatColumns(selectedFields, true);
+            var columns = _chatColumnCreator.GenerateChatColumns(selectedFields, true, true);
 
             ChatColumns.Clear();
 
