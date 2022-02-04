@@ -568,6 +568,8 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
                     <Button
@@ -579,6 +581,13 @@
 
                     <Button
                         Grid.Column="2"
+                        Content="Options"
+                        Style="{StaticResource BlueCircleButton}"
+                        Command="{Binding SwitchOptionsPanelVisibilityCommand}">
+                    </Button>
+
+                    <Button
+                        Grid.Column="4"
                         Content="Run query"
                         Style="{StaticResource GreenCircleButton}"
                         Command="{Binding RunQueryCommand}">
@@ -626,10 +635,30 @@
                     </Popup>
 
                     <TextBox
-                        Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"                     
+                        AcceptsTab="True"
+                        Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"   
                         Visibility="{Binding QueryTextBoxVisibility}"
                         Style="{StaticResource MultilineTextBox}">
                     </TextBox>
+
+                    <Border BorderThickness="1" BorderBrush="Gray" Background="FloralWhite" Visibility="{Binding OptionsPanelVisibility}">
+                        <StackPanel Orientation="Vertical" Margin="5">
+                            <CheckBox
+                                Content="disorderly restrictions mode"
+                                Style="{StaticResource BoldPressingCheckBox}"
+                                IsChecked="{Binding IsDisorderlyRestrictionsModeChecked}">
+                            </CheckBox>
+                        </StackPanel>
+                    </Border>
+
+                    <Border BorderThickness="1" BorderBrush="Gray" Background="FloralWhite" Visibility="{Binding QueryExecutionWaitingPanelVisibility}">
+                        <fa:ImageAwesome
+                            Height="60"
+                            SpinDuration="6"
+                            Icon="Solid_SyncAlt"
+                            Spin="{Binding IsQueryExecutionWaitingIconSpinActive}">
+                        </fa:ImageAwesome>
+                    </Border>
                 </Grid>
 
                 <GridSplitter

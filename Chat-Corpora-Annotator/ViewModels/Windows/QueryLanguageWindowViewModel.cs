@@ -1,6 +1,7 @@
 ﻿using ChatCorporaAnnotator.Data.Dialogs;
 using ChatCorporaAnnotator.Data.Parsers.Suggester;
 using ChatCorporaAnnotator.Infrastructure.Commands;
+using ChatCorporaAnnotator.Infrastructure.Enums;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using ChatCorporaAnnotator.Infrastructure.Extensions.Controls;
 using ChatCorporaAnnotator.Models.Chat;
@@ -18,6 +19,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -83,22 +85,40 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region QueryItems
 
-        private Tuple<Button, DateTime> _lastDragDropSwitch =
-            new Tuple<Button, DateTime>(null, DateTime.MinValue);
+        private Tuple<Button, DateTime> _lastDragDropSwitch = new Tuple<Button, DateTime>(null, DateTime.MinValue);
 
-        private List<List<List<int>>> _queryResult =
-            new List<List<List<int>>>();
-
+        private List<List<List<int>>> _queryResult = new List<List<List<int>>>();
         private List<int> _hits = new List<int>();
 
         public ObservableCollection<ChatMessage> CurrentGroupMessages { get; private set; }
         public ObservableCollection<Button> QueryItems { get; }
+
+        private OperationState _queryExecutionState = OperationState.NotStarted;
+        public OperationState QueryExecutionState
+        {
+            get => _queryExecutionState;
+            set => SetValue(ref _queryExecutionState, value);
+        }
 
         private string _queryText = string.Empty;
         public string QueryText
         {
             get => _queryText;
             set => SetValue(ref _queryText, value);
+        }
+
+        private bool _isDisorderlyRestrictionsModeChecked;
+        public bool IsDisorderlyRestrictionsModeChecked
+        {
+            get => _isDisorderlyRestrictionsModeChecked;
+            set => SetValue(ref _isDisorderlyRestrictionsModeChecked, value);
+        }
+
+        private bool _isQueryExecutionWaitingIconSpinActive;
+        public bool IsQueryExecutionWaitingIconSpinActive
+        {
+            get => _isQueryExecutionWaitingIconSpinActive;
+            set => SetValue(ref _isQueryExecutionWaitingIconSpinActive, value);
         }
 
         private bool _isQueryItemPopupOpen;
@@ -242,6 +262,20 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             set => SetValue(ref _importQueriesPanelVisibility, value);
         }
 
+        private Visibility _optionsPanelVisibility = Visibility.Hidden;
+        public Visibility OptionsPanelVisibility
+        {
+            get => _optionsPanelVisibility;
+            set => SetValue(ref _optionsPanelVisibility, value);
+        }
+
+        private Visibility _queryExecutionWaitingPanelVisibility = Visibility.Hidden;
+        public Visibility QueryExecutionWaitingPanelVisibility
+        {
+            get => _queryExecutionWaitingPanelVisibility;
+            set => SetValue(ref _queryExecutionWaitingPanelVisibility, value);
+        }
+
         #endregion
 
         #region ButtonBackgrounds
@@ -374,7 +408,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand SwitchModeCommand { get; }
         public bool CanSwitchModeCommandExecute(object parameter)
         {
-            return true;
+            return QueryExecutionState != OperationState.InProcess;
         }
         public void OnSwitchModeCommandExecuted(object parameter)
         {
@@ -389,7 +423,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand AddElementToQueryTextCommand { get; }
         public bool CanAddElementToQueryTextCommandExecute(object parameter)
         {
-            return true;
+            return QueryExecutionState != OperationState.InProcess;
         }
         public void OnAddElementToQueryTextCommandExecuted(object parameter)
         {
@@ -413,10 +447,25 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             }
         }
 
+        public ICommand SwitchOptionsPanelVisibilityCommand { get; }
+        public bool CanSwitchOptionsPanelVisibilityCommandExecute(object parameter)
+        {
+            return QueryExecutionState != OperationState.InProcess;
+        }
+        public void OnSwitchOptionsPanelVisibilityCommandExecuted(object parameter)
+        {
+            if(!CanSwitchOptionsPanelVisibilityCommandExecute(parameter))
+                return;
+
+            OptionsPanelVisibility = OptionsPanelVisibility == Visibility.Hidden
+                ? Visibility.Visible
+                : Visibility.Hidden;
+        }
+
         public ICommand ClearQueryCommand { get; }
         public bool CanClearQueryCommandExecute(object parameter)
         {
-            return true;
+            return QueryExecutionState != OperationState.InProcess;
         }
         public void OnClearQueryCommandExecuted(object parameter)
         {
@@ -437,38 +486,34 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand RunQueryCommand { get; }
         public bool CanRunQueryCommandExecute(object parameter)
         {
-            return true;
+            return QueryExecutionState != OperationState.InProcess;
         }
         public void OnRunQueryCommandExecuted(object parameter)
         {
             if (!CanRunQueryCommandExecute(parameter))
                 return;
 
+            QueryExecutionState = OperationState.InProcess;
+
             string query = QueryTextBoxVisibility == Visibility.Hidden
                 ? CreateQueryFromItems()
                 : QueryText;
 
-            try
-            {
-                _queryResult = QueryParser.Parse(query);
+            SwitchQueryExecutionWaitingPanelVisibility();
 
-                CurrentSuggestionIndex = 1;
-                SuggestionsCount = _queryResult.Count;
-
-                UpdateQueryResultInfo();
-                DisplaySituation(CurrentSuggestionIndex - 1);
-            }
-            catch (Exception ex)
+            var queryParsingTask = Task.Run(delegate
             {
-#if DEBUG
-                new QuickMessage(ex.Message).ShowError();
-#else
-                new QuickMessage("The query could not be executed.").ShowError();
-#endif
-            }
+                _queryResult = QueryParser.Parse(query, IsDisorderlyRestrictionsModeChecked);
+            });
+
+            var resultDisplayingTask = queryParsingTask.ContinueWith(DisplayQueryResult,
+                TaskContinuationOptions.ExecuteSynchronously);
+
+            resultDisplayingTask.ContinueWith(t => SwitchQueryExecutionWaitingPanelVisibility(),
+                TaskContinuationOptions.ExecuteSynchronously);
         }
 
-#endregion
+        #endregion
 
         #region ImportQueriesCommands
 
@@ -853,6 +898,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             SwitchModeCommand = new RelayCommand(OnSwitchModeCommandExecuted, CanSwitchModeCommandExecute);
             AddElementToQueryTextCommand = new RelayCommand(OnAddElementToQueryTextCommandExecuted, CanAddElementToQueryTextCommandExecute);
+            SwitchOptionsPanelVisibilityCommand = new RelayCommand(OnSwitchOptionsPanelVisibilityCommandExecuted, CanSwitchOptionsPanelVisibilityCommandExecute);
             ClearQueryCommand = new RelayCommand(OnClearQueryCommandExecuted, CanClearQueryCommandExecute);
             RunQueryCommand = new RelayCommand(OnRunQueryCommandExecuted, CanRunQueryCommandExecute);
 
@@ -929,6 +975,45 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             return builder.ToString();
         }
 
+        private void DisplayQueryResult(Task queryParsingTask)
+        {
+            if (_queryResult == null)
+            {
+                QueryExecutionState = OperationState.Fail;
+                new QuickMessage("Incorrect query").ShowError();
+
+                return;
+            }
+
+            if (queryParsingTask.IsFaulted)
+            {
+                QueryExecutionState = OperationState.Fail;
+
+                new QuickMessage($"Failed to execute query. " +
+                    $"Reason: {queryParsingTask.Exception?.Message}").ShowError();
+
+                return;
+            }
+
+            CurrentSuggestionIndex = 1;
+            SuggestionsCount = _queryResult.Count;
+
+            UpdateQueryResultInfo();
+
+            try
+            {
+                DisplaySituation(CurrentSuggestionIndex - 1);
+                QueryExecutionState = OperationState.Success;
+            }
+            catch (Exception ex)
+            {
+                QueryExecutionState = OperationState.Fail;
+
+                new QuickMessage($"Failed to execute query. Reason: {ex.Message}")
+                    .ShowError();
+            }
+        }
+
         private void UpdateQueryResultInfo()
         {
             if (_queryResult.IsNullOrEmpty())
@@ -951,6 +1036,15 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 FoundSuggestionsCount = foundSuggestions;
                 FoundGroupsCount = _queryResult.Count;
             }
+        }
+
+        private void SwitchQueryExecutionWaitingPanelVisibility()
+        {
+            IsQueryExecutionWaitingIconSpinActive = !IsQueryExecutionWaitingIconSpinActive;
+
+            QueryExecutionWaitingPanelVisibility = QueryExecutionWaitingPanelVisibility == Visibility.Hidden
+                ? Visibility.Visible
+                : Visibility.Hidden;
         }
 
         #endregion

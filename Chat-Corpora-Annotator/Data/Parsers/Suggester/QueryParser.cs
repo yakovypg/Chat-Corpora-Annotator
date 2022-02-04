@@ -6,7 +6,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     internal static class QueryParser
     {
-        public static List<List<List<int>>> Parse(string query)
+        public static List<List<List<int>>> Parse(string query, bool disorderlyRestrictions = false)
         {
             StringBuilder text = new StringBuilder(query);
 
@@ -17,7 +17,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
             var tree = speakParser.query();
 
-            var visitor = new MyChatVisitor();
+            var visitor = new MyChatVisitor() { DisorderlyRestrictionsMode = disorderlyRestrictions };
 
             var result = (List<List<List<int>>>)visitor.Visit(tree);
 

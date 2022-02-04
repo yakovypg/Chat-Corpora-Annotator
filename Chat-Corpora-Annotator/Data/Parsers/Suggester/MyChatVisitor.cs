@@ -13,6 +13,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
     public class MyChatVisitor : ChatBaseVisitor<object>
     {
+        public bool DisorderlyRestrictionsMode { get; set; }
+
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
         {
             return VisitBody(context.body());
@@ -108,9 +110,12 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         public override object VisitRestrictions([NotNull] ChatParser.RestrictionsContext context)
         {
-            var rLists = new List<MsgGroups>();
+            var groupsList = new List<MsgGroups>();
             var restrictions = context.restriction();
-            var permutations = restrictions.GetPermutations();
+
+            var permutations = DisorderlyRestrictionsMode
+                ? restrictions.GetPermutations() // all permutations of originally ordered restrictions
+                : new List<ChatParser.RestrictionContext[]>() { restrictions }; // originally ordered restrictions
 
             foreach (var perm in permutations)
             {
@@ -123,10 +128,10 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                     rList.Add(newList);
                 }
 
-                rLists.Add(rList);
+                groupsList.Add(rList);
             }
 
-            return rLists;
+            return groupsList;
 
             //var rList = new MsgGroups();
 
