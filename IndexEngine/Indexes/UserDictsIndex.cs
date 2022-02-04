@@ -67,6 +67,12 @@ namespace IndexEngine.Indexes
             }
         }
 
+        public void ImportIndex(string path)
+        {
+            var jsonString = File.ReadAllText(path);
+            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString);
+        }
+
         public void UnloadData()
         {
             IndexCollection.Clear();

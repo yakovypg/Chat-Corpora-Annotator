@@ -480,11 +480,11 @@
             </Grid>
 
             <DockPanel Name="DictionaryEditorPanel"
-                  Grid.Row="0"
-                  Grid.Column="0"
-                  Margin="5, 0, 0, 0"
-                  Background="AliceBlue"
-                  Visibility="{Binding DictionaryEditorPanelVisibility}">
+                       Grid.Row="0"
+                       Grid.Column="0"
+                       Margin="5, 0, 0, 0"
+                       Background="AliceBlue"
+                       Visibility="{Binding DictionaryEditorPanelVisibility}">
 
                 <DockPanel DockPanel.Dock="Top" Height="27">
                     <TextBlock DockPanel.Dock="Left" Text="Dictionary item" Width="auto"/>
@@ -526,24 +526,42 @@
                 </TextBox>
 
                 <Border BorderBrush="Gray" BorderThickness="1" Margin="0, 5, 0, 5">
-                    <DockPanel Background="White">
-                        <TextBlock
-                            Text="Words"
-                            Style="{StaticResource ListTitleTextBlock}">
-                        </TextBlock>
+                    <Grid>
+                        <DockPanel Background="White">
+                            <TextBlock
+                                Text="Words"
+                                Style="{StaticResource ListTitleTextBlock}">
+                            </TextBlock>
 
-                        <ListBox BorderThickness="0"
-                                HorizontalContentAlignment="Stretch"
-                                ItemsSource="{Binding CurrentUserDictItemWords}"
-                                SelectedItem="{Binding SelectedUserDictItemWord}">
+                            <ListBox BorderThickness="0"
+                                     HorizontalContentAlignment="Stretch"
+                                     ItemsSource="{Binding CurrentUserDictItemWords}"
+                                     SelectedItem="{Binding SelectedUserDictItemWord}">
 
-                            <ListBox.InputBindings>
-                                <KeyBinding Key="Delete" Command="{Binding RemoveWordFromUserDictItemCommand}"/>
-                            </ListBox.InputBindings>
-                        </ListBox>
+                                <ListBox.InputBindings>
+                                    <KeyBinding Key="Delete" Command="{Binding RemoveWordFromUserDictItemCommand}"/>
+                                </ListBox.InputBindings>
+                            </ListBox>
 
-                    </DockPanel>
+                        </DockPanel>
+
+                        <Button Width="18"
+                                Height="18"
+                                Margin="0, 5, 5, 0"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Right"
+                                Style="{StaticResource BlueCircleButton}"
+                                Command="{Binding ImportUserDictionaryCommand}">
+
+                            <fa:ImageAwesome
+                                Icon="Solid_FileDownload"
+                                Margin="2">
+                            </fa:ImageAwesome>
+                        </Button>
+                        
+                    </Grid>
                 </Border>
+                
             </DockPanel>
 
             <Grid Grid.Row="0" Grid.Column="2">

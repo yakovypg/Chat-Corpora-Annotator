@@ -647,6 +647,36 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 : Visibility.Hidden;
         }
 
+        public ICommand ImportUserDictionaryCommand { get; }
+        public bool CanImportUserDictionaryCommandExecute(object parameter)
+        {
+            return QueryExecutionState != OperationState.InProcess;
+        }
+        public void OnImportUserDictionaryCommandExecuted(object parameter)
+        {
+            if (!CanImportUserDictionaryCommandExecute(parameter))
+                return;
+
+            if (!DialogProvider.GetUserDictFilePath(out string path))
+                return;
+
+            try
+            {
+                UserDictsIndex.GetInstance().ImportIndex(path);
+
+                var userDictItems = LoadUserDictionaryItems(false);
+                UserDictionary = new ObservableCollection<IUserDictionaryItem>(userDictItems);
+
+                OnPropertyChanged(nameof(UserDictionary));
+
+                SelectedUserDictItem = UserDictionary.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                new QuickMessage($"Failed to import dictionary: {ex.Message}");
+            }
+        }
+
         public ICommand RemoveDictItemCommand { get; }
         public bool CanRemoveDictItemCommandExecute(object parameter)
         {
@@ -886,7 +916,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             var generatedColumns = _chatColumnCreator.GenerateChatColumns(ProjectInfo.Data.SelectedFields, false, false);
             MessageContainerColumns = new ObservableCollection<DataGridColumn>(generatedColumns);
 
-            var userDictItems = LoadUserDictionaryItems();
+            var userDictItems = LoadUserDictionaryItems(true);
             UserDictionary = new ObservableCollection<IUserDictionaryItem>(userDictItems);
 
             CurrentUserDictItemWords = new ObservableCollection<string>();
@@ -930,6 +960,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             SwitchImportQueriesPanelVisibilityCommand = new RelayCommand(OnSwitchImportQueriesPanelVisibilityCommandExecuted, CanSwitchImportQueriesPanelVisibilityCommandExecute);
 
             SwitchDictionaryEditorVisibilityCommand = new RelayCommand(OnSwitchDictionaryEditorVisibilityCommandExecuted, CanSwitchDictionaryEditorVisibilityCommandExecute);
+            ImportUserDictionaryCommand = new RelayCommand(OnImportUserDictionaryCommandExecuted, CanImportUserDictionaryCommandExecute);
             RemoveDictItemCommand = new RelayCommand(OnRemoveDictItemCommandExecuted, CanRemoveDictItemCommandExecute);
             AddUserDictItemCommand = new RelayCommand(OnAddUserDictItemCommandExecuted, CanAddUserDictItemCommandExecute);
             AddWordToUserDictItemCommand = new RelayCommand(OnAddWordToUserDictItemCommandExecuted, CanAddWordToUserDictItemCommandExecute);
@@ -950,15 +981,18 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region UserDictionaryMethods
 
-        private IEnumerable<IUserDictionaryItem> LoadUserDictionaryItems()
+        private IEnumerable<IUserDictionaryItem> LoadUserDictionaryItems(bool readIndexFromDisk)
         {
             UserDictsIndex index = UserDictsIndex.GetInstance();
 
-            try
+            if (readIndexFromDisk)
             {
-                index.ReadIndexFromDisk();
+                try
+                {
+                    index.ReadIndexFromDisk();
+                }
+                catch { }
             }
-            catch { }
 
             IUserDictionaryItem[] items = index.IndexCollection
                 .Select(t => new UserDictionaryItem(t.Key, t.Value.ToArray()))
