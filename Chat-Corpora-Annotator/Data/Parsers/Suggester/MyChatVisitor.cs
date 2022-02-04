@@ -20,74 +20,65 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         public override object VisitBody([NotNull] ChatParser.BodyContext context)
         {
-            // Default window size is 70
-            int windowSize = 70;
+            const int defaultWindowSize = 70;
+            int windowSize = defaultWindowSize;
 
-            if (context != null)
-            {
-                if (context.InWin() != null)
-                {
-                    try
-                    {
-                        windowSize = Int32.Parse(context.number().GetText());
-                    }
-                    catch (FormatException)
-                    {
-                        MessageBox.Show("Incorrect query");
-                    }
-                }
-
-
-
-
-                if (context.restrictions() != null)
-                {
-                    // If query / subquery contains only restrictions -- we need only merge restrictions
-                    // [x1...xn] -- result for restriction R1
-                    // [y1...ym] -- result for restriction R2
-                    // Select R1, R2 inwin W
-                    // Result is vector of vectors [[xi, yj]] where 0 < yj - xi <= W
-                    // So we have only one restriction group
-
-                    var groupsList = (List<MsgGroups>)VisitRestrictions(context.restrictions());
-                    var outputGroupsList = new List<MsgGroups>();
-
-                    foreach (var group in groupsList)
-                    {
-                        var mergedRestrcitions = MergeRestrictions(group, windowSize);
-                        var newGroups = OnlyRestrictionsToList(mergedRestrcitions);
-
-                        outputGroupsList.AddRange(newGroups);
-                    }
-
-                    var comparer = new MsgGroupsComparer();
-                    outputGroupsList.Sort(comparer);
-
-                    return outputGroupsList;
-
-                    /*
-                    var onlyRestrictions = (MsgGroups)VisitRestrictions(context.restrictions());
-                    var mergedRestrcitions = MergeRestrictions(onlyRestrictions, windowSize);
-
-                    return OnlyRestrictionsToList(mergedRestrcitions);
-                    */
-                }
-                else if (context.query_seq() != null)
-                {
-                    // Now in this query subqueries only.
-                    // Also we have invariant: results of son's query are calculated correctlly.
-                    // It means that now we have only son's correct accomadation.
-
-                    var subQueryResults = (List<List<MsgGroups>>)VisitQuery_seq(context.query_seq());
-
-                    return MergeQueries(subQueryResults, windowSize);
-                }
-            }
-            else
-            {
-
+            if (context == null)
                 return null;
+
+            if (context.InWin() != null)
+            {
+                string text = context.number().GetText();
+
+                if (!int.TryParse(text, out windowSize))
+                {
+                    windowSize = defaultWindowSize;
+                    MessageBox.Show("Incorrect query");
+                }
             }
+
+            if (context.restrictions() != null)
+            {
+                // If query / subquery contains only restrictions -- we need only merge restrictions
+                // [x1...xn] -- result for restriction R1
+                // [y1...ym] -- result for restriction R2
+                // Select R1, R2 inwin W
+                // Result is vector of vectors [[xi, yj]] where 0 < yj - xi <= W
+                // So we have only one restriction group
+
+                var groupsList = (List<MsgGroups>)VisitRestrictions(context.restrictions());
+                var outputGroupsList = new List<MsgGroups>();
+
+                foreach (var group in groupsList)
+                {
+                    var mergedRestrcitions = MergeRestrictions(group, windowSize);
+                    var newGroups = OnlyRestrictionsToList(mergedRestrcitions);
+
+                    outputGroupsList.AddRange(newGroups);
+                }
+
+                var comparer = new MsgGroupsComparer();
+                outputGroupsList.Sort(comparer);
+
+                return outputGroupsList;
+
+                /*
+                var onlyRestrictions = (MsgGroups)VisitRestrictions(context.restrictions());
+                var mergedRestrcitions = MergeRestrictions(onlyRestrictions, windowSize);
+
+                return OnlyRestrictionsToList(mergedRestrcitions);
+                */
+            }
+            else if (context.query_seq() != null)
+            {
+                // Now in this query subqueries only.
+                // Also we have invariant: results of son's query are calculated correctlly.
+                // It means that now we have only son's correct accomadation.
+
+                var subQueryResults = (List<List<MsgGroups>>)VisitQuery_seq(context.query_seq());
+                return MergeQueries(subQueryResults, windowSize);
+            }
+
             return null;
         }
 
@@ -108,6 +99,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 //   [X1, Y2, Z2],
                 //   ............
                 //   [X2, Y3, Z2] ]
+
                 qList.Add((List<MsgGroups>)VisitQuery(q));
             }
 
@@ -119,11 +111,6 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var rLists = new List<MsgGroups>();
             var restrictions = context.restriction();
             var permutations = restrictions.GetPermutations();
-
-            //var rtr = context.restriction();
-            //var l1 = new ChatParser.RestrictionContext[] { rtr[0], rtr[1] };
-            //var l2 = new ChatParser.RestrictionContext[] { rtr[1], rtr[0] };
-            //var lst = new List<ChatParser.RestrictionContext[]>() { l1, l2 };
 
             foreach (var perm in permutations)
             {
@@ -167,6 +154,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             {
                 List<int> lhs = (List<int>)VisitRestriction(context.restriction(0));
                 List<int> rhs = (List<int>)VisitRestriction(context.restriction(1));
+                
                 lhs.AddRange(rhs);
                 lhs.Sort();
 
@@ -174,12 +162,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             }
             else if (context.Not() != null)
             {
-                long tmp = LuceneService.DirReader.MaxDoc - 1;
-                int msgCount = 1000000;
-                if (msgCount > tmp)
-                {
-                    msgCount = (int)tmp;
-                }
+                int msgCount = Math.Min(1000000, LuceneService.DirReader.MaxDoc - 1);
 
                 var numberList = Enumerable.Range(1, msgCount).ToList();
                 var excludeList = (List<int>)VisitRestriction(context.restriction(0));
@@ -201,26 +184,18 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             if (context.HasUserMentioned() != null)
             {
                 string username = context.huser().GetText();
-                if (username != "<missing STRING>")
-                {
-                    return Retrievers.HasUserMentioned(username);
-                }
-                else
-                {
-                    return new List<int>();
-                }
+
+                return username != "<missing STRING>"
+                    ? Retrievers.HasUserMentioned(username)
+                    : new List<int>();
             }
             else if (context.ByUser() != null)
             {
                 string username = context.huser().GetText();
-                if (username != "<missing STRING>")
-                {
-                    return Retrievers.HasUser(username);
-                }
-                else
-                {
-                    return new List<int>();
-                }
+
+                return username != "<missing STRING>"
+                    ? Retrievers.HasUser(username)
+                    : new List<int>();
             }
             else if (context.HasLocation() != null)
             {
@@ -245,25 +220,17 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             else if (context.HasWordOfDict() != null)
             {
                 string dictname = context.hdict().GetText();
-                List<string> list = new List<string>();
+
                 if (dictname != "<missing STRING>")
                 {
-                    if (UserDictsIndex.GetInstance().IndexCollection.TryGetValue(dictname, out list))
-                    {
-                        return Retrievers.HasWordOfList(list);
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return UserDictsIndex.GetInstance().IndexCollection.TryGetValue(dictname, out List<string> list)
+                        ? Retrievers.HasWordOfList(list)
+                        : null;
                 }
                 else
                 {
                     return null;
                 }
-
-
-
             }
             else if (context.HasDate() != null)
             {
@@ -274,18 +241,14 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 // Message about incorrect query
                 return null;
             }
-
         }
-
 
         private List<MsgGroups> OnlyRestrictionsToList(MsgGroups rList)
         {
             var result = new List<MsgGroups>();
 
             foreach (var r in rList)
-            {
                 result.Add(new MsgGroups { r });
-            }
 
             return result;
         }
@@ -298,27 +261,24 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             if (_size == 1)
             {
                 foreach (var r in rList[0])
-                {
                     result.Add(new List<int> { r });
-                }
 
                 return result;
             }
-
 
             for (int fstInd = 0; fstInd < rList[0].Count; fstInd++)
             {
                 int curPos = rList[0][fstInd];
                 int fstPos = rList[0][fstInd];
+
                 List<int> curMsgs = new List<int> { curPos };
+
                 for (int i = 1; i < _size; i++)
                 {
                     foreach (var _id in rList[i])
                     {
                         if (_id <= curPos)
-                        {
                             continue;
-                        }
 
                         if (_id - fstPos <= windowSize)
                         {
@@ -330,9 +290,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 }
 
                 if (curMsgs.Count == _size)
-                {
                     result.Add(curMsgs);
-                }
             }
 
             return result;
@@ -340,19 +298,17 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         private List<MsgGroups> MergeQueries(List<List<MsgGroups>> sqResults, int windowSize)
         {
+            var curIndex = new List<int>();
             var result = new List<MsgGroups>();
+
             int _size = sqResults.Count();
-            List<int> curIndex = new List<int>();
 
             for (int i = 0; i < _size; i++)
-            {
                 curIndex.Add(0);
-            }
 
             while (true)
             {
                 bool can_end = true;
-
                 var curAccomadtion = new List<MsgGroups>();
 
                 for (int i = 0; i < _size; i++)
@@ -364,10 +320,9 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 if (isCorrectAccomodation(curAccomadtion, windowSize))
                 {
                     var current = new MsgGroups();
+
                     foreach (var group in curAccomadtion)
-                    {
                         current.AddRange(group);
-                    }
 
                     result.Add(current);
                 }
@@ -378,22 +333,17 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                     {
                         can_end = false;
                         curIndex[i]++;
+
                         for (int j = i + 1; j < _size; j++)
-                        {
                             curIndex[j] = 0;
-                        }
 
                         break;
                     }
                 }
 
-
                 if (can_end)
-                {
                     break;
-                }
             }
-
 
             return result;
         }
@@ -408,15 +358,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 int curFirst = acc[i].First().First();
 
                 if (prevLast >= curFirst)
-                {
                     return false;
-                }
             }
 
             int fstFirst = acc.First().First().First();
             int lastLast = acc.Last().Last().Last();
 
-            bool correctWindow = ((lastLast - fstFirst) <= windowSize);
+            bool correctWindow = (lastLast - fstFirst) <= windowSize;
 
             return correctWindow;
         }
