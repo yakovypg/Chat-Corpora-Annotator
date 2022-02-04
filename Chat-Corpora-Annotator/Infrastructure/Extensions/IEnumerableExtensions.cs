@@ -34,5 +34,26 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions
 
             return outputList;
         }
+
+        public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> list)
+        {
+            return !list.IsNullOrEmpty()
+                ? GetPermutations(list, list.Count())
+                : new T[0][];
+        }
+
+        private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> list, int length)
+        {
+            if (length == 1)
+                return list.Select(t => new T[] { t });
+
+            var perms = GetPermutations(list, length - 1);
+
+            return perms.SelectMany
+            (
+                (t) => list.Where(e => !t.Contains(e)),
+                (t1, t2) => t1.Concat(new T[] { t2 })
+            );
+        }
     }
 }

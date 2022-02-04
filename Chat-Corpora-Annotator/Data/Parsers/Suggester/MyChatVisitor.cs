@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using ChatCorporaAnnotator.Infrastructure.Extensions;
 using IndexEngine.Indexes;
 using IndexEngine.Search;
 using System;
@@ -48,10 +49,28 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                     // Result is vector of vectors [[xi, yj]] where 0 < yj - xi <= W
                     // So we have only one restriction group
 
+                    var groupsList = (List<MsgGroups>)VisitRestrictions(context.restrictions());
+                    var outputGroupsList = new List<MsgGroups>();
+
+                    foreach (var group in groupsList)
+                    {
+                        var mergedRestrcitions = MergeRestrictions(group, windowSize);
+                        var newGroups = OnlyRestrictionsToList(mergedRestrcitions);
+
+                        outputGroupsList.AddRange(newGroups);
+                    }
+
+                    var comparer = new MsgGroupsComparer();
+                    outputGroupsList.Sort(comparer);
+
+                    return outputGroupsList;
+
+                    /*
                     var onlyRestrictions = (MsgGroups)VisitRestrictions(context.restrictions());
                     var mergedRestrcitions = MergeRestrictions(onlyRestrictions, windowSize);
 
                     return OnlyRestrictionsToList(mergedRestrcitions);
+                    */
                 }
                 else if (context.query_seq() != null)
                 {
@@ -97,17 +116,42 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         public override object VisitRestrictions([NotNull] ChatParser.RestrictionsContext context)
         {
-            var rList = new MsgGroups();
+            var rLists = new List<MsgGroups>();
+            var restrictions = context.restriction();
+            var permutations = restrictions.GetPermutations();
 
-            foreach (var r in context.restriction())
+            //var rtr = context.restriction();
+            //var l1 = new ChatParser.RestrictionContext[] { rtr[0], rtr[1] };
+            //var l2 = new ChatParser.RestrictionContext[] { rtr[1], rtr[0] };
+            //var lst = new List<ChatParser.RestrictionContext[]>() { l1, l2 };
+
+            foreach (var perm in permutations)
             {
-                var newList = (List<int>)VisitRestriction(r);
-                newList.Sort();
-                rList.Add(newList);
+                var rList = new MsgGroups();
 
+                foreach (var restr in perm)
+                {
+                    var newList = (List<int>)VisitRestriction(restr);
+                    newList.Sort();
+                    rList.Add(newList);
+                }
+
+                rLists.Add(rList);
             }
 
-            return rList;
+            return rLists;
+
+            //var rList = new MsgGroups();
+
+            //foreach (var r in context.restriction())
+            //{
+            //    var newList = (List<int>)VisitRestriction(r);
+            //    newList.Sort();
+            //    rList.Add(newList);
+
+            //}
+
+            //return rList;
         }
 
         public override object VisitRestriction([NotNull] ChatParser.RestrictionContext context)
