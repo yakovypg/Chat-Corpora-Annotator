@@ -37,6 +37,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         private readonly ChatColumnCreator _chatColumnCreator;
 
+        private bool _isWindowClosing = false;
+
         public MainWindowViewModel MainWindowVM { get; }
         public Action DeactivateAction { get; set; }
 
@@ -550,10 +552,16 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
             }
 
-            IImportedQuery[] queries = new IImportedQuery[lines.Length];
+            var queries = new List<IImportedQuery>();
 
-            for (int i = 0; i < lines.Length; i++)
-                queries[i] = ImportedQuery.Parse(lines[i], ':');
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                var query = ImportedQuery.Parse(line, ':');
+                queries.Add(query);
+            }
 
             ImportedQueries = new ObservableCollection<IImportedQuery>(queries);
             OnPropertyChanged(nameof(ImportedQueries));
@@ -627,7 +635,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand SwitchDictionaryEditorVisibilityCommand { get; }
         public bool CanSwitchDictionaryEditorVisibilityCommandExecute(object parameter)
         {
-            return true;
+            return QueryExecutionState != OperationState.InProcess;
         }
         public void OnSwitchDictionaryEditorVisibilityCommandExecuted(object parameter)
         {
@@ -795,6 +803,19 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region SystemCommands
 
+        public ICommand EndTasksCommand { get; }
+        public bool CanEndTasksCommandExecute(object parameter)
+        {
+            return parameter is CancelEventArgs;
+        }
+        public void OnEndTasksCommandExecuted(object parameter)
+        {
+            if (!CanEndTasksCommandExecute(parameter))
+                return;
+
+            _isWindowClosing = true;
+        }
+
         public ICommand SaveUserDictionaryCommand { get; }
         public bool CanSaveUserDictionaryCommandExecute(object parameter)
         {
@@ -920,6 +941,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             DragButtonCommand = new RelayCommand(OnDragButtonCommandExecuted, CanDragButtonCommandExecute);
             WrapPanelTakeDropCommand = new RelayCommand(OnWrapPanelTakeDropCommandExecuted, CanWrapPanelTakeDropCommandExecute);
 
+            EndTasksCommand = new RelayCommand(OnEndTasksCommandExecuted, CanEndTasksCommandExecute);
             SaveUserDictionaryCommand = new RelayCommand(OnSaveUserDictionaryCommandExecuted, CanSaveUserDictionaryCommandExecute);
             DeactivateWindowCommand = new RelayCommand(OnDeactivateWindowCommandExecuted, CanDeactivateWindowCommandExecute);
             
@@ -977,11 +999,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         private void DisplayQueryResult(Task queryParsingTask)
         {
-            if (_queryResult == null)
+            if (_isWindowClosing)
+                return;
+            
+            if (queryParsingTask.IsCanceled)
             {
-                QueryExecutionState = OperationState.Fail;
-                new QuickMessage("Incorrect query").ShowError();
-
+                QueryExecutionState = OperationState.Aborted;
                 return;
             }
 
@@ -991,6 +1014,14 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
                 new QuickMessage($"Failed to execute query. " +
                     $"Reason: {queryParsingTask.Exception?.Message}").ShowError();
+
+                return;
+            }
+
+            if (_queryResult == null)
+            {
+                QueryExecutionState = OperationState.Fail;
+                new QuickMessage("Incorrect query").ShowError();
 
                 return;
             }

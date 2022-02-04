@@ -18,6 +18,7 @@
             <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding DeactivateWindowCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding EndTasksCommand}"/>
             <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding SaveUserDictionaryCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
@@ -715,17 +716,24 @@
             </Grid>
 
             <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
-                <TextBlock Margin="5, 0">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource DefaultTextBlock}">
+                        <Setter Property="FontSize" Value="13"/>
+                        <Setter Property="Margin" Value="5, 0"/>
+                    </Style>
+                </StackPanel.Resources>
+                
+                <TextBlock>
                     <Run Text="Found suggestions:"/>
                     <Run Text="{Binding FoundSuggestionsCount, Mode=OneWay}"/>
                 </TextBlock>
                 
-                <TextBlock Margin="5, 0">
+                <TextBlock>
                     <Run Text="Found groups:"/>
                     <Run Text="{Binding FoundGroupsCount, Mode=OneWay}"/>
                 </TextBlock>
 
-                <TextBlock Margin="5, 0">
+                <TextBlock>
                     <Run Text="Suggestion:"/>
                     <Run Text="{Binding CurrentSuggestionIndex, Mode=OneWay}"/>
                     <Run Text="/"/>

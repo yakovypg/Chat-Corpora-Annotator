@@ -1,5 +1,4 @@
-﻿using ChatCorporaAnnotator.Controlling.Controllers;
-using ChatCorporaAnnotator.Controlling.Timers;
+﻿using ChatCorporaAnnotator.Controlling.Timers;
 using ChatCorporaAnnotator.Data.Dialogs;
 using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Windows;
@@ -557,6 +556,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
 
             string path = parameter as string;
+
+            CloseQueryLanguageWindowCommand.Execute(null);
 
             try
             {
