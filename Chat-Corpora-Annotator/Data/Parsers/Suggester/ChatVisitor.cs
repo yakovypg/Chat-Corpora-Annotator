@@ -11,9 +11,14 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     using MsgGroups = List<List<int>>;
 
-    public class MyChatVisitor : ChatBaseVisitor<object>
+    internal class ChatVisitor : ChatBaseVisitor<object>
     {
-        public bool DisorderlyRestrictionsMode { get; set; }
+        public bool UnorderedRestrictionsMode { get; set; }
+
+        public ChatVisitor(bool unorderedRestrictionsMode = false)
+        {
+            UnorderedRestrictionsMode = unorderedRestrictionsMode;
+        }
 
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
         {
@@ -49,20 +54,26 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 // So we have only one restriction group
 
                 var groupsList = (List<MsgGroups>)VisitRestrictions(context.restrictions());
-                var outputGroupsList = new List<MsgGroups>();
+                var outputGroupList = new List<MsgGroups>();
 
                 foreach (var group in groupsList)
                 {
                     var mergedRestrcitions = MergeRestrictions(group, windowSize);
-                    var newGroups = OnlyRestrictionsToList(mergedRestrcitions);
+                    var comp = new MsgGroupEqualityComparer<int>();
 
-                    outputGroupsList.AddRange(newGroups);
+                    var uniqueMergedRestrcitions = mergedRestrcitions
+                        .Where(x => !outputGroupList.Any(y => y.Any(z => comp.Equals(x, z))))
+                        .ToList();
+
+                    var newGroups = OnlyRestrictionsToList(uniqueMergedRestrcitions);
+
+                    outputGroupList.AddRange(newGroups);
                 }
 
-                var comparer = new MsgGroupsComparer();
-                outputGroupsList.Sort(comparer);
+                var comparer = new MsgGroupListComparer();
+                outputGroupList.Sort(comparer);
 
-                return outputGroupsList;
+                return outputGroupList;
 
                 /*
                 var onlyRestrictions = (MsgGroups)VisitRestrictions(context.restrictions());
@@ -113,7 +124,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var groupsList = new List<MsgGroups>();
             var restrictions = context.restriction();
 
-            var permutations = DisorderlyRestrictionsMode
+            var permutations = context.Mess() != null || UnorderedRestrictionsMode
                 ? restrictions.GetPermutations() // all permutations of originally ordered restrictions
                 : new List<ChatParser.RestrictionContext[]>() { restrictions }; // originally ordered restrictions
 
@@ -260,49 +271,102 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         private MsgGroups MergeRestrictions(MsgGroups rList, int windowSize)
         {
-            int _size = rList.Count;
-            var result = new MsgGroups();
+            if (rList.Count == 0)
+                return new MsgGroups();
 
-            if (_size == 1)
+            if (rList.Count == 1)
+                return rList.First().Select(t => new List<int>() { t }).ToList();
+
+            List<int> firstGroup = rList[0];
+            IEnumerable<List<int>> result = new MsgGroups();
+
+            for (int i = 0; i < firstGroup.Count; i++)
             {
-                foreach (var r in rList[0])
-                    result.Add(new List<int> { r });
+                var accumulatedGroup = new List<int>() { firstGroup[i] };
+                var newGroups = MergeRestrictions(rList, windowSize, accumulatedGroup, 1, firstGroup[i]);
 
-                return result;
+                result = result.Concat(newGroups).ToArray();
             }
 
-            for (int fstInd = 0; fstInd < rList[0].Count; fstInd++)
+            return result.ToList();
+        }
+
+        private MsgGroups MergeRestrictions(MsgGroups rList, int windowSize, List<int> accumulatedGroup, int startGroup, int previousItem)
+        {
+            if (startGroup >= rList.Count)
+                return new MsgGroups() { accumulatedGroup.ToList() };
+
+            List<int> curGroup = rList[startGroup];
+            IEnumerable<List<int>> result = new MsgGroups();
+
+            for (int i = 0; i < curGroup.Count; ++i)
             {
-                int curPos = rList[0][fstInd];
-                int fstPos = rList[0][fstInd];
+                var curItem = curGroup[i];
 
-                List<int> curMsgs = new List<int> { curPos };
-
-                for (int i = 1; i < _size; i++)
+                if (curItem < previousItem ||
+                    curItem - previousItem > windowSize ||
+                    accumulatedGroup.Contains(curItem))
                 {
-                    foreach (var _id in rList[i])
-                    {
-                        if (_id <= curPos)
-                            continue;
-
-                        if (_id - fstPos <= windowSize)
-                        {
-                            curMsgs.Add(_id);
-                            curPos = _id;
-                            break;
-                        }
-                    }
+                    continue;
                 }
 
-                if (curMsgs.Count == _size)
-                    result.Add(curMsgs);
+                var newAccumulatedGroup = new List<int>(accumulatedGroup) { curItem };
+
+                var newGroups = MergeRestrictions(rList, windowSize, newAccumulatedGroup, startGroup + 1, curItem);
+                result = result.Concat(newGroups);
             }
 
-            return result;
+            return result.ToList();
         }
+
+        //private MsgGroups MergeRestrictions(MsgGroups rList, int windowSize)
+        //{
+        //    int _size = rList.Count;
+        //    var result = new MsgGroups();
+
+        //    if (_size == 1)
+        //    {
+        //        foreach (var r in rList[0])
+        //            result.Add(new List<int> { r });
+
+        //        return result;
+        //    }
+
+        //    for (int fstInd = 0; fstInd < rList[0].Count; fstInd++)
+        //    {
+        //        int curPos = rList[0][fstInd];
+        //        int fstPos = rList[0][fstInd];
+
+        //        var curMsgs = new List<int> { curPos };
+
+        //        for (int i = 1; i < _size; i++)
+        //        {
+        //            foreach (var _id in rList[i])
+        //            {
+        //                if (_id <= curPos)
+        //                    continue;
+
+        //                if (_id - fstPos <= windowSize)
+        //                {
+        //                    curMsgs.Add(_id);
+        //                    curPos = _id;
+        //                    break;
+        //                }
+        //            }
+        //        }
+
+        //        if (curMsgs.Count == _size)
+        //            result.Add(curMsgs);
+        //    }
+
+        //    return result;
+        //}
 
         private List<MsgGroups> MergeQueries(List<List<MsgGroups>> sqResults, int windowSize)
         {
+            if (sqResults.Any(t => t.Count == 0))
+                return new List<MsgGroups>();
+            
             var curIndex = new List<int>();
             var result = new List<MsgGroups>();
 

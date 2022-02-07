@@ -4,22 +4,22 @@ using System.Text;
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
+    using MsgGroupList = List<List<int>>;
+
     internal static class QueryParser
     {
-        public static List<List<List<int>>> Parse(string query, bool disorderlyRestrictions = false)
+        public static List<MsgGroupList> Parse(string query, bool unorderedRestrictionsMode = false)
         {
-            StringBuilder text = new StringBuilder(query);
+            var text = new StringBuilder(query);
 
-            AntlrInputStream inputStream = new AntlrInputStream(text.ToString());
-            ChatLexer speakLexer = new ChatLexer(inputStream);
-            CommonTokenStream commonTokenStream = new CommonTokenStream(speakLexer);
-            ChatParser speakParser = new ChatParser(commonTokenStream);
+            var inputStream = new AntlrInputStream(text.ToString());
+            var speakLexer = new ChatLexer(inputStream);
+            var commonTokenStream = new CommonTokenStream(speakLexer);
+            var speakParser = new ChatParser(commonTokenStream);
 
             var tree = speakParser.query();
-
-            var visitor = new MyChatVisitor() { DisorderlyRestrictionsMode = disorderlyRestrictions };
-
-            var result = (List<List<List<int>>>)visitor.Visit(tree);
+            var visitor = new ChatVisitor(unorderedRestrictionsMode);
+            var result = (List<MsgGroupList>)visitor.Visit(tree);
 
             return result;
         }

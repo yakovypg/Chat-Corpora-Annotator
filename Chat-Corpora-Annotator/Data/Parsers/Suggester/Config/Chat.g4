@@ -17,7 +17,7 @@ query_seq
 
 restrictions
     :
-    restriction (',' restriction)*
+    restriction (',' restriction)* Mess?
     ;
 
 restriction
@@ -48,6 +48,7 @@ huser : STRING;
 
 Select : 'SELECT' | 'select';
 InWin  : 'INWIN'  | 'inwin' ;
+Mess   : 'MESS'   | 'mess'  ;
 Not    : 'NOT'    | 'not'   ;
 And    : 'AND'    | 'and'   ;
 Or     : 'OR'     | 'or'    ;

@@ -1,4 +1,5 @@
 ﻿using ChatCorporaAnnotator.Data.Dialogs;
+using ChatCorporaAnnotator.Data.Indexing;
 using ChatCorporaAnnotator.Data.Parsers.Suggester;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Infrastructure.Enums;
@@ -109,11 +110,11 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             set => SetValue(ref _queryText, value);
         }
 
-        private bool _isDisorderlyRestrictionsModeChecked;
-        public bool IsDisorderlyRestrictionsModeChecked
+        private bool _isUnorderedRestrictionsModeChecked;
+        public bool IsUnorderedRestrictionsModeChecked
         {
-            get => _isDisorderlyRestrictionsModeChecked;
-            set => SetValue(ref _isDisorderlyRestrictionsModeChecked, value);
+            get => _isUnorderedRestrictionsModeChecked;
+            set => SetValue(ref _isUnorderedRestrictionsModeChecked, value);
         }
 
         private bool _isQueryExecutionWaitingIconSpinActive;
@@ -264,11 +265,11 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             set => SetValue(ref _importQueriesPanelVisibility, value);
         }
 
-        private Visibility _optionsPanelVisibility = Visibility.Hidden;
-        public Visibility OptionsPanelVisibility
+        private Visibility _queryOptionsPanelVisibility = Visibility.Hidden;
+        public Visibility QueryOptionsPanelVisibility
         {
-            get => _optionsPanelVisibility;
-            set => SetValue(ref _optionsPanelVisibility, value);
+            get => _queryOptionsPanelVisibility;
+            set => SetValue(ref _queryOptionsPanelVisibility, value);
         }
 
         private Visibility _queryExecutionWaitingPanelVisibility = Visibility.Hidden;
@@ -459,7 +460,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if(!CanSwitchOptionsPanelVisibilityCommandExecute(parameter))
                 return;
 
-            OptionsPanelVisibility = OptionsPanelVisibility == Visibility.Hidden
+            QueryOptionsPanelVisibility = QueryOptionsPanelVisibility == Visibility.Hidden
                 ? Visibility.Visible
                 : Visibility.Hidden;
         }
@@ -505,7 +506,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             var queryParsingTask = Task.Run(delegate
             {
-                _queryResult = QueryParser.Parse(query, IsDisorderlyRestrictionsModeChecked);
+                _queryResult = QueryParser.Parse(query, IsUnorderedRestrictionsModeChecked);
             });
 
             var resultDisplayingTask = queryParsingTask.ContinueWith(DisplayQueryResult,
@@ -1137,14 +1138,25 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             hits.Sort();
 
-            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Min() - 2));
-            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Min() - 1));
+            int contextMsgIndex1 = hits.Min() - 2;
+            int contextMsgIndex2 = hits.Min() - 1;
+            int contextMsgIndex3 = hits.Max() + 1;
+            int contextMsgIndex4 = hits.Max() + 2;
+
+            if (contextMsgIndex1 >= 0)
+                groupMessages.Add(LuceneService.RetrieveMessageById(hits.Min() - 2));
+
+            if (contextMsgIndex2 >= 0)
+                groupMessages.Add(LuceneService.RetrieveMessageById(hits.Min() - 1));
 
             for (int i = hits[0]; i <= hits[hits.Count - 1]; ++i)
                 groupMessages.Add(LuceneService.RetrieveMessageById(i));
 
-            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Max() + 1));
-            groupMessages.Add(LuceneService.RetrieveMessageById(hits.Max() + 2));
+            if (contextMsgIndex3 <= ProjectInteraction.LastMessageId)
+                groupMessages.Add(LuceneService.RetrieveMessageById(hits.Max() + 1));
+
+            if (contextMsgIndex4 <= ProjectInteraction.LastMessageId)
+                groupMessages.Add(LuceneService.RetrieveMessageById(hits.Max() + 2));
 
             CurrentGroupMessages = new ObservableCollection<ChatMessage>(
                 groupMessages.Select(t => new ChatMessage(t)).OrderBy(t => t.SentDate).ToArray());
