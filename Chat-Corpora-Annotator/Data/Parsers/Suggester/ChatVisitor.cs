@@ -5,11 +5,10 @@ using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
-    using MsgGroups = List<List<int>>;
+    using MsgGroupList = List<List<int>>;
 
     internal class ChatVisitor : ChatBaseVisitor<object>
     {
@@ -40,7 +39,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 if (!int.TryParse(text, out windowSize))
                 {
                     windowSize = defaultWindowSize;
-                    MessageBox.Show("Incorrect query");
+                    return null;
                 }
             }
 
@@ -53,16 +52,16 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 // Result is vector of vectors [[xi, yj]] where 0 < yj - xi <= W
                 // So we have only one restriction group
 
-                var groupsList = (List<MsgGroups>)VisitRestrictions(context.restrictions());
-                var outputGroupList = new List<MsgGroups>();
+                var groupList = (List<MsgGroupList>)VisitRestrictions(context.restrictions());
+                var outputGroupList = new List<MsgGroupList>();
 
-                foreach (var group in groupsList)
+                foreach (var group in groupList)
                 {
                     var mergedRestrcitions = MergeRestrictions(group, windowSize);
-                    var comp = new MsgGroupEqualityComparer<int>();
+                    var eqComp = new MsgGroupEqualityComparer<int>();
 
                     var uniqueMergedRestrcitions = mergedRestrcitions
-                        .Where(x => !outputGroupList.Any(y => y.Any(z => comp.Equals(x, z))))
+                        .Where(x => !outputGroupList.Any(y => y.Any(z => eqComp.Equals(x, z))))
                         .ToList();
 
                     var newGroups = OnlyRestrictionsToList(uniqueMergedRestrcitions);
@@ -88,7 +87,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 // Also we have invariant: results of son's query are calculated correctlly.
                 // It means that now we have only son's correct accomadation.
 
-                var subQueryResults = (List<List<MsgGroups>>)VisitQuery_seq(context.query_seq());
+                var subQueryResults = (List<List<MsgGroupList>>)VisitQuery_seq(context.query_seq());
                 return MergeQueries(subQueryResults, windowSize);
             }
 
@@ -97,9 +96,10 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         public override object VisitQuery_seq([NotNull] ChatParser.Query_seqContext context)
         {
-            var qList = new List<List<MsgGroups>>();
+            var contextQueries = context.query();
+            var queryList = new List<List<MsgGroupList>>();
 
-            foreach (var q in context.query())
+            foreach (var qery in contextQueries)
             {
                 // VisitQuery returns all correct accomodation. 
                 // For example, we have 3 group X, Y, Z:
@@ -113,15 +113,15 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 //   ............
                 //   [X2, Y3, Z2] ]
 
-                qList.Add((List<MsgGroups>)VisitQuery(q));
+                queryList.Add((List<MsgGroupList>)VisitQuery(qery));
             }
 
-            return qList;
+            return queryList;
         }
 
         public override object VisitRestrictions([NotNull] ChatParser.RestrictionsContext context)
         {
-            var groupsList = new List<MsgGroups>();
+            var groupList = new List<MsgGroupList>();
             var restrictions = context.restriction();
 
             var permutations = context.Mess() != null || UnorderedRestrictionsMode
@@ -130,19 +130,20 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
             foreach (var perm in permutations)
             {
-                var rList = new MsgGroups();
+                var newGroups = new MsgGroupList();
 
-                foreach (var restr in perm)
+                foreach (var restriction in perm)
                 {
-                    var newList = (List<int>)VisitRestriction(restr);
-                    newList.Sort();
-                    rList.Add(newList);
+                    var group = (List<int>)VisitRestriction(restriction);
+
+                    group.Sort();
+                    newGroups.Add(group);
                 }
 
-                groupsList.Add(rList);
+                groupList.Add(newGroups);
             }
 
-            return groupsList;
+            return groupList;
 
             //var rList = new MsgGroups();
 
@@ -178,7 +179,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             }
             else if (context.Not() != null)
             {
-                int msgCount = Math.Min(1000000, LuceneService.DirReader.MaxDoc - 1);
+                const int defaultMsgCount = 1000000;
+                int msgCount = Math.Min(defaultMsgCount, LuceneService.DirReader.MaxDoc - 1);
 
                 var numberList = Enumerable.Range(1, msgCount).ToList();
                 var excludeList = (List<int>)VisitRestriction(context.restriction(0));
@@ -187,7 +189,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             }
             else if (context.condition() != null)
             {
-                return VisitCondition(context.condition());
+                var condition = context.condition();
+                return VisitCondition(condition);
             }
             else
             {
@@ -197,11 +200,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
         public override object VisitCondition([NotNull] ChatParser.ConditionContext context)
         {
+            const string errorString = "<missing STRING>";
+
             if (context.HasUserMentioned() != null)
             {
                 string username = context.huser().GetText();
 
-                return username != "<missing STRING>"
+                return username != errorString
                     ? Retrievers.HasUserMentioned(username)
                     : new List<int>();
             }
@@ -209,7 +214,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             {
                 string username = context.huser().GetText();
 
-                return username != "<missing STRING>"
+                return username != errorString
                     ? Retrievers.HasUser(username)
                     : new List<int>();
             }
@@ -237,16 +242,14 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             {
                 string dictname = context.hdict().GetText();
 
-                if (dictname != "<missing STRING>")
-                {
-                    return UserDictsIndex.GetInstance().IndexCollection.TryGetValue(dictname, out List<string> list)
-                        ? Retrievers.HasWordOfList(list)
-                        : null;
-                }
-                else
-                {
+                if (dictname == errorString)
                     return null;
-                }
+
+                var indexCollection = UserDictsIndex.GetInstance().IndexCollection;
+
+                return indexCollection.TryGetValue(dictname, out List<string> words)
+                    ? Retrievers.HasWordOfList(words)
+                    : null;
             }
             else if (context.HasDate() != null)
             {
@@ -254,50 +257,47 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             }
             else
             {
-                // Message about incorrect query
-                return null;
+                return null; // Message about incorrect query
             }
         }
 
-        private List<MsgGroups> OnlyRestrictionsToList(MsgGroups rList)
+        private List<MsgGroupList> OnlyRestrictionsToList(MsgGroupList rList)
         {
-            var result = new List<MsgGroups>();
-
-            foreach (var r in rList)
-                result.Add(new MsgGroups { r });
-
-            return result;
+            return rList.Select(t => new MsgGroupList { t }).ToList();
         }
 
-        private MsgGroups MergeRestrictions(MsgGroups rList, int windowSize)
+        private MsgGroupList MergeRestrictions(MsgGroupList rList, int windowSize)
         {
             if (rList.Count == 0)
-                return new MsgGroups();
+                return new MsgGroupList();
 
             if (rList.Count == 1)
                 return rList.First().Select(t => new List<int>() { t }).ToList();
 
             List<int> firstGroup = rList[0];
-            IEnumerable<List<int>> result = new MsgGroups();
+            IEnumerable<List<int>> result = new MsgGroupList();
 
             for (int i = 0; i < firstGroup.Count; i++)
             {
-                var accumulatedGroup = new List<int>() { firstGroup[i] };
-                var newGroups = MergeRestrictions(rList, windowSize, accumulatedGroup, 1, firstGroup[i]);
+                var accumulatedMsgs = new List<int>() { firstGroup[i] };
+                var newGroups = MergeRestrictions(rList, windowSize, accumulatedMsgs, 1);
 
+                // Use .ToArray() to prevent bugs with LINQ
                 result = result.Concat(newGroups).ToArray();
             }
 
             return result.ToList();
         }
 
-        private MsgGroups MergeRestrictions(MsgGroups rList, int windowSize, List<int> accumulatedGroup, int startGroup, int previousItem)
+        private MsgGroupList MergeRestrictions(MsgGroupList groupList, int windowSize, IReadOnlyList<int> accumulatedMsgs, int startGroup)
         {
-            if (startGroup >= rList.Count)
-                return new MsgGroups() { accumulatedGroup.ToList() };
+            if (startGroup >= groupList.Count)
+                return new MsgGroupList() { accumulatedMsgs.ToList() };
 
-            List<int> curGroup = rList[startGroup];
-            IEnumerable<List<int>> result = new MsgGroups();
+            List<int> curGroup = groupList[startGroup];
+            IEnumerable<List<int>> result = new MsgGroupList();
+
+            int previousItem = accumulatedMsgs.Last();
 
             for (int i = 0; i < curGroup.Count; ++i)
             {
@@ -305,14 +305,14 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
                 if (curItem < previousItem ||
                     curItem - previousItem > windowSize ||
-                    accumulatedGroup.Contains(curItem))
+                    accumulatedMsgs.Contains(curItem))
                 {
                     continue;
                 }
 
-                var newAccumulatedGroup = new List<int>(accumulatedGroup) { curItem };
+                var newAccumulatedMsgs = new List<int>(accumulatedMsgs) { curItem };
 
-                var newGroups = MergeRestrictions(rList, windowSize, newAccumulatedGroup, startGroup + 1, curItem);
+                var newGroups = MergeRestrictions(groupList, windowSize, newAccumulatedMsgs, startGroup + 1);
                 result = result.Concat(newGroups);
             }
 
@@ -362,33 +362,33 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
         //    return result;
         //}
 
-        private List<MsgGroups> MergeQueries(List<List<MsgGroups>> sqResults, int windowSize)
+        private List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> sqResults, int windowSize)
         {
             if (sqResults.Any(t => t.Count == 0))
-                return new List<MsgGroups>();
+                return new List<MsgGroupList>();
             
             var curIndex = new List<int>();
-            var result = new List<MsgGroups>();
+            var result = new List<MsgGroupList>();
 
-            int _size = sqResults.Count();
+            int size = sqResults.Count();
 
-            for (int i = 0; i < _size; i++)
+            for (int i = 0; i < size; i++)
                 curIndex.Add(0);
 
             while (true)
             {
-                bool can_end = true;
-                var curAccomadtion = new List<MsgGroups>();
+                bool canEnd = true;
+                var curAccomadtion = new List<MsgGroupList>();
 
-                for (int i = 0; i < _size; i++)
+                for (int i = 0; i < size; i++)
                 {
                     var elem = sqResults[i][curIndex[i]];
                     curAccomadtion.Add(elem);
                 }
 
-                if (isCorrectAccomodation(curAccomadtion, windowSize))
+                if (IsAccomodationCorrect(curAccomadtion, windowSize))
                 {
-                    var current = new MsgGroups();
+                    var current = new MsgGroupList();
 
                     foreach (var group in curAccomadtion)
                         current.AddRange(group);
@@ -396,46 +396,45 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                     result.Add(current);
                 }
 
-                for (int i = _size - 1; i >= 0; i--)
+                for (int i = size - 1; i >= 0; i--)
                 {
-                    if (curIndex[i] < sqResults[i].Count - 1)
-                    {
-                        can_end = false;
-                        curIndex[i]++;
+                    if (curIndex[i] >= sqResults[i].Count - 1)
+                        continue;
 
-                        for (int j = i + 1; j < _size; j++)
-                            curIndex[j] = 0;
+                    canEnd = false;
+                    curIndex[i]++;
 
-                        break;
-                    }
+                    for (int j = i + 1; j < size; j++)
+                        curIndex[j] = 0;
+
+                    break;
                 }
 
-                if (can_end)
+                if (canEnd)
                     break;
             }
 
             return result;
         }
 
-        private bool isCorrectAccomodation(List<MsgGroups> acc, int windowSize)
+        private bool IsAccomodationCorrect(List<MsgGroupList> accomodation, int windowSize)
         {
-            int _size = acc.Count();
+            int size = accomodation.Count();
 
-            for (int i = 1; i < _size; i++)
+            for (int i = 1; i < size; i++)
             {
-                int prevLast = acc[i - 1].Last().Last();
-                int curFirst = acc[i].First().First();
+                int prevLast = accomodation[i - 1].Last().Last();
+                int curFirst = accomodation[i].First().First();
 
                 if (prevLast >= curFirst)
                     return false;
             }
 
-            int fstFirst = acc.First().First().First();
-            int lastLast = acc.Last().Last().Last();
+            int fstFirst = accomodation.First().First().First();
+            int lastLast = accomodation.Last().Last().Last();
 
-            bool correctWindow = (lastLast - fstFirst) <= windowSize;
-
-            return correctWindow;
+            bool isWindowCorrect = (lastLast - fstFirst) <= windowSize;
+            return isWindowCorrect;
         }
     }
 }
