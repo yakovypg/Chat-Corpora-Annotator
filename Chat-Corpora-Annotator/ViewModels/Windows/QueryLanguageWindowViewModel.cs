@@ -648,6 +648,23 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 : Visibility.Hidden;
         }
 
+        public ICommand ExportUserDictionaryCommand { get; }
+        public bool CanExportUserDictionaryCommandExecute(object parameter)
+        {
+            return QueryExecutionState != OperationState.InProcess;
+        }
+        public void OnExportUserDictionaryCommandExecuted(object parameter)
+        {
+            if (!CanExportUserDictionaryCommandExecute(parameter))
+                return;
+
+            if (!DialogProvider.SaveUserDictFile(out string path))
+                return;
+
+            if (!UserDictsIndex.GetInstance().TryExportIndex(path))
+                new QuickMessage($"Failed to export dictionary.");
+        }
+
         public ICommand ImportUserDictionaryCommand { get; }
         public bool CanImportUserDictionaryCommandExecute(object parameter)
         {
@@ -661,21 +678,18 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!DialogProvider.GetUserDictFilePath(out string path))
                 return;
 
-            try
+            if (!UserDictsIndex.GetInstance().TryImportIndex(path))
             {
-                UserDictsIndex.GetInstance().ImportIndex(path);
-
-                var userDictItems = LoadUserDictionaryItems(false);
-                UserDictionary = new ObservableCollection<IUserDictionaryItem>(userDictItems);
-
-                OnPropertyChanged(nameof(UserDictionary));
-
-                SelectedUserDictItem = UserDictionary.FirstOrDefault();
+                new QuickMessage($"Failed to import dictionary.");
+                return;
             }
-            catch (Exception ex)
-            {
-                new QuickMessage($"Failed to import dictionary: {ex.Message}");
-            }
+
+            var userDictItems = LoadUserDictionaryItems(false);
+            UserDictionary = new ObservableCollection<IUserDictionaryItem>(userDictItems);
+
+            OnPropertyChanged(nameof(UserDictionary));
+
+            SelectedUserDictItem = UserDictionary.FirstOrDefault();
         }
 
         public ICommand RemoveDictItemCommand { get; }
@@ -688,23 +702,23 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanRemoveDictItemCommandExecute(parameter))
                 return;
 
+            UserDictsIndex.GetInstance().DeleteIndexEntry(SelectedUserDictItem.Name);
+
+            int removedItemIndex = UserDictionary.IndexOf(SelectedUserDictItem);
+            int selectedItemIndex = removedItemIndex >= 1 ? removedItemIndex - 1 : 0;
+
             UserDictionary.Remove(SelectedUserDictItem);
-            SelectedUserDictItem = UserDictionary.FirstOrDefault();
+
+            SelectedUserDictItem = UserDictionary.Count > 0
+                ? UserDictionary[selectedItemIndex]
+                : null;
         }
 
         public ICommand AddUserDictItemCommand { get; }
         public bool CanAddUserDictItemCommandExecute(object parameter)
         {
-            if (string.IsNullOrEmpty(DictEditorConsoleText))
-                return false;
-
-            foreach (var item in UserDictionary)
-            {
-                if (item.Name == DictEditorConsoleText)
-                    return false;
-            }
-
-            return true;
+            return !string.IsNullOrEmpty(DictEditorConsoleText) &&
+                   !UserDictionary.Any(t => t.Name == DictEditorConsoleText);
         }
         public void OnAddUserDictItemCommandExecuted(object parameter)
         {
@@ -714,8 +728,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             var item = new UserDictionaryItem(DictEditorConsoleText);
 
             UserDictionary.Add(item);
-            SelectedUserDictItem = item;
+            UserDictsIndex.GetInstance().AddIndexEntry(item.Name, item.Words.ToList());
 
+            SelectedUserDictItem = item;
             DictEditorConsoleText = string.Empty;
         }
 
@@ -730,6 +745,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             if (!CanAddWordToUserDictItemCommandExecute(parameter))
                 return;
+
+            UserDictsIndex.GetInstance().AddWordToIndexEntry(SelectedUserDictItem.Name,
+                DictEditorConsoleText);
 
             SelectedUserDictItem.AddWordToContent(DictEditorConsoleText);
             CurrentUserDictItemWords.Add(DictEditorConsoleText);
@@ -747,8 +765,18 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanRemoveWordFromUserDictItemCommandExecute(parameter))
                 return;
 
+            UserDictsIndex.GetInstance().RemoveWordFromIndexEntry(SelectedUserDictItem.Name,
+                SelectedUserDictItemWord);
+
+            int removedWordIndex = CurrentUserDictItemWords.IndexOf(SelectedUserDictItemWord);
+            int selectedWordIndex = removedWordIndex >= 1 ? removedWordIndex - 1 : 0;
+
             SelectedUserDictItem.RemoveWordFromContent(SelectedUserDictItemWord);
             CurrentUserDictItemWords.Remove(SelectedUserDictItemWord);
+
+            SelectedUserDictItemWord = CurrentUserDictItemWords.Count > 0
+                ? CurrentUserDictItemWords[selectedWordIndex]
+                : null;
         }
 
         #endregion
@@ -857,16 +885,10 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanSaveUserDictionaryCommandExecute(parameter))
                 return;
 
-            UserDictsIndex index = UserDictsIndex.GetInstance();
-
-            Dictionary<string, List<string>> indexCollection = UserDictionary.ToDictionary(
-                t => t.Name,
-                t => new List<string>(t.Words));
-
-            index.RedefineData(indexCollection);
-
             try
             {
+                UserDictsIndex index = UserDictsIndex.GetInstance();
+
                 index.FlushIndexToDisk();
                 index.UnloadData();
             }
@@ -961,6 +983,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             SwitchImportQueriesPanelVisibilityCommand = new RelayCommand(OnSwitchImportQueriesPanelVisibilityCommandExecuted, CanSwitchImportQueriesPanelVisibilityCommandExecute);
 
             SwitchDictionaryEditorVisibilityCommand = new RelayCommand(OnSwitchDictionaryEditorVisibilityCommandExecuted, CanSwitchDictionaryEditorVisibilityCommandExecute);
+            ExportUserDictionaryCommand = new RelayCommand(OnExportUserDictionaryCommandExecuted, CanExportUserDictionaryCommandExecute);
             ImportUserDictionaryCommand = new RelayCommand(OnImportUserDictionaryCommandExecuted, CanImportUserDictionaryCommandExecute);
             RemoveDictItemCommand = new RelayCommand(OnRemoveDictItemCommandExecuted, CanRemoveDictItemCommandExecute);
             AddUserDictItemCommand = new RelayCommand(OnAddUserDictItemCommandExecuted, CanAddUserDictItemCommandExecute);

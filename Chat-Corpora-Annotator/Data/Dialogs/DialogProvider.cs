@@ -44,29 +44,62 @@ namespace ChatCorporaAnnotator.Data.Dialogs
         public static bool GetUserDictFilePath(out string path)
         {
             int filterIndex = 0;
-            string title = "Open user dictionary file";
+            string title = "Open dictionary file";
             string filter = "All files|*.*";
 
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
+        public static bool SaveUserDictFile(out string path)
+        {
+            int filterIndex = 0;
+            string title = "Save dictionary file";
+            string filter = "Text files|*.txt|All files|*.*";
+
+            return SaveFile(out path, title, filter, filterIndex);
+        }
+
         public static bool GetFilePath(out string path, string title = null, string filter = null, int filterIndex = 0)
         {
-            var _openFileDialog = new OpenFileDialog()
+            var openFileDialog = new OpenFileDialog()
             {
                 CheckFileExists = true,
                 CheckPathExists = true,
                 DereferenceLinks = true,
                 RestoreDirectory = true,
 
-                FilterIndex = filterIndex,
                 Title = title,
-                Filter = filter
+                Filter = filter,
+                FilterIndex = filterIndex
             };
 
-            if (_openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                path = _openFileDialog.FileName;
+                path = openFileDialog.FileName;
+                return !string.IsNullOrEmpty(path);
+            }
+
+            path = null;
+            return false;
+        }
+
+        public static bool SaveFile(out string path, string title = null, string filter = null, int filterIndex = 0)
+        {
+            var saveFileDialog = new SaveFileDialog()
+            {
+                AddExtension = true,
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                RestoreDirectory = true,
+
+                Title = title,
+                Filter = filter,
+                FilterIndex = filterIndex
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                path = saveFileDialog.FileName;
                 return !string.IsNullOrEmpty(path);
             }
 

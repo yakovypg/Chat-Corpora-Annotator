@@ -545,20 +545,45 @@
 
                         </DockPanel>
 
-                        <Button Width="18"
-                                Height="18"
-                                Margin="0, 5, 5, 0"
-                                VerticalAlignment="Top"
-                                HorizontalAlignment="Right"
-                                Style="{StaticResource BlueCircleButton}"
-                                Command="{Binding ImportUserDictionaryCommand}">
+                        <StackPanel Margin="0, 5, 5, 0"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Right">
 
-                            <fa:ImageAwesome
-                                Icon="Solid_FileDownload"
-                                Margin="2">
-                            </fa:ImageAwesome>
-                        </Button>
-                        
+                            <Button Width="18"
+                                    Height="18"
+                                    Margin="0, 0, 0, 0"
+                                    Style="{StaticResource BlueCircleButton}"
+                                    Command="{Binding ImportUserDictionaryCommand}">
+
+                                <Button.ToolTip>
+                                    <TextBlock FontSize="12" Text="Import dictionary"/>
+                                </Button.ToolTip>
+
+                                <fa:ImageAwesome
+                                    Icon="Solid_FileImport"
+                                    Margin="2">
+                                </fa:ImageAwesome>
+                            </Button>
+
+                            <Button Width="18"
+                                    Height="18"
+                                    Margin="5, 0, 0, 0"
+                                    Style="{StaticResource BlueCircleButton}"
+                                    Command="{Binding ExportUserDictionaryCommand}">
+
+                                <Button.ToolTip>
+                                    <TextBlock FontSize="12" Text="Export dictionary"/>
+                                </Button.ToolTip>
+
+                                <fa:ImageAwesome
+                                    Icon="Solid_FileUpload"
+                                    Margin="2">
+                                </fa:ImageAwesome>
+                            </Button>
+
+                        </StackPanel>
+
                     </Grid>
                 </Border>
                 

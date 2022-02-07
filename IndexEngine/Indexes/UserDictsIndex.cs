@@ -23,6 +23,21 @@ namespace IndexEngine.Indexes
         public IDictionary<string, List<string>> IndexCollection { get; private set; } = new Dictionary<string, List<string>>();
         public int ItemCount { get { return IndexCollection.Count; } }
 
+        public bool AddWordToIndexEntry(string key, string word)
+        {
+            if (!IndexCollection.TryGetValue(key, out List<string> wordList))
+                return false;
+
+            wordList.Add(word);
+            return true;
+        }
+
+        public bool RemoveWordFromIndexEntry(string key, string word)
+        {
+            return IndexCollection.TryGetValue(key, out List<string> wordList) &&
+                wordList.Remove(word);
+        }
+
         public void AddIndexEntry(string key, List<string> value)
         {
             if (!IndexCollection.ContainsKey(key))
@@ -47,8 +62,7 @@ namespace IndexEngine.Indexes
 
         public void FlushIndexToDisk()
         {
-            var jsonString = JsonConvert.SerializeObject(IndexCollection);
-            File.WriteAllText(ToolInfo.UserDictsPath, jsonString);
+            ExportIndex(ToolInfo.UserDictsPath);
         }
 
         public int GetValueCount(string key)
@@ -60,11 +74,10 @@ namespace IndexEngine.Indexes
 
         public void ReadIndexFromDisk()
         {
-            if (CheckFiles())
-            {
-                var jsonString = File.ReadAllText(ToolInfo.UserDictsPath);
-                IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString);
-            }
+            if (!CheckFiles())
+                return;
+            
+            ImportIndex(ToolInfo.UserDictsPath);
         }
 
         public void ImportIndex(string path)
@@ -73,20 +86,49 @@ namespace IndexEngine.Indexes
             IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString);
         }
 
+        public void ExportIndex(string path)
+        {
+            var jsonString = JsonConvert.SerializeObject(IndexCollection);
+            File.WriteAllText(path, jsonString);
+        }
+
+        public bool TryImportIndex(string path)
+        {
+            try
+            {
+                ImportIndex(path);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool TryExportIndex(string path)
+        {
+            try
+            {
+                ExportIndex(path);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public void UnloadData()
         {
             IndexCollection.Clear();
         }
 
-        public void RedefineData(Dictionary<string, List<string>> newIndexCollection)
-        {
-            IndexCollection.Clear();
-            IndexCollection = newIndexCollection ?? new Dictionary<string, List<string>>();
-        }
-
         public void UpdateIndexEntry(string key, List<string> value)
         {
-            throw new NotImplementedException();
+            if (!IndexCollection.ContainsKey(key))
+                AddIndexEntry(key, value);
+            else
+                IndexCollection[key] = value;
         }
 
         public string ImportNewDictFromFile(string path)
