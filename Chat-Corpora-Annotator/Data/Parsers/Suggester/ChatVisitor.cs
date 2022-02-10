@@ -10,7 +10,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     using MsgGroupList = List<List<int>>;
 
-    internal class ChatVisitor : ChatBaseVisitor<object>
+    public class ChatVisitor : ChatBaseVisitor<object>
     {
         public bool UnorderedRestrictionsMode { get; set; }
 
@@ -52,27 +52,27 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 // Result is vector of vectors [[xi, yj]] where 0 < yj - xi <= W
                 // So we have only one restriction group
 
-                var groupList = (List<MsgGroupList>)VisitRestrictions(context.restrictions());
-                var outputGroupList = new List<MsgGroupList>();
+                var groupsList = (List<MsgGroupList>)VisitRestrictions(context.restrictions());
+                var outputGroupsList = new List<MsgGroupList>();
 
-                foreach (var group in groupList)
+                foreach (var groupList in groupsList)
                 {
-                    var mergedRestrcitions = MergeRestrictions(group, windowSize);
+                    var mergedRestrcitions = MergeRestrictions(groupList, windowSize);
                     var eqComp = new MsgGroupEqualityComparer<int>();
 
                     var uniqueMergedRestrcitions = mergedRestrcitions
-                        .Where(x => !outputGroupList.Any(y => y.Any(z => eqComp.Equals(x, z))))
+                        .Where(x => !outputGroupsList.Any(y => y.Any(z => eqComp.Equals(x, z))))
                         .ToList();
 
                     var newGroups = OnlyRestrictionsToList(uniqueMergedRestrcitions);
 
-                    outputGroupList.AddRange(newGroups);
+                    outputGroupsList.AddRange(newGroups);
                 }
 
                 var comparer = new MsgGroupListComparer();
-                outputGroupList.Sort(comparer);
+                outputGroupsList.Sort(comparer);
 
-                return outputGroupList;
+                return outputGroupsList;
 
                 /*
                 var onlyRestrictions = (MsgGroups)VisitRestrictions(context.restrictions());
@@ -261,12 +261,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             }
         }
 
-        private List<MsgGroupList> OnlyRestrictionsToList(MsgGroupList rList)
-        {
-            return rList.Select(t => new MsgGroupList { t }).ToList();
-        }
-
-        private MsgGroupList MergeRestrictions(MsgGroupList rList, int windowSize)
+        public MsgGroupList MergeRestrictions(MsgGroupList rList, int windowSize)
         {
             if (rList.Count == 0)
                 return new MsgGroupList();
@@ -362,7 +357,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
         //    return result;
         //}
 
-        private List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> sqResults, int windowSize)
+        public List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> sqResults, int windowSize)
         {
             if (sqResults.Any(t => t.Count == 0))
                 return new List<MsgGroupList>();
@@ -435,6 +430,11 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
             bool isWindowCorrect = (lastLast - fstFirst) <= windowSize;
             return isWindowCorrect;
+        }
+
+        private List<MsgGroupList> OnlyRestrictionsToList(MsgGroupList rList)
+        {
+            return rList.Select(t => new MsgGroupList { t }).ToList();
         }
     }
 }

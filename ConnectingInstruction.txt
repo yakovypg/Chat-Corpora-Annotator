@@ -22,5 +22,5 @@ If rebuild failed:
 5. Rebuild solution
 6. Revert the changes to files FontAwesome5.csproj and FontAwesome5.Net.csproj
 7. Solution -> Properties -> Configuration Properties -> Configuration
-8. Uncheck Build option for FontAwesome and FontAwesome5
+8. Uncheck Build option for FontAwesomer and FontAwesome5.Net
 9. Rebuild solution

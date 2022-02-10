@@ -6,9 +6,18 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     using MsgGroupList = List<List<int>>;
 
-    internal static class QueryParser
+    public static class QueryParser
     {
         public static List<MsgGroupList> Parse(string query, bool unorderedRestrictionsMode = false)
+        {
+            var tree = GetTree(query);
+            var visitor = new ChatVisitor(unorderedRestrictionsMode);
+            var result = (List<MsgGroupList>)visitor.Visit(tree);
+
+            return result;
+        }
+
+        public static ChatParser.QueryContext GetTree(string query)
         {
             var text = new StringBuilder(query);
 
@@ -18,10 +27,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var speakParser = new ChatParser(commonTokenStream);
 
             var tree = speakParser.query();
-            var visitor = new ChatVisitor(unorderedRestrictionsMode);
-            var result = (List<MsgGroupList>)visitor.Visit(tree);
-
-            return result;
+            return tree;
         }
     }
 }

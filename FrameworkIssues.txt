@@ -1,0 +1,26 @@
+If you have any errors with the framework during the build, try the following steps:
+
+1. Make sure that NET Framework version 4.0 and higher is installed on your computer.
+The problem is most likely with version 4.0
+
+2. Make sure that the NET Framework SDK and NET Framework Runtime for versions 4.0 and
+higher are installed on your computer. The problem is most likely with the SDK and Runtime
+for version 4.0
+
+3. Clean up the project (and best of all the solution), then try to build the project again:
+[ProjectName -> Clean] or [Solution -> Clean Solution] then build again
+
+If the above steps did not help, try removing one of the frameworks from the build
+configuration of FontAwesome5.csproj and FontAwesome5.Net.csproj.
+
+1. Open FontAwesome5.csproj file (double click on the FontAwesome5)
+2. Remove problematic version from <TargetFrameworks>netstandard1.4;netstandard2.1;net40;net5.0</TargetFrameworks>
+3. Open FontAwesome5.Net.csproj file (double click on the FontAwesome5.Net)
+4. Remove problematic version from <TargetFrameworks>net40;net462;net472;netcoreapp3.1;net5.0-windows</TargetFrameworks>
+5. Build solution
+6. Revert the changes to files FontAwesome5.csproj and FontAwesome5.Net.csproj
+7. Solution -> Properties -> Configuration Properties -> Configuration
+8. Uncheck Build option for FontAwesome5 and FontAwesome5.Net
+9. Rebuild solution
+
+The problem is most likely with net40
