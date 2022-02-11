@@ -180,9 +180,9 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             else if (context.Not() != null)
             {
                 const int defaultMsgCount = 1000000;
-                int msgCount = Math.Min(defaultMsgCount, LuceneService.DirReader.MaxDoc - 1);
+                int msgCount = Math.Min(defaultMsgCount, LuceneService.DirReader.MaxDoc);
 
-                var numberList = Enumerable.Range(1, msgCount).ToList();
+                var numberList = Enumerable.Range(0, msgCount).ToList();
                 var excludeList = (List<int>)VisitRestriction(context.restriction(0));
 
                 return numberList.Except(excludeList).ToList();
