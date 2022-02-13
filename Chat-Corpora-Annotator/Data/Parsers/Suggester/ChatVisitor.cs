@@ -124,7 +124,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var groupList = new List<MsgGroupList>();
             var restrictions = context.restriction();
 
-            var permutations = context.Mess() != null || UnorderedRestrictionsMode
+            var permutations = context.Unr() != null || UnorderedRestrictionsMode
                 ? restrictions.GetPermutations() // all permutations of originally ordered restrictions
                 : new List<ChatParser.RestrictionContext[]>() { restrictions }; // originally ordered restrictions
 
