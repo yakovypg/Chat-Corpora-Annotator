@@ -9,14 +9,14 @@ namespace SuggesterBenchmark.Benchmarks
 
     public class MergeQueriesBenchmark : BenchmarkBase
     {
-        [Params(5, 50)]
-        public int Inwin;
+        private const int INWIN = 1000;
 
         private readonly string[] _queries = new string[]
         {
-            "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(money) or haswordofdict(dev)) inwin 5", // 148
-            "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(dev), haswordofdict(money) or haswordofdict(dev) inwin 5) inwin 5", // 169
-            "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(dev), haswordofdict(dev) mess inwin 5) inwin 5", // 150
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5)",
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)) inwin " + INWIN,
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5) inwin " + INWIN,
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(money) or haswordofdict(dev)) inwin " + INWIN,
         };
 
         private readonly ChatVisitor _visitor;
@@ -39,19 +39,25 @@ namespace SuggesterBenchmark.Benchmarks
         [Benchmark]
         public void MergeQueriesTest_0()
         {
-            var result = _visitor.MergeQueries(_visitResults[0], Inwin);
+            var result = _visitor.MergeQueries(_visitResults[0], INWIN);
         }
 
         [Benchmark]
         public void MergeQueriesTest_1()
         {
-            var result = _visitor.MergeQueries(_visitResults[1], Inwin);
+            var result = _visitor.MergeQueries(_visitResults[1], INWIN);
         }
 
         [Benchmark]
         public void MergeQueriesTest_2()
         {
-            var result = _visitor.MergeQueries(_visitResults[2], Inwin);
+            var result = _visitor.MergeQueries(_visitResults[2], INWIN);
+        }
+
+        [Benchmark]
+        public void MergeQueriesTest_3()
+        {
+            var result = _visitor.MergeQueries(_visitResults[3], INWIN);
         }
     }
 }

@@ -8,9 +8,10 @@ namespace SuggesterBenchmark.Benchmarks
     {
         private readonly string[] _queries = new string[]
         {
-            "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(money) or haswordofdict(dev)) inwin 5", // 148
-            "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(dev), haswordofdict(money) or haswordofdict(dev) inwin 5) inwin 5", // 169
-            "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(dev), haswordofdict(dev) mess inwin 5) inwin 5", // 150
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5)",
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)) inwin 1000",
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5) inwin 1000",
+            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(money) or haswordofdict(dev)) inwin 1000",
         };
 
         private readonly ChatVisitor _visitor;
@@ -46,6 +47,12 @@ namespace SuggesterBenchmark.Benchmarks
         public void VisitQuerySequenceTest_2()
         {
             var result = _visitor.VisitQuery_seq(_querySequences[2]);
+        }
+
+        [Benchmark]
+        public void VisitQuerySequenceTest_3()
+        {
+            var result = _visitor.VisitQuery_seq(_querySequences[3]);
         }
     }
 }

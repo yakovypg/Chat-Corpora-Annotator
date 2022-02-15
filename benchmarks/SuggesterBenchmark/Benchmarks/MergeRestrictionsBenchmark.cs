@@ -14,10 +14,10 @@ namespace SuggesterBenchmark.Benchmarks
 
         private readonly string[] _queries = new string[]
         {
-            "select haswordofdict(job), haswordofdict(skill)", // 47
-            "select haswordofdict(job) or haswordofdict(dev), haswordofdict(skill)", // 69
-            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev)", // 67
-            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(skill)", // 89
+            "select haswordofdict(job), haswordofdict(skill)",
+            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
+            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area)",
+            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area), haswordofdict(money)",
         };
 
         private readonly ChatVisitor _visitor;

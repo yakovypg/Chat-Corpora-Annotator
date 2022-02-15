@@ -8,9 +8,15 @@ namespace SuggesterBenchmark.Benchmarks
     {
         private readonly string[] _queries = new string[]
         {
-            "select haswordofdict(job)", // 25
-            "select hasusermentioned(odrisck)", // 32
-            "select byuser(odrisck)" // 22
+            "select haswordofdict(job)",
+            "select haswordofdict(skill)",
+            "select haswordofdict(area)",
+            "select hasusermentioned(odrisck)",
+            "select hasusermentioned(trisell)",
+            "select hasusermentioned(seahik)",
+            "select byuser(odrisck)",
+            "select byuser(jsonify)",
+            "select byuser(cerissa)",
         };
 
         private readonly ChatVisitor _visitor;
@@ -46,6 +52,42 @@ namespace SuggesterBenchmark.Benchmarks
         public void VisitConditionTest_2()
         {
             var result = _visitor.VisitCondition(_conditions[2]);
+        }
+
+        [Benchmark]
+        public void VisitConditionTest_3()
+        {
+            var result = _visitor.VisitCondition(_conditions[3]);
+        }
+
+        [Benchmark]
+        public void VisitConditionTest_4()
+        {
+            var result = _visitor.VisitCondition(_conditions[4]);
+        }
+
+        [Benchmark]
+        public void VisitConditionTest_5()
+        {
+            var result = _visitor.VisitCondition(_conditions[5]);
+        }
+
+        [Benchmark]
+        public void VisitConditionTest_6()
+        {
+            var result = _visitor.VisitCondition(_conditions[6]);
+        }
+
+        [Benchmark]
+        public void VisitConditionTest_7()
+        {
+            var result = _visitor.VisitCondition(_conditions[7]);
+        }
+
+        [Benchmark]
+        public void VisitConditionTest_8()
+        {
+            var result = _visitor.VisitCondition(_conditions[8]);
         }
     }
 }

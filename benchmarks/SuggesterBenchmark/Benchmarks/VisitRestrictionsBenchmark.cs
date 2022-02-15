@@ -8,11 +8,14 @@ namespace SuggesterBenchmark.Benchmarks
     {
         private readonly string[] _queries = new string[]
         {
-            "select haswordofdict(job)", // 25
-            "select haswordofdict(job), haswordofdict(skill)", // 47
-            "select haswordofdict(job) or haswordofdict(dev), haswordofdict(skill)", // 69
-            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev)", // 67
-            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(skill)", // 89
+            "select haswordofdict(job), haswordofdict(skill)",
+            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
+            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area)",
+            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area), haswordofdict(money)",
+
+            "select haswordofdict(area), haswordofdict(os) unr",
+            "select haswordofdict(area), haswordofdict(os), haswordofdict(dev) unr",
+            "select haswordofdict(area), haswordofdict(os), haswordofdict(dev), haswordofdict(money) unr",
         };
 
         private readonly ChatVisitor _visitor;
@@ -60,6 +63,18 @@ namespace SuggesterBenchmark.Benchmarks
         public void VisitRestrictionsTest_4()
         {
             var result = _visitor.VisitRestrictions(_restrictions[4]);
+        }
+
+        [Benchmark]
+        public void VisitRestrictionsTest_5()
+        {
+            var result = _visitor.VisitRestrictions(_restrictions[5]);
+        }
+
+        [Benchmark]
+        public void VisitRestrictionsTest_6()
+        {
+            var result = _visitor.VisitRestrictions(_restrictions[6]);
         }
     }
 }
