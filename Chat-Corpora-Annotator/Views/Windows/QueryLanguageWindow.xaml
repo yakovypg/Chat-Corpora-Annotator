@@ -612,8 +612,6 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="5"/>
-                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
                     <Button
@@ -625,13 +623,6 @@
 
                     <Button
                         Grid.Column="2"
-                        Content="Options"
-                        Style="{StaticResource BlueCircleButton}"
-                        Command="{Binding SwitchOptionsPanelVisibilityCommand}">
-                    </Button>
-
-                    <Button
-                        Grid.Column="4"
                         Content="Run query"
                         Style="{StaticResource GreenCircleButton}"
                         Command="{Binding RunQueryCommand}">
@@ -684,16 +675,6 @@
                         Visibility="{Binding QueryTextBoxVisibility}"
                         Style="{StaticResource MultilineTextBox}">
                     </TextBox>
-
-                    <Border BorderThickness="1" BorderBrush="Gray" Background="FloralWhite" Visibility="{Binding QueryOptionsPanelVisibility}">
-                        <StackPanel Orientation="Vertical" Margin="5">
-                            <CheckBox
-                                Content="unordered restrictions mode"
-                                Style="{StaticResource BoldPressingCheckBox}"
-                                IsChecked="{Binding IsUnorderedRestrictionsModeChecked}">
-                            </CheckBox>
-                        </StackPanel>
-                    </Border>
 
                     <Border BorderThickness="1" BorderBrush="Gray" Background="FloralWhite" Visibility="{Binding QueryExecutionWaitingPanelVisibility}">
                         <fa:ImageAwesome

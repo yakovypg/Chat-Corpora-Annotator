@@ -12,11 +12,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
     public class ChatVisitor : ChatBaseVisitor<object>
     {
-        public bool UnorderedRestrictionsMode { get; set; }
-
-        public ChatVisitor(bool unorderedRestrictionsMode = false)
+        public ChatVisitor()
         {
-            UnorderedRestrictionsMode = unorderedRestrictionsMode;
         }
 
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
@@ -73,13 +70,6 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 outputGroupsList.Sort(comparer);
 
                 return outputGroupsList;
-
-                /*
-                var onlyRestrictions = (MsgGroups)VisitRestrictions(context.restrictions());
-                var mergedRestrcitions = MergeRestrictions(onlyRestrictions, windowSize);
-
-                return OnlyRestrictionsToList(mergedRestrcitions);
-                */
             }
             else if (context.query_seq() != null)
             {
@@ -124,7 +114,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var groupList = new List<MsgGroupList>();
             var restrictions = context.restriction();
 
-            var permutations = context.Unr() != null || UnorderedRestrictionsMode
+            var permutations = context.Unr() != null
                 ? restrictions.GetPermutations() // all permutations of originally ordered restrictions
                 : new List<ChatParser.RestrictionContext[]>() { restrictions }; // originally ordered restrictions
 
@@ -144,18 +134,6 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             }
 
             return groupList;
-
-            //var rList = new MsgGroups();
-
-            //foreach (var r in context.restriction())
-            //{
-            //    var newList = (List<int>)VisitRestriction(r);
-            //    newList.Sort();
-            //    rList.Add(newList);
-
-            //}
-
-            //return rList;
         }
 
         public override object VisitRestriction([NotNull] ChatParser.RestrictionContext context)
@@ -165,13 +143,17 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 List<int> lhs = (List<int>)VisitRestriction(context.restriction(0));
                 List<int> rhs = (List<int>)VisitRestriction(context.restriction(1));
 
-                return lhs.Intersect(rhs).ToList();
+                var intersection = lhs.Intersect(rhs).ToList();
+                intersection.Sort();
+
+                return intersection;
             }
             else if (context.Or() != null)
             {
                 List<int> lhs = (List<int>)VisitRestriction(context.restriction(0));
                 List<int> rhs = (List<int>)VisitRestriction(context.restriction(1));
-                
+
+                // Do not use Union()
                 lhs.AddRange(rhs);
                 lhs.Sort();
 

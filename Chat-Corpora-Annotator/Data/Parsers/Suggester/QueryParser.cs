@@ -8,10 +8,10 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
     public static class QueryParser
     {
-        public static List<MsgGroupList> Parse(string query, bool unorderedRestrictionsMode = false)
+        public static List<MsgGroupList> Parse(string query)
         {
             var tree = GetTree(query);
-            var visitor = new ChatVisitor(unorderedRestrictionsMode);
+            var visitor = new ChatVisitor();
             var result = (List<MsgGroupList>)visitor.Visit(tree);
 
             return result;

@@ -110,13 +110,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             set => SetValue(ref _queryText, value);
         }
 
-        private bool _isUnorderedRestrictionsModeChecked;
-        public bool IsUnorderedRestrictionsModeChecked
-        {
-            get => _isUnorderedRestrictionsModeChecked;
-            set => SetValue(ref _isUnorderedRestrictionsModeChecked, value);
-        }
-
         private bool _isQueryExecutionWaitingIconSpinActive;
         public bool IsQueryExecutionWaitingIconSpinActive
         {
@@ -263,13 +256,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             get => _importQueriesPanelVisibility;
             set => SetValue(ref _importQueriesPanelVisibility, value);
-        }
-
-        private Visibility _queryOptionsPanelVisibility = Visibility.Hidden;
-        public Visibility QueryOptionsPanelVisibility
-        {
-            get => _queryOptionsPanelVisibility;
-            set => SetValue(ref _queryOptionsPanelVisibility, value);
         }
 
         private Visibility _queryExecutionWaitingPanelVisibility = Visibility.Hidden;
@@ -450,21 +436,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             }
         }
 
-        public ICommand SwitchOptionsPanelVisibilityCommand { get; }
-        public bool CanSwitchOptionsPanelVisibilityCommandExecute(object parameter)
-        {
-            return QueryExecutionState != OperationState.InProcess;
-        }
-        public void OnSwitchOptionsPanelVisibilityCommandExecuted(object parameter)
-        {
-            if(!CanSwitchOptionsPanelVisibilityCommandExecute(parameter))
-                return;
-
-            QueryOptionsPanelVisibility = QueryOptionsPanelVisibility == Visibility.Hidden
-                ? Visibility.Visible
-                : Visibility.Hidden;
-        }
-
         public ICommand ClearQueryCommand { get; }
         public bool CanClearQueryCommandExecute(object parameter)
         {
@@ -506,7 +477,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             var queryParsingTask = Task.Run(delegate
             {
-                _queryResult = QueryParser.Parse(query, IsUnorderedRestrictionsModeChecked);
+                _queryResult = QueryParser.Parse(query);
             });
 
             var resultDisplayingTask = queryParsingTask.ContinueWith(DisplayQueryResult,
@@ -972,7 +943,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             SwitchModeCommand = new RelayCommand(OnSwitchModeCommandExecuted, CanSwitchModeCommandExecute);
             AddElementToQueryTextCommand = new RelayCommand(OnAddElementToQueryTextCommandExecuted, CanAddElementToQueryTextCommandExecute);
-            SwitchOptionsPanelVisibilityCommand = new RelayCommand(OnSwitchOptionsPanelVisibilityCommandExecuted, CanSwitchOptionsPanelVisibilityCommandExecute);
             ClearQueryCommand = new RelayCommand(OnClearQueryCommandExecuted, CanClearQueryCommandExecute);
             RunQueryCommand = new RelayCommand(OnRunQueryCommandExecuted, CanRunQueryCommandExecute);
 
