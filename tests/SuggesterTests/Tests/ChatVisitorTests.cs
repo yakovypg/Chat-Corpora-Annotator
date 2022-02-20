@@ -17,13 +17,15 @@ namespace SuggesterTests.Tests
             var condition = tree.body().restrictions().restriction(0).condition();
             var visitor = new ChatVisitor();
 
-            var result = (List<int>)visitor.VisitCondition(condition);
+            var visitResult = (HashSet<int>)visitor.VisitCondition(condition);
+            
+            var resultList = visitResult.ToList();
             var expected = expectedResult.ToList();
 
-            result.Sort();
+            resultList.Sort();
             expected.Sort();
 
-            bool isCorrect = result.SequenceEqual(expected);
+            bool isCorrect = resultList.SequenceEqual(expected);
 
             Assert.IsTrue(isCorrect);
         }
@@ -35,6 +37,11 @@ namespace SuggesterTests.Tests
             var visitor = new ChatVisitor();
 
             var result = (List<int>)visitor.VisitRestriction(restriction);
+            var expected = expectedResult.ToList();
+
+            result.Sort();
+            expected.Sort();
+
             bool isCorrect = result.SequenceEqual(expectedResult);
 
             Assert.IsTrue(isCorrect);
@@ -247,7 +254,7 @@ namespace SuggesterTests.Tests
         public void VisitConditionTest_HasWordOfDict_1()
         {
             string query = "select haswordofdict(fruit)";
-            var expectedResult = new List<int>() { 2, 8 };
+            var expectedResult = new HashSet<int>() { 2, 8 };
 
             CheckCondition(query, expectedResult);
         }
@@ -256,7 +263,7 @@ namespace SuggesterTests.Tests
         public void VisitConditionTest_HasWordOfDict_2()
         {
             string query = "select haswordofdict(vegetable)";
-            var expectedResult = new List<int>() { 3, 5, 6, 7, 8, 9 };
+            var expectedResult = new HashSet<int>() { 3, 5, 6, 7, 8, 9 };
 
             CheckCondition(query, expectedResult);
         }
@@ -265,7 +272,7 @@ namespace SuggesterTests.Tests
         public void VisitConditionTest_ByUser_1()
         {
             string query = "select byuser(misha)";
-            var expectedResult = new List<int>() { 0, 1, 2, 5 };
+            var expectedResult = new HashSet<int>() { 0, 1, 2, 5 };
 
             CheckCondition(query, expectedResult);
         }
@@ -274,7 +281,7 @@ namespace SuggesterTests.Tests
         public void VisitConditionTest_ByUser_2()
         {
             string query = "select byuser(roma)";
-            var expectedResult = new List<int>() { 4, 6, 9 };
+            var expectedResult = new HashSet<int>() { 4, 6, 9 };
 
             CheckCondition(query, expectedResult);
         }

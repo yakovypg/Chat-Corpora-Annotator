@@ -18,6 +18,11 @@ namespace SuggesterBenchmark.Benchmarks
             "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
             "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area)",
             "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area), haswordofdict(money)",
+
+            "select haswordofdict(skill), haswordofdict(skill)",
+            "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job)",
+            "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill)",
+            "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
         };
 
         private readonly ChatVisitor _visitor;
@@ -59,6 +64,30 @@ namespace SuggesterBenchmark.Benchmarks
         public void MergeRestrictionsTest_3()
         {
             var result = _visitor.MergeRestrictions(_visitResults[3], Inwin);
+        }
+
+        [Benchmark]
+        public void MergeRestrictionsTest_4()
+        {
+            var result = _visitor.MergeRestrictions(_visitResults[4], Inwin);
+        }
+
+        [Benchmark]
+        public void MergeRestrictionsTest_5()
+        {
+            var result = _visitor.MergeRestrictions(_visitResults[5], Inwin);
+        }
+
+        [Benchmark]
+        public void MergeRestrictionsTest_6()
+        {
+            var result = _visitor.MergeRestrictions(_visitResults[6], Inwin);
+        }
+
+        [Benchmark]
+        public void MergeRestrictionsTest_7()
+        {
+            var result = _visitor.MergeRestrictions(_visitResults[7], Inwin);
         }
     }
 }

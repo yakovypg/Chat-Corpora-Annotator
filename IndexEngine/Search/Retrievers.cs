@@ -19,7 +19,7 @@ namespace IndexEngine.Search
     }
     public static class Retrievers
     {
-        public static List<int> HasWordOfList(List<string> words)
+        public static HashSet<int> HasWordOfList(List<string> words)
         {
             HashSet<int> results = new HashSet<int>();
 
@@ -47,8 +47,7 @@ namespace IndexEngine.Search
                 }
             }
 
-            List<int> ret = results.ToList();
-            return ret;
+            return results;
         }
 
         public static List<int> HasNERTag(NER tag)
@@ -61,7 +60,7 @@ namespace IndexEngine.Search
                 case NER.ORG:
                     if (Extractor.OrgList.Keys.Count != 0)
                     {
-                        foreach (var temp in Extractor.OrgList.Keys.ToList())
+                        foreach (var temp in Extractor.OrgList.Keys)
                         {
                             result.Add(temp);
                         }
@@ -76,7 +75,7 @@ namespace IndexEngine.Search
                 case NER.LOC:
                     if (Extractor.LocList.Keys.Count != 0)
                     {
-                        foreach (var temp in Extractor.LocList.Keys.ToList())
+                        foreach (var temp in Extractor.LocList.Keys)
                         {
                             result.Add(temp);
                         }
@@ -91,8 +90,9 @@ namespace IndexEngine.Search
                 case NER.TIME:
                     if (Extractor.TimeList.Keys.Count != 0)
                     {
-                        foreach (var temp in Extractor.TimeList.Keys.ToList())
+                        foreach (var temp in Extractor.TimeList.Keys)
                         {
+                            result.Add(temp);
                         }
                         return result;
                     }
@@ -123,27 +123,20 @@ namespace IndexEngine.Search
                         result.Add(-1);
                         return result;
                     }
-            }
 
-            throw new ArgumentException();
+                default:
+                    throw new ArgumentException();
+            }
         }
 
         public static List<int> HasQuestion()
         {
-            List<int> result = new List<int>();
-
-            if (Extractor.IsQuestionList.Count != 0)
-            {
-                return Extractor.IsQuestionList;
-            }
-            else
-            {
-                result.Add(-1);
-                return result;
-            }
+            return Extractor.IsQuestionList.Count != 0
+                ? Extractor.IsQuestionList
+                : new List<int>() { -1 };
         }
 
-        public static List<int> HasUser(string user)
+        public static HashSet<int> HasUser(string user)
         {
             //Love duplicate code
             HashSet<int> results = new HashSet<int>();
@@ -160,11 +153,10 @@ namespace IndexEngine.Search
                 results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
             }
 
-            List<int> ret = results.ToList();
-            return ret;
+            return results;
         }
 
-        public static List<int> HasUserMentioned(string user)
+        public static HashSet<int> HasUserMentioned(string user)
         {
             //Or I can check each and every message out of millions for a substring occurence :^)
             HashSet<int> results = new HashSet<int>();
@@ -177,8 +169,7 @@ namespace IndexEngine.Search
                 results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
             }
 
-            List<int> ret = results.ToList();
-            return ret;
+            return results;
         }
     }
 }
