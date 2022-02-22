@@ -17,13 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorLibrary", "ColorLibrar
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NounPhraseAlgorithm", "NounPhraseAlgorithm\NounPhraseAlgorithm.fsproj", "{6316656E-4B11-42CE-BA65-CDF5D079D7D8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Subprojects", "Subprojects", "{6C84F69D-74E4-41BB-85C2-16C43FD8EE90}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Submodules", "Submodules", "{6C84F69D-74E4-41BB-85C2-16C43FD8EE90}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FontAwesome", "FontAwesome", "{9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}"
-	ProjectSection(SolutionItems) = preProject
-		ConnectingInstruction.txt = ConnectingInstruction.txt
-		FrameworkIssues.txt = FrameworkIssues.txt
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAwesome5", "vendor\FontAwesome5\src\FontAwesome5\FontAwesome5.csproj", "{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}"
 EndProject
@@ -38,6 +34,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8FC52CC9-EBE9-47FB-BA9A-1F92B7478A92}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuggesterTests", "tests\SuggesterTests\SuggesterTests.csproj", "{F03AA9D1-5445-4B59-9197-D6CCF0903967}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E7836F73-0E71-4733-A02B-C5EDD966F7FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FontAwesome", "FontAwesome", "{8B025998-B3DE-4E91-B039-EFF870E36170}"
+	ProjectSection(SolutionItems) = preProject
+		docs\FontAwesome\ConnectingInstruction.txt = docs\FontAwesome\ConnectingInstruction.txt
+		docs\FontAwesome\FrameworkIssues.txt = docs\FontAwesome\FrameworkIssues.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -90,6 +94,7 @@ Global
 		{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
 		{87125E88-C168-4363-BD04-3B2D7B012057} = {C292BC9D-2485-4A1A-8F83-5D170FDD5A52}
 		{F03AA9D1-5445-4B59-9197-D6CCF0903967} = {8FC52CC9-EBE9-47FB-BA9A-1F92B7478A92}
+		{8B025998-B3DE-4E91-B039-EFF870E36170} = {E7836F73-0E71-4733-A02B-C5EDD966F7FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F68D240-71D4-4206-84D2-91EA13C5899F}
