@@ -18,14 +18,16 @@ namespace SuggesterTests.Tests
             var visitor = new ChatVisitor();
 
             var visitResult = (HashSet<int>)visitor.VisitCondition(condition);
-            
-            var resultList = visitResult.ToList();
+
+            Assert.IsNotNull(visitResult);
+
+            var actual = visitResult.ToList();
             var expected = expectedResult.ToList();
 
-            resultList.Sort();
+            actual.Sort();
             expected.Sort();
 
-            bool isCorrect = resultList.SequenceEqual(expected);
+            bool isCorrect = actual.SequenceEqual(expected);
 
             Assert.IsTrue(isCorrect);
         }
@@ -36,15 +38,71 @@ namespace SuggesterTests.Tests
             var restriction = tree.body().restrictions().restriction(0);
             var visitor = new ChatVisitor();
 
-            var result = (List<int>)visitor.VisitRestriction(restriction);
+            var visitResult = (IEnumerable<int>)visitor.VisitRestriction(restriction);
+
+            Assert.IsNotNull(visitResult);
+
+            var actual = visitResult.ToList();
             var expected = expectedResult.ToList();
 
-            result.Sort();
+            actual.Sort();
             expected.Sort();
 
-            bool isCorrect = result.SequenceEqual(expectedResult);
+            bool isCorrect = actual.SequenceEqual(expected);
 
             Assert.IsTrue(isCorrect);
+        }
+
+        private void CheckRestrictions(string query, List<MsgGroupList> expectedResult)
+        {
+            var tree = QueryParser.GetTree(query);
+            var restrictions = tree.body().restrictions();
+            var visitor = new ChatVisitor();
+
+            var actualResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
+
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(expectedResult.Count, actualResult.Count);
+
+            for (int i = 0; i < actualResult.Count; ++i)
+            {
+                Assert.AreEqual(expectedResult[i].Count, actualResult[i].Count);
+
+                for (int j = 0; j < actualResult[i].Count; ++j)
+                {
+                    bool isCorrect = expectedResult[i][j].SequenceEqual(actualResult[i][j]);
+                    Assert.IsTrue(isCorrect);
+                }
+            }
+        }
+
+        private void CheckRestrictionsWithUnr(string query, MsgGroupList expectedGroups)
+        {
+            var tree = QueryParser.GetTree(query);
+            var restrictions = tree.body().restrictions();
+            var visitor = new ChatVisitor();
+
+            var actualResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
+
+            Assert.IsNotNull(actualResult);
+
+            for (int i = 0; i < actualResult.Count; ++i)
+            {
+                Assert.AreEqual(expectedGroups.Count, actualResult[i].Count);
+
+                bool isCorrect = false;
+
+                for (int j = 0; j < actualResult[i].Count; ++j)
+                {
+                    if (expectedGroups.Any(t => t.SequenceEqual(actualResult[i][j])))
+                    {
+                        isCorrect = true;
+                        break;
+                    }
+                }
+
+                Assert.IsTrue(isCorrect);
+            }
         }
 
         private void CheckMergedRestrictions(string query, int inwin, MsgGroupList expected)
@@ -54,8 +112,9 @@ namespace SuggesterTests.Tests
             var visitor = new ChatVisitor();
 
             var visitResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
-            MsgGroupList mergeResult = visitor.MergeRestrictions(visitResult[0], inwin);
+            var mergeResult = visitor.MergeRestrictions(visitResult[0], inwin);
 
+            Assert.IsNotNull(mergeResult);
             Assert.AreEqual(expected.Count, mergeResult.Count);
 
             for (int i = 0; i < expected.Count; ++i)
@@ -74,6 +133,7 @@ namespace SuggesterTests.Tests
             var visitResult = (List<List<MsgGroupList>>)visitor.VisitQuery_seq(query_seq);
             List<MsgGroupList> mergeResult = visitor.MergeQueries(visitResult, inwin);
 
+            Assert.IsNotNull(mergeResult);
             Assert.AreEqual(expected.Count, mergeResult.Count);
 
             for (int i = 0; i < expected.Count; ++i)
@@ -93,22 +153,15 @@ namespace SuggesterTests.Tests
         {
             string query = "select haswordofdict(fruit)";
 
-            var tree = QueryParser.GetTree(query);
-            var restrictions = tree.body().restrictions();
-            var visitor = new ChatVisitor();
+            List<MsgGroupList> expectedResult = new List<MsgGroupList>()
+            {
+                new MsgGroupList()
+                {
+                    new List<int>() { 2, 8 }
+                }
+            };
 
-            var result = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual(result[0].Count, 1);
-            Assert.AreEqual(result[0][0].Count, 2);
-
-            var group0 = result[0][0];
-            var expected0 = new List<int>() { 2, 8 };
-            var isEqual0 = group0.SequenceEqual(expected0);
-
-            Assert.IsTrue(isEqual0);
+            CheckRestrictions(query, expectedResult);
         }
 
         [TestMethod]
@@ -116,29 +169,16 @@ namespace SuggesterTests.Tests
         {
             string query = "select haswordofdict(fruit), haswordofdict(vegetable)";
 
-            var tree = QueryParser.GetTree(query);
-            var restrictions = tree.body().restrictions();
-            var visitor = new ChatVisitor();
+            List<MsgGroupList> expectedResult = new List<MsgGroupList>()
+            {
+                new MsgGroupList()
+                {
+                    new List<int>() { 2, 8 },
+                    new List<int>() { 3, 5, 6, 7, 8, 9 }
+                }
+            };
 
-            var result = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.Count, 1);
-            Assert.AreEqual(result[0].Count, 2);
-            Assert.AreEqual(result[0][0].Count, 2);
-            Assert.AreEqual(result[0][1].Count, 6);
-
-            var group0 = result[0][0];
-            var expected0 = new List<int>() { 2, 8 };
-            var isEqual0 = group0.SequenceEqual(expected0);
-
-            Assert.IsTrue(isEqual0);
-
-            var group1 = result[0][1];
-            var expected1 = new List<int>() { 3, 5, 6, 7, 8, 9 };
-            var isEqual1 = group1.SequenceEqual(expected1);
-
-            Assert.IsTrue(isEqual1);
+            CheckRestrictions(query, expectedResult);
         }
 
         [TestMethod]
@@ -146,30 +186,14 @@ namespace SuggesterTests.Tests
         {
             string query = "select haswordofdict(fruit), haswordofdict(vegetable), byuser(misha) unr";
 
-            var tree = QueryParser.GetTree(query);
-            var restrictions = tree.body().restrictions();
-            var visitor = new ChatVisitor();
-
-            var result = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.Count, 6);
-
-            var group1 = new List<int>() { 2, 8 };
-            var group2 = new List<int>() { 3, 5, 6, 7, 8, 9 };
-            var group3 = new List<int>() { 0, 1, 2, 5 };
-
-            foreach (var groupList in result)
+            var expectedResult = new MsgGroupList()
             {
-                Assert.AreEqual(groupList.Count, 3);
+                new List<int>() { 2, 8 },
+                new List<int>() { 3, 5, 6, 7, 8, 9 },
+                new List<int>() { 0, 1, 2, 5 }
+            };
 
-                bool isCorrect =
-                    groupList.Any(t => t.SequenceEqual(group1)) &&
-                    groupList.Any(t => t.SequenceEqual(group2)) &&
-                    groupList.Any(t => t.SequenceEqual(group3));
-
-                Assert.IsTrue(isCorrect);
-            }
+            CheckRestrictionsWithUnr(query, expectedResult);
         }
 
         [TestMethod]
@@ -199,7 +223,6 @@ namespace SuggesterTests.Tests
             var romaList = new List<int>() { 4, 6, 9 };
 
             var expectedResult = vegetableList.Concat(romaList).ToList();
-            expectedResult.Sort();
 
             CheckRestriction(query, expectedResult);
         }
@@ -213,7 +236,6 @@ namespace SuggesterTests.Tests
             var romaList = new List<int>() { 4, 6, 9 };
 
             var expectedResult = vegetableList.Intersect(romaList).ToList();
-            expectedResult.Sort();
 
             CheckRestriction(query, expectedResult);
         }
@@ -244,8 +266,7 @@ namespace SuggesterTests.Tests
             var vegetableList = new List<int> { 3, 5, 6, 7, 8, 9 };
             var allMessages = Enumerable.Range(0, 12);
 
-            var expectedResult = allMessages.Except(vegetableList).ToList();
-            expectedResult.Sort();
+            var expectedResult = allMessages.Except(vegetableList);
 
             CheckRestriction(query, expectedResult);
         }

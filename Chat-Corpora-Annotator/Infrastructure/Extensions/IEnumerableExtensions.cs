@@ -35,23 +35,37 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions
             return outputList;
         }
 
-        public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> list)
+        public static int GetPermutationsCount<T>(this IEnumerable<T> items)
         {
-            return !list.IsNullOrEmpty()
-                ? GetPermutations(list, list.Count())
+            if (items.IsNullOrEmpty())
+                return 0;
+
+            int factorial = 1;
+            int itemsCount = items.Count();
+
+            for (int i = 2; i <= itemsCount; ++i)
+                factorial *= i;
+
+            return factorial;
+        }
+
+        public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> items)
+        {
+            return !items.IsNullOrEmpty()
+                ? GetPermutations(items, items.Count())
                 : new T[0][];
         }
 
-        private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> list, int length)
+        private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> items, int length)
         {
             if (length == 1)
-                return list.Select(t => new T[] { t });
+                return items.Select(t => new T[] { t });
 
-            var perms = GetPermutations(list, length - 1);
+            var perms = GetPermutations(items, length - 1);
 
             return perms.SelectMany
             (
-                (t) => list.Where(e => !t.Contains(e)),
+                (t) => items.Where(e => !t.Contains(e)),
                 (t1, t2) => t1.Concat(new T[] { t2 })
             );
         }

@@ -9,6 +9,7 @@ namespace SuggesterBenchmark
         {
             BenchmarkRunner.Run<MergeQueriesBenchmark>();
             BenchmarkRunner.Run<MergeRestrictionsBenchmark>();
+
             BenchmarkRunner.Run<ParseQueryBenchmark>();
             BenchmarkRunner.Run<VisitConditionBenchmark>();
             BenchmarkRunner.Run<VisitQueryBenchmark>();

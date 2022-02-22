@@ -1,9 +1,7 @@
-﻿
-using IndexEngine.Data.Paths;
+﻿using IndexEngine.Data.Paths;
 using IndexEngine.NLP;
 using Lucene.Net.Documents;
 using Lucene.Net.Search;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +15,7 @@ namespace IndexEngine.Search
         URL,
         DATE
     }
+
     public static class Retrievers
     {
         public static HashSet<int> HasWordOfList(List<string> words)
@@ -52,93 +51,25 @@ namespace IndexEngine.Search
 
         public static List<int> HasNERTag(NER tag)
         {
-            //Syntactic sugar for the B-trees in the Extractor class. 
-            List<int> result = new List<int>();
-
             switch (tag)
             {
-                case NER.ORG:
-                    if (Extractor.OrgList.Keys.Count != 0)
-                    {
-                        foreach (var temp in Extractor.OrgList.Keys)
-                        {
-                            result.Add(temp);
-                        }
-                        return result;
-                    }
-                    else
-                    {
-                        result.Add(-1);
-                        return result;
-                    }
+                case NER.ORG: return Extractor.OrgList.Keys.ToList();
+                case NER.LOC: return Extractor.LocList.Keys.ToList();
+                case NER.TIME: return Extractor.TimeList.Keys.ToList();
+                case NER.URL: return Extractor.URLList.Keys.ToList();
+                case NER.DATE: return Extractor.DateList.Keys.ToList();
 
-                case NER.LOC:
-                    if (Extractor.LocList.Keys.Count != 0)
-                    {
-                        foreach (var temp in Extractor.LocList.Keys)
-                        {
-                            result.Add(temp);
-                        }
-                        return result;
-                    }
-                    else
-                    {
-                        result.Add(-1);
-                        return result;
-                    }
-
-                case NER.TIME:
-                    if (Extractor.TimeList.Keys.Count != 0)
-                    {
-                        foreach (var temp in Extractor.TimeList.Keys)
-                        {
-                            result.Add(temp);
-                        }
-                        return result;
-                    }
-                    else
-                    {
-                        result.Add(-1);
-                        return result;
-                    }
-
-                case NER.URL:
-                    if (Extractor.URLList.Keys.Count != 0)
-                    {
-                        return Extractor.URLList.Keys.ToList();
-                    }
-                    else
-                    {
-                        result.Add(-1);
-                        return result;
-                    }
-
-                case NER.DATE:
-                    if (Extractor.DateList.Keys.Count != 0)
-                    {
-                        return Extractor.DateList.Keys.ToList();
-                    }
-                    else
-                    {
-                        result.Add(-1);
-                        return result;
-                    }
-
-                default:
-                    throw new ArgumentException();
+                default: return new List<int>();
             }
         }
 
         public static List<int> HasQuestion()
         {
-            return Extractor.IsQuestionList.Count != 0
-                ? Extractor.IsQuestionList
-                : new List<int>() { -1 };
+            return Extractor.IsQuestionList.ToList();
         }
 
         public static HashSet<int> HasUser(string user)
         {
-            //Love duplicate code
             HashSet<int> results = new HashSet<int>();
             TermQuery query = new TermQuery(new Lucene.Net.Index.Term(ProjectInfo.SenderFieldKey, user));
 
@@ -158,7 +89,6 @@ namespace IndexEngine.Search
 
         public static HashSet<int> HasUserMentioned(string user)
         {
-            //Or I can check each and every message out of millions for a substring occurence :^)
             HashSet<int> results = new HashSet<int>();
             Query query = LuceneService.Parser.Parse(user);
             TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
