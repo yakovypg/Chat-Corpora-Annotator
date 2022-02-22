@@ -1,0 +1,22 @@
+﻿<Application x:Class="ChatCorporaAnnotator.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/ControlTemplates/DatePickerTextBoxes.xaml"/>
+                <ResourceDictionary Source="Resources/ControlTemplates/ProgressBars.xaml"/>
+                <ResourceDictionary Source="Resources/ControlTemplates/Buttons.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/Buttons.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/TextBlocks.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/TextBoxes.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/CheckBoxes.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/ProgressBars.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/DataGrids.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/Defaults.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+    
+</Application>

@@ -1,0 +1,13 @@
+1. Make sure you have the Antlr4, Antlr4.Runtime, Antlr4.CodeGenerator packages installed.
+2. Try using version 4.6.4 for all Antlr4 components.
+3. Make sure that there is an ItemGroup in the configuration file (ChatCorporaAnnotator.csproj) and
+   supplement it if it does not contain all the data.
+
+<ItemGroup>
+  <Antlr4 Include="Data\Parsers\Suggester\Config\Chat.g4">
+    <Generator>MSBuild:Compile</Generator>
+    <CustomToolNamespace>ChatCorporaAnnotator.Data.Parsers.Suggester</CustomToolNamespace>
+    <Listener>True</Listener>
+    <Visitor>True</Visitor>
+  </Antlr4>
+</ItemGroup>

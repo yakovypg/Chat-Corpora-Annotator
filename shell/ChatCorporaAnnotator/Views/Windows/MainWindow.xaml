@@ -1,0 +1,896 @@
+﻿<Window x:Class="ChatCorporaAnnotator.Views.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:vm="clr-namespace:ChatCorporaAnnotator.ViewModels.Windows"
+        xmlns:chat="clr-namespace:ChatCorporaAnnotator.Models.Chat"
+        xmlns:b="clr-namespace:ChatCorporaAnnotator.Infrastructure.Behaviors.Static"
+        xmlns:controls="clr-namespace:ChatCorporaAnnotator.Data.Windows.Controls"
+        mc:Ignorable="d"
+        Icon="/Resources/Icons/MainWindowIcon.png"
+        Title="Chat Corpora Annotator"
+        Width="1350" Height="850"
+        MinWidth="702" MinHeight="442">
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="controls:HighlightedTextBlock">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="controls:HighlightedTextBlock">
+                        <TextBlock x:Name="PART_Content" Style="{TemplateBinding TextStyle}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MainWindowLoadedCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MainWindowClosingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <DockPanel Background="AliceBlue">
+        <Menu DockPanel.Dock="Top" Background="Transparent">
+            <Menu.Resources>
+                <Style TargetType="MenuItem">
+                    <Setter Property="FontSize" Value="13"/>
+                </Style>
+            </Menu.Resources>
+
+            <MenuItem Header="File">
+                <MenuItem Header="Index new file" Command="{Binding IndexNewFileCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_FileDownload"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                
+                <MenuItem Name="OpenCorpusMenuItem" Header="Open corpus" Command="{Binding OpenCorpusCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_FileImport"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+
+                <MenuItem Header="Recent projects"
+                          ItemsSource="{Binding RecentProjectProvider.RecentProjects}"
+                          IsEnabled="{Binding ElementName=OpenCorpusMenuItem, Path=IsEnabled}">
+                    
+                    <MenuItem.InputBindings>
+                        <KeyBinding Key="Delete" Command="{Binding ClearRecentProjectsCommand}"/>
+                    </MenuItem.InputBindings>
+                    
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_History"/>
+                    </MenuItem.Icon>
+                    
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Icon" Value="{Binding Icon}"/>
+                            <Setter Property="Header" Value="{Binding Name}"/>
+                            <Setter Property="Command" Value="{Binding DataContext.LoadProjectCommand, RelativeSource={RelativeSource AncestorType=DockPanel}}"/>
+                            <Setter Property="CommandParameter" Value="{Binding Path}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Visualize">
+                <MenuItem Header="Plot" Command="{Binding ShowPlotCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_ProjectDiagram"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+
+                <MenuItem Header="Heatmap" Command="{Binding ShowHeatmapCommand}">
+                    <MenuItem.Icon>
+                        <fa:ImageAwesome Icon="Solid_History"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Extract" Command="{Binding ExtractFileCommand}"/>
+        </Menu>
+
+        <Grid DockPanel.Dock="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="5, 3" Orientation="Horizontal">
+
+                <TextBlock Margin="0, 0, 0, 0" Text="{Binding LoadedFileInfo}"/>
+                <TextBlock Margin="7, 0, 0, 0" Text="{Binding TagsetName}"/>
+
+                <TextBlock Margin="7, 0, 0, 0">
+                    <Run Text="{Binding SituationsCount}"/>
+                    <Run Text="situations"/>
+                </TextBlock>
+            </StackPanel>
+
+            <Menu Grid.Column="1" Margin="0, 3" Background="Transparent" Visibility="{Binding BottomMenuVisibility}">
+                <Menu.Resources>
+                    <Style TargetType="MenuItem">
+                        <Setter Property="FontSize" Value="14"/>
+                    </Style>
+                </Menu.Resources>
+
+                <MenuItem Header="Filter">
+                    <MenuItem Header="Clear filter" Command="{Binding ChatVM.MessageFilterVM.ClearFilterCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_ArrowCircleLeft"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    
+                    <MenuItem Header="All tagged" Command="{Binding ChatVM.MessageFilterVM.ShowAllTaggedMessagesCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_Search"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="By selected tag" Command="{Binding ChatVM.MessageFilterVM.ShowMessagesByTagCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_SearchPlus"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="By selected situation" Command="{Binding ChatVM.MessageFilterVM.ShowMessagesBySituationCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_SearchPlus"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+
+                <MenuItem Header="Save">
+                    <MenuItem Header="Export xml" Command="{Binding ExportXmlCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_Download"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Export csv" Command="{Binding ExportCsvCommand}" IsEnabled="{Binding IsCsvFileExportingNotActive}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_FileCsv"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Save present state" Command="{Binding SavePresentStateByButtonCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_Save"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+
+                <MenuItem Header="Import">
+                    <MenuItem Header="Import xml" Command="{Binding ImportXmlCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_FileImport"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+
+                <MenuItem Header="Auxiliary">
+                    <MenuItem Header="Suggester" Command="{Binding ShowSuggesterCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_HandsHelping"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Tagset editor" Command="{Binding ShowTagsetEditorCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Solid_Edit"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+
+            <Grid Grid.Column="2" Width="auto" Visibility="{Binding BottomMenuVisibility}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="5"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Margin="5, 0" Text="{Binding SaveProjectStateHeader}"/>
+                <fa:ImageAwesome Grid.Column="1" Height="16" Foreground="Green" Icon="Regular_CheckSquare" Visibility="{Binding ChangesSavedImageVisibility}"/>
+                <fa:ImageAwesome Grid.Column="1" Height="16" Foreground="Red" Icon="Regular_WindowClose" Visibility="{Binding ChangesNotSavedImageVisibility}"/>
+                <fa:ImageAwesome Grid.Column="1" Height="16" Foreground="Orange" Icon="Solid_Sync" Visibility="{Binding ChangesSavingInProcessImageVisibility}"/>
+            </Grid>
+        </Grid>
+
+        <Grid Margin="5, 5, 5, 2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" MinWidth="170" MaxWidth="400"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="4*"/>
+            </Grid.ColumnDefinitions>
+
+            <GridSplitter
+                Grid.Column="1"
+                Width="3">
+            </GridSplitter>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <DockPanel Grid.Column="0" Margin="0, 0, 5, 0">
+                    <DockPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource WatermarkTextBlock}" x:Key="LiveFilteringWaretmark">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Height" Value="{Binding ElementName=LiveFilteringTextBox, Path=Height}"/>
+                            <Setter Property="FontSize" Value="{Binding ElementName=LiveFilteringTextBox, Path=FontSize}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=LiveFilteringTextBox, Path=Text}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource WatermarkTextBlock}" x:Key="QueryWaretmark">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Height" Value="{Binding ElementName=SearchQueryTextBox, Path=Height}"/>
+                            <Setter Property="FontSize" Value="{Binding ElementName=SearchQueryTextBox, Path=FontSize}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=SearchQueryTextBox, Path=Text}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Resources>
+
+                    <Expander Header="Live filtering" DockPanel.Dock="Top">
+                        <Grid>
+                            <TextBox
+                                Name="LiveFilteringTextBox"
+                                Margin="0, 7"
+                                Text="{Binding ChatVM.MessagesVM.MessagesCase.MessageFilterText, UpdateSourceTrigger=PropertyChanged}">
+                            </TextBox>
+
+                            <UniformGrid Margin="0, 3, 0, 0">
+                                <TextBlock Text="Live filtering" Style="{StaticResource LiveFilteringWaretmark}"/>
+                            </UniformGrid>
+                        </Grid>
+                    </Expander>
+
+                    <Expander Header="Query" DockPanel.Dock="Top">
+                        <Grid>
+                            <TextBox Name="SearchQueryTextBox"
+                                     Margin="0, 7"
+                                     Text="{Binding ChatVM.MessageFinderVM.Query, UpdateSourceTrigger=PropertyChanged}">
+
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="F5" Command="{Binding ChatVM.MessageFinderVM.ClearFinderCommand}"/>
+                                    <KeyBinding Key="F3" Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}"/>
+                                    <KeyBinding Key="Enter" Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            
+                            <UniformGrid Margin="0, 3, 0, 0">
+                                <TextBlock Text="Enter query" Style="{StaticResource QueryWaretmark}"/>
+                            </UniformGrid>
+                        </Grid>
+                    </Expander>
+
+                    <Expander Header="Select users toggle" DockPanel.Dock="Top">
+                        
+                        <ListBox Margin="0, 7"
+                                 MinHeight="50"
+                                 MaxHeight="300"
+                                 SelectionMode="Extended"
+                                 ItemsSource="{Binding ChatVM.UsersVM.Users}">
+
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction
+                                        PassEventArgsToCommand="True"
+                                        Command="{Binding ChatVM.UsersVM.ChangeSelectedUsersCommand}">
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type chat:ChatUser}">
+                                    <CheckBox
+                                        Content="{Binding Name}"
+                                        Style="{StaticResource BoldPressingCheckBox}"
+                                        IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        
+                    </Expander>
+
+                    <Expander Header="Select dates toggle" DockPanel.Dock="Top">
+                        
+                        <StackPanel Margin="0, 7">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="from" Height="21" Margin="3, 0, 5, 0"/>
+
+                                <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1">
+                                    <Grid Background="White">
+                                        <DatePicker Padding="20, 0, 0, 0"
+                                                    BorderThickness="0"
+                                                    SelectedDate="{Binding ChatVM.MessageFinderVM.StartDate, UpdateSourceTrigger=PropertyChanged}">
+
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox">
+                                                    <Setter Property="Template" Value="{DynamicResource WithoutBorderDatePickerTextBox}"/>
+                                                </Style>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
+
+                                        <CheckBox
+                                            Margin="3, 0, 0, 0"
+                                            IsChecked="{Binding ChatVM.MessageFinderVM.IsStartDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                        </CheckBox>
+                                    </Grid>
+                                </Border>
+                                
+                            </Grid>
+
+                            <Grid Margin="0, 3, 0, 0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="to" Height="21" Margin="3, 0, 5, 0"/>
+
+                                <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1">
+                                    <Grid Background="White">
+                                        <DatePicker Padding="20, 0, 0, 0"
+                                                    BorderThickness="0"
+                                                    SelectedDate="{Binding ChatVM.MessageFinderVM.EndDate, UpdateSourceTrigger=PropertyChanged}">
+
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox">
+                                                    <Setter Property="Template" Value="{DynamicResource WithoutBorderDatePickerTextBox}"/>
+                                                </Style>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
+
+                                        <CheckBox
+                                            Margin="3, 0, 0, 0"
+                                            IsChecked="{Binding ChatVM.MessageFinderVM.IsEndDateChecked, UpdateSourceTrigger=PropertyChanged}">
+                                        </CheckBox>
+                                    </Grid>
+                                </Border>
+                                
+                            </Grid>
+                        </StackPanel>
+                    </Expander>
+
+                    <Expander Header="Actions" DockPanel.Dock="Top" IsExpanded="True">
+                        <StackPanel Height="auto" Margin="3, 7, 0, 0">
+                            <Button
+                                Content="Clear"
+                                Style="{StaticResource BlueCircleButton}"
+                                Command="{Binding ChatVM.MessageFinderVM.ClearFinderCommand}">
+                            </Button>
+
+                            <Button
+                                Content="Find"
+                                Margin="0, 5, 0, 0"
+                                Style="{StaticResource BlueCircleButton}"
+                                Command="{Binding ChatVM.MessageFinderVM.FindMessagesCommand}">
+                            </Button>
+                        </StackPanel>
+                    </Expander>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" MinHeight="5"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="1*" MinHeight="200"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"/>
+                        <GridSplitter Grid.Row="1" Height="3" Background="LightPink" Visibility="{Binding CurrentTagsetVisibility}"/>
+
+                        <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1" Visibility="{Binding CurrentTagsetVisibility}">
+                            <DockPanel Background="White">
+                                <TextBlock
+                                    Text="Tagset"
+                                    Style="{StaticResource ListTitleTextBlock}">
+                                </TextBlock>
+
+                                <ListBox BorderThickness="0"
+                                         HorizontalContentAlignment="Stretch"
+                                         ItemsSource="{Binding ChatVM.TagsVM.CurrentTagset}"
+                                         SelectedItem="{Binding ChatVM.TagsVM.SelectedTag}">
+
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type chat:Tag}">
+                                            <TextBlock Text="{Binding Header}" Background="{Binding BackgroundBrush}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                </DockPanel>
+            </ScrollViewer>
+
+            <TabControl Grid.Column="2">
+                <TabItem Header="Chat" DataContext="{Binding ChatVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+                            
+                            <Grid DockPanel.Dock="Top" Height="38" Margin="0, 0, 0, 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button
+                                    Grid.Column="0"
+                                    FontSize="15"
+                                    Content="Remove tag"
+                                    Style="{StaticResource OrangeCircleButton}"
+                                    Command="{Binding RemoveTagCommand}">
+                                </Button>
+
+                                <Button
+                                    Grid.Column="2"
+                                    FontSize="15"
+                                    Content="Add tag"
+                                    Style="{StaticResource GreenCircleButton}"
+                                    Command="{Binding AddTagCommand}">
+                                </Button>
+                            </Grid>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*" MinWidth="200"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <GridSplitter
+                                    Grid.Column="1"
+                                    Width="3"
+                                    Margin="0, 0, 2, 0">
+                                </GridSplitter>
+
+                                <DataGrid Name="ChatDataGrid"
+                                          Grid.Column="0"
+                                          IsReadOnly="True"
+                                          Background="White"
+                                          MinRowHeight="3"
+                                          MinColumnWidth="50"
+                                          MaxColumnWidth="500"
+                                          SelectionUnit="FullRow"
+                                          SelectionMode="Extended"
+                                          GridLinesVisibility="None"
+                                          AutoGenerateColumns="False"  
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          b:DataGridColumnsBehavior.BindableColumns="{Binding ChatColumns}"
+                                          ItemsSource="{Binding MessagesVM.MessagesCase.MessageCollection}">
+
+                                    <DataGrid.Resources>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF26A0DA"/>
+                                    </DataGrid.Resources>
+
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction
+                                                PassEventArgsToCommand="True"
+                                                Command="{Binding MessagesVM.ChangeSelectedMessagesCommand}">
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Setter Property="Background" Value="#FFCBE8F6"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
+                                            <EventSetter Event="PreviewMouseRightButtonDown" Handler="ChatDataGridRow_PreviewMouseRightButtonDown"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="BorderBrush" Value="#FF70C0E7"/>
+                                                    <Setter Property="Background" Value="#FFE5F3FB"/>
+                                                </Trigger>
+
+                                                <DataTrigger Binding="{Binding IsFake}" Value="True">
+                                                    <Setter Property="Height" Value="5"/>
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+
+                                    <!-- Groupping is very slow and resource-demanding
+                                    
+                                    <DataGrid.GroupStyle>
+                                        <GroupStyle>
+                                            <GroupStyle.ContainerStyle>
+                                                <Style TargetType="{x:Type GroupItem}">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="{x:Type GroupItem}">
+                                                                <Expander Header="{Binding Name}" IsExpanded="True">
+                                                                    <ItemsPresenter/>
+                                                                </Expander>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </GroupStyle.ContainerStyle>
+                                        </GroupStyle>
+                                    </DataGrid.GroupStyle>
+                                    
+                                    -->
+                                </DataGrid>
+
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1*" MinHeight="100"/>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="1.7*" MinHeight="100"/>
+                                        </Grid.RowDefinitions>
+
+                                        <GridSplitter Grid.Row="1" Height="3"/>
+
+                                        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1">
+                                            <Grid Background="White">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="auto"/>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock
+                                                    Grid.Row="0"
+                                                    Text="Active dates"
+                                                    Style="{StaticResource ListTitleTextBlock}">
+                                                </TextBlock>
+
+                                                <ListBox Grid.Row="1"
+                                                         BorderThickness="0"
+                                                         ItemsSource="{Binding DatesVM.ActiveDates}"
+                                                         SelectedItem="{Binding DatesVM.SelectedDate}">
+
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDoubleClick">
+                                                            <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding DatesVM.MoveToSelectedDateCommand}"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+
+                                                    <ListBox.InputBindings>
+                                                        <KeyBinding Key="Enter" Command="{Binding DatesVM.MoveToSelectedDateCommand}"/>
+                                                    </ListBox.InputBindings>
+
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type chat:MessageDate}">
+                                                            <TextBlock Text="{Binding ShortDatePresenter}"/>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+
+                                                <UniformGrid Grid.Row="1"
+                                                             Background="White"
+                                                             Visibility="{Binding ActiveDatesWaitingImageGridVisibility}">
+
+                                                    <UniformGrid.Resources>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" x:Key="ActiveDatesWaitingImageForegroundGradient">
+                                                            <GradientStop Color="Orange" Offset="0"/>
+                                                            <GradientStop Color="BlueViolet" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </UniformGrid.Resources>
+
+                                                    <fa:ImageAwesome
+                                                        Margin="20"
+                                                        MinWidth="20"
+                                                        MinHeight="20"
+                                                        MaxWidth="70"
+                                                        MaxHeight="70"
+                                                        Icon="Solid_Sync"
+                                                        Spin="True"
+                                                        SpinDuration="6"
+                                                        HorizontalAlignment="Center"
+                                                        Foreground="{StaticResource ActiveDatesWaitingImageForegroundGradient}">
+                                                    </fa:ImageAwesome>
+                                                </UniformGrid>
+
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="2" Margin="0, 5" BorderBrush="Gray" BorderThickness="1">
+                                            <DockPanel Background="White">
+                                                <TextBlock
+                                                    Text="Situations"
+                                                    Style="{StaticResource ListTitleTextBlock}">
+                                                </TextBlock>
+
+                                                <ListBox BorderThickness="0"
+                                                         ItemsSource="{Binding SituationsVM.Situations}"
+                                                         SelectedItem="{Binding SituationsVM.SelectedSituation}">
+
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDoubleClick">
+                                                            <i:InvokeCommandAction
+                                                                PassEventArgsToCommand="True"
+                                                                Command="{Binding SituationsVM.MoveToSelectedSituationCommand}">
+                                                            </i:InvokeCommandAction>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+
+                                                    <ListBox.InputBindings>
+                                                        <KeyBinding Key="F1" Command="{Binding SituationsVM.ShowSelectedSituationInfoCommand}"/>
+                                                        <KeyBinding Key="Enter" Command="{Binding SituationsVM.MoveToSelectedSituationCommand}"/>
+                                                        <KeyBinding Key="Delete" Command="{Binding SituationsVM.DeleteSituationCommand}"/>
+                                                    </ListBox.InputBindings>
+
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type chat:Situation}">
+                                                            <TextBlock>
+                                                                <Run Text="{Binding Header}"/>
+                                                                <Run Text="{Binding Id}"/>
+                                                            </TextBlock>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </DockPanel>
+                                        </Border>
+                                    </Grid>
+
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <Button
+                                                Content="Delete"
+                                                Padding="3"
+                                                Command="{Binding SituationsVM.DeleteSituationCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
+                                            <Button
+                                                Content="Merge"
+                                                Padding="3"
+                                                Margin="0, 5, 0, 0"
+                                                Command="{Binding SituationsVM.MergeSituationsCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Margin="3, 0, 0, 0">
+                                            <Button
+                                                Content="Change tag"
+                                                Padding="3"
+                                                Command="{Binding SituationsVM.ChangeSituationTagCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
+                                            <Button
+                                                Content="Cross-Merge"
+                                                Padding="3"
+                                                Margin="0, 5, 0, 0"
+                                                Command="{Binding SituationsVM.CrossMergeSituationsCommand}"
+                                                Style="{StaticResource BlueCircleButton}">
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                
+                            </Grid>
+                            
+                        </DockPanel>
+                        
+                    </UniformGrid>
+                </TabItem>
+
+                <TabItem Header="Statistics" DataContext="{Binding StatisticsVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Background="White"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+                            
+                            <DockPanel DockPanel.Dock="Bottom" Height="28">
+                                <Button
+                                    DockPanel.Dock="Left"
+                                    Content="Calculate" Width="100"
+                                    Style="{StaticResource BlueCircleButton}"
+                                    Command="{Binding CalculateStatisticsCommand}">
+                                </Button>
+
+                                <ProgressBar
+                                    Margin="5, 0, 0, 0"
+                                    Minimum="{Binding ProgressBarMinimum}"
+                                    Maximum="{Binding ProgressBarMaximum}"
+                                    Value="{Binding ProgressBarCurrentValue}"
+                                    Style="{StaticResource dd}">
+                                </ProgressBar>
+                            </DockPanel>
+
+                            <Grid Margin="0, 0, 0, 5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MinWidth="250"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition MinWidth="250"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <GridSplitter
+                                    Width="3"
+                                    Grid.Column="1"
+                                    Grid.RowSpan="2">
+                                </GridSplitter>
+
+                                <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="Dataset statistics" Style="{StaticResource ListTitleTextBlock}"/>
+                                </Border>
+
+                                <Border Grid.Row="0" Grid.Column="2" BorderThickness="1" BorderBrush="Gray">
+                                    <TextBlock Text="Corpus statistics" Style="{StaticResource ListTitleTextBlock}"/>
+                                </Border>
+
+                                <DataGrid
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Style="{StaticResource BlueGlassDataGrid}"
+                                    ItemsSource="{Binding DatasetStatisticsItems}">
+                                </DataGrid>
+
+                                <DataGrid
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Style="{StaticResource BlueGlassDataGrid}"
+                                    ItemsSource="{Binding CorpusStatisticsItems}">
+                                </DataGrid>
+                            </Grid>
+                            
+                        </DockPanel>
+                        
+                    </UniformGrid>
+                </TabItem>
+
+                <TabItem Header="Concordance" DataContext="{Binding ConcordanceVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Background="White"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+
+                            <DockPanel Margin="0, 0, 0, 5" DockPanel.Dock="Top">
+                                <Button
+                                    Content="Show"
+                                    Width="100"
+                                    DockPanel.Dock="Right"
+                                    Command="{Binding ShowConcordanceCommand}"
+                                    Style="{StaticResource BlueCircleButton}">
+                                </Button>
+
+                                <ComboBox Width="60"
+                                          Margin="5, 0"
+                                          DockPanel.Dock="Right"
+                                          SelectedItem="{Binding CharsCount}"
+                                          ItemsSource="{Binding CharsCountCollection}">
+                                </ComboBox>
+
+                                <TextBox Text="{Binding Term, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ShowConcordanceCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </DockPanel>
+
+                            <TextBox
+                                IsReadOnly="True"
+                                FontFamily="Consolas"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Auto"
+                                Text="{Binding ConcordanceViewerText}"
+                                Style="{StaticResource MultilineTextBox}">
+                            </TextBox>
+                        </DockPanel>
+                        
+                    </UniformGrid>
+                </TabItem>
+
+                <TabItem Header="N-gram Search" DataContext="{Binding NGramsVM}">
+                    <UniformGrid Background="AliceBlue">
+                        <DockPanel Margin="3"
+                                   Background="White"
+                                   Visibility="{Binding DataContext.TabControlGridsVisibility, RelativeSource={RelativeSource AncestorType=TabControl}}">
+
+                            <DockPanel Margin="0, 0, 0, 5" DockPanel.Dock="Top">
+                                <Button
+                                    Content="Search"
+                                    Width="100"
+                                    DockPanel.Dock="Right"
+                                    Command="{Binding SearchNGramsCommand}"
+                                    Style="{StaticResource BlueCircleButton}">
+                                </Button>
+
+                                <Button
+                                    Content="Build index"
+                                    Width="110"
+                                    Margin="5, 0"
+                                    DockPanel.Dock="Right"
+                                    Command="{Binding BuildIndexCommand}"
+                                    Style="{StaticResource BlueCircleButton}">
+                                </Button>
+
+                                <TextBox Text="{Binding NGram, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding SearchNGramsCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </DockPanel>
+
+                            <TabControl>
+                                <TabItem Header="Bigrams">
+                                    <DataGrid ItemsSource="{Binding Bigrams}"/>
+                                </TabItem>
+
+                                <TabItem Header="Trigrams">
+                                    <DataGrid ItemsSource="{Binding Trigrams}"/>
+                                </TabItem>
+
+                                <TabItem Header="4-grams">
+                                    <DataGrid ItemsSource="{Binding FourGrams}"/>
+                                </TabItem>
+
+                                <TabItem Header="5-grams">
+                                    <DataGrid ItemsSource="{Binding FiveGrams}"/>
+                                </TabItem>
+                            </TabControl>
+                            
+                        </DockPanel>
+                        
+                    </UniformGrid>
+                </TabItem>
+
+                <TabItem Header="Keyword Analysis">
+
+                </TabItem>
+                
+            </TabControl>
+
+        </Grid>
+
+    </DockPanel>
+
+</Window>

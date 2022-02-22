@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using ChatCorporaAnnotator.Data.Parsers.Suggester;
 using SuggesterBenchmark.Benchmarks.Base;
-using System.Collections.Generic;
 
 namespace SuggesterBenchmark.Benchmarks
 {
