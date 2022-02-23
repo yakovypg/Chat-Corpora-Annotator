@@ -408,23 +408,40 @@ namespace SuggesterTest.Tests
         [TestMethod]
         public void MergeRestrictionsTest_Count3_2()
         {
-            string query = "select byuser(misha) and not haswordofdict(vegetable), haswordofdict(fruit) or haswordofdict(shop), haswordofdict(vegetable) inwin 3";
+            string query = "select byuser(misha) and not haswordofdict(vegetable), haswordofdict(fruit) or haswordofdict(shop), haswordofdict(vegetable) inwin 5";
 
             var expectedResult = new MsgGroupList()
             {
                 new List<int>() { 0, 2, 3 },
                 new List<int>() { 0, 2, 5 },
 
+                new List<int>() { 0, 4, 5 },
+
                 new List<int>() { 1, 2, 3 },
                 new List<int>() { 1, 2, 5 },
+                new List<int>() { 1, 2, 6 },
 
                 new List<int>() { 1, 4, 5 },
                 new List<int>() { 1, 4, 6 },
-                new List<int>() { 1, 4, 7 },
 
                 new List<int>() { 2, 4, 5 },
                 new List<int>() { 2, 4, 6 },
                 new List<int>() { 2, 4, 7 }
+            };
+
+            CheckMergedRestrictions(query, 5, expectedResult);
+        }
+
+        [TestMethod]
+        public void MergeRestrictionsTest_Count3_3()
+        {
+            string query = "select byuser(misha) and not haswordofdict(vegetable), haswordofdict(fruit) or haswordofdict(shop), haswordofdict(vegetable) inwin 3";
+
+            var expectedResult = new MsgGroupList()
+            {
+                new List<int>() { 0, 2, 3 },
+                new List<int>() { 1, 2, 3 },
+                new List<int>() { 2, 4, 5 },
             };
 
             CheckMergedRestrictions(query, 3, expectedResult);
@@ -566,7 +583,7 @@ namespace SuggesterTest.Tests
         [TestMethod]
         public void MergeQueriesTest_Count3_1()
         {
-            string query = "select (select byuser(misha)); (select not haswordofdict(vegetable), haswordofdict(shop) inwin 2); (select haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable) inwin 1) inwin 7";
+            string query = "select (select byuser(misha)); (select not haswordofdict(vegetable), haswordofdict(shop) inwin 2); (select haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable) inwin 3) inwin 7";
 
             var expectedResult = new List<MsgGroupList>()
             {
@@ -584,7 +601,7 @@ namespace SuggesterTest.Tests
         [TestMethod]
         public void MergeQueriesTest_Count3_2()
         {
-            string query = "select (select byuser(misha)); (select not haswordofdict(vegetable), haswordofdict(shop) inwin 2); (select haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable) inwin 1) inwin 8";
+            string query = "select (select byuser(misha)); (select not haswordofdict(vegetable), haswordofdict(shop) inwin 2); (select haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable), haswordofdict(vegetable) inwin 3) inwin 8";
 
             var expectedResult = new List<MsgGroupList>()
             {

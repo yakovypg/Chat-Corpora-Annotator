@@ -87,7 +87,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
             for (int i = 0; i < restrictions.Length; ++i)
             {
-                var visitResult = (VisitRestriction(restrictions[i]) as IEnumerable<int>).ToList();
+                var visitResult = ((IEnumerable<int>)VisitRestriction(restrictions[i])).ToList();
                 visitResult.Sort();
 
                 visitResults.Add(visitResult);
@@ -231,16 +231,17 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             List<int> curGroup = groupList[startGroup];
             var result = new MsgGroupList();
 
-            int previousItem = accumulatedMsgs.Last();
+            int firstItem = accumulatedMsgs[0];
+            int previousItem = accumulatedMsgs[accumulatedMsgs.Count - 1];
 
             for (int i = 0; i < curGroup.Count; ++i)
             {
-                var curItem = curGroup[i];
+                int curItem = curGroup[i];
 
-                if (curItem < previousItem || accumulatedMsgs.Contains(curItem))
+                if (curItem <= previousItem)
                     continue;
 
-                if (curItem - previousItem > windowSize)
+                if (curItem - firstItem > windowSize)
                     break;
 
                 var newAccumulatedMsgs = new List<int>(accumulatedMsgs) { curItem };
