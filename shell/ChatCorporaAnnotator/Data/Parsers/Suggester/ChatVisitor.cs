@@ -263,8 +263,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
             for (int i = 0; i < firstSubqueryResult.Count; ++i)
             {
-                var accumulatedItems = new List<MsgGroupList>() { firstSubqueryResult[i] };
-                var mergedSubqueryResults = MergeQueries(subqueryResults, windowSize, accumulatedItems, 1);
+                var curItem = firstSubqueryResult[i];
+
+                int windowStart = curItem[0][0];
+                int curItemLast = curItem[^1][^1];
+
+                var accumulatedItems = new List<MsgGroupList>() { curItem };
+                var mergedSubqueryResults = MergeQueries(subqueryResults, windowSize, windowStart, curItemLast, accumulatedItems, 1);
 
                 result.AddRange(mergedSubqueryResults);
             }
@@ -272,7 +277,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             return CombineGroupLists(result, subqueryResults.Count);
         }
 
-        public List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> subqueryResults, int windowSize, IReadOnlyList<MsgGroupList> accumulatedItems, int start)
+        public List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> subqueryResults, int windowSize, int windowStart, int prevLast, IReadOnlyList<MsgGroupList> accumulatedItems, int start)
         {
             if (start >= subqueryResults.Count)
                 return new List<MsgGroupList>(accumulatedItems);
@@ -280,26 +285,21 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var currentSubqueryResult = subqueryResults[start];
             var result = new List<MsgGroupList>();
 
-            MsgGroupList prevItem = accumulatedItems.Last();
-
-            int prevItemLast = prevItem.Last().Last();
-            int firstItemFirst = accumulatedItems.First().First().First();
-
             for (int i = 0; i < currentSubqueryResult.Count; ++i)
             {
                 MsgGroupList curItem = currentSubqueryResult[i];
 
-                int curItemFirst = curItem.First().First();
-                int curItemLast = curItem.Last().Last();
+                int curItemFirst = curItem[0][0];
+                int curItemLast = curItem[^1][^1];
 
-                if (curItemFirst <= prevItemLast || accumulatedItems.Contains(curItem))
+                if (curItemFirst <= prevLast)
                     continue;
 
-                if (curItemLast - firstItemFirst > windowSize)
+                if (curItemLast - windowStart > windowSize)
                     break;
 
                 var newAccumulatedItems = new List<MsgGroupList>(accumulatedItems) { curItem };
-                var mergedSubqueryResults = MergeQueries(subqueryResults, windowSize, newAccumulatedItems, start + 1);
+                var mergedSubqueryResults = MergeQueries(subqueryResults, windowSize, windowStart, curItemLast, newAccumulatedItems, start + 1);
 
                 result.AddRange(mergedSubqueryResults);
             }
@@ -307,7 +307,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             return result;
         }
 
-        public List<MsgGroupList> CombineGroupLists(List<MsgGroupList> groupLists, int combineSectionLength)
+        private static List<MsgGroupList> CombineGroupLists(List<MsgGroupList> groupLists, int combineSectionLength)
         {
             if (groupLists.Count % combineSectionLength != 0)
                 throw new ArgumentException("The number of list items must be divided by the length of the section.");
@@ -322,8 +322,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 {
                     var group = new List<int>();
 
-                    foreach (var item in groupLists[j])
-                        group.AddRange(item);
+                    foreach (var list in groupLists[j])
+                        group.AddRange(list);
 
                     groupList.Add(group);
                 }
