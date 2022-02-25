@@ -36,7 +36,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
     {
         private IndexFileWindow _indexFileWindow;
         private TagsetEditorWindow _tagsetEditorWindow;
-        private QueryLanguageWindow _queryLanguageWindow;
+        private SuggesterWindow _suggesterWindow;
 
         private CsvExportService _csvExportService;
 
@@ -409,19 +409,19 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanShowSuggesterCommandExecute(parameter))
                 return;
 
-            if (_queryLanguageWindow != null)
+            if (_suggesterWindow != null)
             {
-                new WindowInteract(_queryLanguageWindow).MoveToForeground();
+                new WindowInteract(_suggesterWindow).MoveToForeground();
                 return;
             }
 
-            var vm = new QueryLanguageWindowViewModel(this)
+            var vm = new SuggesterWindowViewModel(this)
             {
-                DeactivateAction = () => _queryLanguageWindow = null
+                DeactivateAction = () => _suggesterWindow = null
             };
 
-            _queryLanguageWindow = new QueryLanguageWindow(vm);
-            _queryLanguageWindow.Show();
+            _suggesterWindow = new SuggesterWindow(vm);
+            _suggesterWindow.Show();
         }
 
         public ICommand ShowTagsetEditorCommand { get; }
@@ -557,7 +557,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             string path = parameter as string;
 
-            CloseQueryLanguageWindowCommand.Execute(null);
+            CloseSuggesterWindowCommand.Execute(null);
 
             try
             {
@@ -682,7 +682,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             CloseIndexFileWindowCommand.Execute(null);
             CloseTagsetEditorWindowCommand.Execute(null);
-            CloseQueryLanguageWindowCommand.Execute(null);
+            CloseSuggesterWindowCommand.Execute(null);
             CloseMessageExplorerWindowsCommand.Execute(null);
 
             SaveRecentProjects(RecentProjectProvider.RecentProjects);
@@ -717,17 +717,17 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             _tagsetEditorWindow.Close();
         }
 
-        public ICommand CloseQueryLanguageWindowCommand { get; }
-        public bool CanCloseQueryLanguageWindowCommandExecute(object parameter)
+        public ICommand CloseSuggesterWindowCommand { get; }
+        public bool CanCloseSuggesterWindowCommandExecute(object parameter)
         {
-            return _queryLanguageWindow != null;
+            return _suggesterWindow != null;
         }
-        public void OnCloseQueryLanguageWindowCommandExecuted(object parameter)
+        public void OnCloseSuggesterWindowCommandExecuted(object parameter)
         {
-            if (!CanCloseQueryLanguageWindowCommandExecute(parameter))
+            if (!CanCloseSuggesterWindowCommandExecute(parameter))
                 return;
 
-            _queryLanguageWindow.Close();
+            _suggesterWindow.Close();
         }
 
         public ICommand CloseMessageExplorerWindowsCommand { get; }
@@ -786,7 +786,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
             CloseTagsetEditorWindowCommand = new RelayCommand(OnCloseTagsetEditorWindowCommandExecuted, CanCloseTagsetEditorWindowCommandExecute);
-            CloseQueryLanguageWindowCommand = new RelayCommand(OnCloseQueryLanguageWindowCommandExecuted, CanCloseQueryLanguageWindowCommandExecute);
+            CloseSuggesterWindowCommand = new RelayCommand(OnCloseSuggesterWindowCommandExecuted, CanCloseSuggesterWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);
 
             #endregion

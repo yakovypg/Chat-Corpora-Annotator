@@ -29,7 +29,7 @@ using System.Windows.Media;
 
 namespace ChatCorporaAnnotator.ViewModels.Windows
 {
-    internal class QueryLanguageWindowViewModel : ViewModel
+    internal class SuggesterWindowViewModel : ViewModel
     {
         private const int DRAG_DROP_SWITCH_PAUSE = 1000;
 
@@ -898,7 +898,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
-        public QueryLanguageWindowViewModel(MainWindowViewModel mainWindowVM)
+        public SuggesterWindowViewModel(MainWindowViewModel mainWindowVM)
         {
             MainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 

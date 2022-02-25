@@ -7,14 +7,14 @@ using System.Windows.Input;
 
 namespace ChatCorporaAnnotator.Views.Windows
 {
-    public partial class QueryLanguageWindow : Window
+    public partial class SuggesterWindow : Window
     {
-        public QueryLanguageWindow()
+        public SuggesterWindow()
         {
             InitializeComponent();
         }
 
-        internal QueryLanguageWindow(QueryLanguageWindowViewModel viewModel)
+        internal SuggesterWindow(SuggesterWindowViewModel viewModel)
         {
             DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
@@ -25,7 +25,7 @@ namespace ChatCorporaAnnotator.Views.Windows
             if (!(sender is DataGridRow row))
                 return;
 
-            if (!(DataContext is QueryLanguageWindowViewModel viewModel))
+            if (!(DataContext is SuggesterWindowViewModel viewModel))
                 return;
 
             if (!(row.Item is ChatMessage message))

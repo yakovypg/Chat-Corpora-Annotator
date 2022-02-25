@@ -101,7 +101,7 @@
     <Page Update="Views\Windows\MessageExplorerWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\Windows\QueryLanguageWindow.xaml">
+    <Page Update="Views\Windows\SuggesterWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Windows\TagsetEditorWindow.xaml">
