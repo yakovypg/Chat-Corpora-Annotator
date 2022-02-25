@@ -1,49 +1,117 @@
 ﻿using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
 using IndexEngine.Search;
-using System;
+using SuggesterTest.Infrastructure.Exceptions;
 using System.IO;
+using System.IO.Compression;
 
 namespace SuggesterTest.Tests.Base
 {
     public class TestBase
     {
-        protected string ProjectFilePath { get; set; }
-        protected string UserDictFilePath { get; set; }
+        private const string USER_DICTS_NAME = "user_dicts";
+        private const string USER_DICTS_FILE_NAME = $"{USER_DICTS_NAME}.txt";
+
+        private const string TEST_PROJECT_NAME = "test_suggester_1";
+        private const string TEST_PROJECT_FILE_NAME = $"{TEST_PROJECT_NAME}.cca";
+        private const string TEST_PROJECT_ZIP_FILE_NAME = $"{TEST_PROJECT_NAME}.zip";
+
+        private const string EXTRACTED_DATA_FOLDER_PATH = "TestData";
+
+        public string WorkingDirectory { get; private set; } = string.Empty;
+        public string ProjectFolderPath { get; private set; } = string.Empty;
+
+        public string ProjectFilePath { get; private set; } = string.Empty;
+        public string ProjectZipFilePath { get; private set; } = string.Empty;
+        public string UserDictsFilePath { get; private set; } = string.Empty;
+
+        private static int CreatedTestsCount = 0;
 
         public TestBase()
         {
+            if (CreatedTestsCount == 0)
+                DeleteOldTests();
+
             SetPaths();
-            CheckPaths();
+            ExtractTestProject();
 
             ProjectInfo.LoadProject(ProjectFilePath);
             LuceneService.OpenIndex();
 
-            UserDictsIndex.GetInstance().ImportIndex(UserDictFilePath);
+            UserDictsIndex.GetInstance().ImportIndex(UserDictsFilePath);
+
+            CreatedTestsCount++;
         }
 
-        protected void CheckPaths()
+        private void ExtractTestProject()
         {
-            if (!File.Exists(ProjectFilePath))
-                throw new FileNotFoundException(nameof(ProjectFilePath));
+            object? projectResObj = Properties.Resources.ResourceManager.GetObject(TEST_PROJECT_NAME);
+            object? userDictsResObj = Properties.Resources.ResourceManager.GetObject(USER_DICTS_NAME);
 
-            if (!File.Exists(UserDictFilePath))
-                throw new FileNotFoundException(nameof(UserDictFilePath));
+            if (projectResObj is not byte[] zipProjectBytes)
+                throw new ResourceExtractionException(projectResObj);
+
+            if (userDictsResObj is not string userDictsData)
+                throw new ResourceExtractionException(userDictsResObj);
+
+            Directory.CreateDirectory(WorkingDirectory);
+
+            File.WriteAllBytes(ProjectZipFilePath, zipProjectBytes);
+            File.WriteAllText(UserDictsFilePath, userDictsData);
+
+            ZipFile.ExtractToDirectory(ProjectZipFilePath, WorkingDirectory);
+
+            if (!File.Exists(ProjectFilePath))
+                throw new ResourceExtractionException(projectResObj);
+
+            if (!File.Exists(UserDictsFilePath))
+                throw new ResourceExtractionException(userDictsResObj);
         }
 
         private void SetPaths()
         {
-            string userDictName = "user_dicts.txt";
-            string projectFileLocation = @"suggester_test1\suggester_test1.cca";
+            WorkingDirectory = GetWorkingDirectory();
 
-            string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            UserDictsFilePath = Path.Combine(WorkingDirectory, USER_DICTS_FILE_NAME);
+            ProjectFolderPath = Path.Combine(WorkingDirectory, TEST_PROJECT_NAME);
+            ProjectZipFilePath = Path.Combine(WorkingDirectory, TEST_PROJECT_ZIP_FILE_NAME);
+            ProjectFilePath = Path.Combine(ProjectFolderPath, TEST_PROJECT_FILE_NAME);
+        }
 
-            string ccaFolder = Path.Combine(userFolder, "CCA");
-            string projectFilePath = Path.Combine(ccaFolder, projectFileLocation);
-            string userDictFilePath = Path.Combine(ccaFolder, userDictName);
+        private string GetWorkingDirectory()
+        {
+            int hash = GetHashCode() - 1;
 
-            ProjectFilePath = projectFilePath;
-            UserDictFilePath = userDictFilePath;
+            string name;
+            string workingDirectory;
+            
+            do
+            {
+                hash += 1;
+                name = $"test{hash}";
+                workingDirectory = Path.Combine(EXTRACTED_DATA_FOLDER_PATH, name);
+            }
+            while (Directory.Exists(workingDirectory));
+
+            return workingDirectory;
+        }
+
+        private static void DeleteOldTests()
+        {
+            if (!Directory.Exists(EXTRACTED_DATA_FOLDER_PATH))
+                return;
+
+            var dirInfo = new DirectoryInfo(EXTRACTED_DATA_FOLDER_PATH);
+            var oldTests = dirInfo.GetDirectories();
+
+            for (int i = 0; i < oldTests.Length; ++i)
+            {
+                try
+                {
+                    new DirectoryInfo(oldTests[i].FullName).Delete(true);
+                }
+                catch { }
+            }
         }
     }
 }
