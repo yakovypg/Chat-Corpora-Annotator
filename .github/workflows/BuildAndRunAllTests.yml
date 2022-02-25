@@ -16,6 +16,12 @@ jobs:
       with:
         dotnet-version: 6.0.x
         
+    - name: Restore submodules
+      run: git submodule sync --recursive
+    
+    - name: Update submodules
+      run: git submodule update --init --remote --recursive
+        
     - name: Restore dependencies
       run: dotnet restore
       
