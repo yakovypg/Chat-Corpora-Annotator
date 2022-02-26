@@ -220,7 +220,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         {
             if (_previousPackage.Count > 0)
             {
-                int index = _previousPackage.First().Source.Id - 1;
+                int index = _previousPackage[0].Source.Id - 1;
                 IndexInteraction.ResetMessageReadIndex(index);
             }
 
@@ -242,7 +242,7 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
         {
             if (_nextPackage.Count > 0)
             {
-                int index = _nextPackage.Last().Source.Id + 1;
+                int index = _nextPackage[^1].Source.Id + 1;
                 IndexInteraction.ResetMessageReadIndex(index);
             }
 

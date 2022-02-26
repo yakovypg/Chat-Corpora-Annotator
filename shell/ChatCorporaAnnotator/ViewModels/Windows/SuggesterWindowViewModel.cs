@@ -1179,9 +1179,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
             }
 
-            string lastOperator = QueryItems.Last().Content.ToString();
+            string lastOperator = QueryItems[^1].Content.ToString() ?? string.Empty;
 
-            if (lastOperator.Contains("(") && lastOperator.Contains(")"))
+            if (lastOperator.Contains('(') && lastOperator.Contains(')'))
             {
                 int leftBracketIndex = lastOperator.IndexOf("(");
                 lastOperator = lastOperator.Remove(leftBracketIndex) + "()";
@@ -1399,12 +1399,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                     return;
             }
 
-            var lastItem = QueryItems.Last();
+            var lastItem = QueryItems[^1];
             _lastDragDropSwitch = new Tuple<Button, DateTime>(senderBtn, DateTime.Now);
 
             QueryItems.MoveItem(source, sender as Button);
 
-            if (lastItem != QueryItems.Last())
+            if (lastItem != QueryItems[^1])
                 LastQueryItemChanged?.Invoke();
         }
 

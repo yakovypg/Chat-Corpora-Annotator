@@ -127,7 +127,7 @@ namespace ChatCorporaAnnotator.Services.Analysers.Statistics
                 {
                     foreach (var dict in kvp.Value)
                     {
-                        tuple = new Tuple<int, int>(dict.Value.First(), dict.Value.Last());
+                        tuple = new Tuple<int, int>(dict.Value[0], dict.Value[^1]);
                         intervals.Add(tuple);
                     }
 

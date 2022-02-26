@@ -22,8 +22,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             if (isYEmpty)
                 return 1;
 
-            var xFirstMsg = x.First().First();
-            var yFirstMsg = y.First().First();
+            var xFirstMsg = x[0][0];
+            var yFirstMsg = y[0][0];
 
             return xFirstMsg.CompareTo(yFirstMsg);
         }

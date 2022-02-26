@@ -207,7 +207,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 return new MsgGroupList();
 
             if (groupList.Count == 1)
-                return groupList.First().Select(t => new List<int>() { t }).ToList();
+                return groupList[0].Select(t => new List<int>() { t }).ToList();
 
             List<int> firstGroup = groupList[0];
             var result = new MsgGroupList();
