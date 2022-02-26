@@ -25,8 +25,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       
+    - name: Compile Chat.g4
+      run: java -jar antlr4-csharp-4.6.6-complete.jar shell/ChatCorporaAnnotator/Data/Parsers/Suggester/Config/Chat.g4 -o shell/ChatCorporaAnnotator/Data/Parsers/Suggester -package ChatCorporaAnnotator.Data.Parsers.Suggester -Dlanguage=CSharp_v4_5 -visitor -listener
+      
     - name: Build
-      run: dotnet build -c Release --no-restore
+      run: dotnet build -c ContinuousIntegration --no-restore
       
     - name: Test
-      run: dotnet test --verbosity normal
+      run: dotnet test --verbosity normal -c ContinuousIntegration
