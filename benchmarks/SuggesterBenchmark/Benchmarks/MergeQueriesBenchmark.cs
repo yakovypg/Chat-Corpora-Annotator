@@ -18,12 +18,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(money) or haswordofdict(dev)) inwin " + INWIN,
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly SubqueryResults[] _visitResults;
 
         public MergeQueriesBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _visitResults = new SubqueryResults[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

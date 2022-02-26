@@ -15,7 +15,7 @@ namespace SuggesterTest.Tests
         {
             var tree = QueryParser.GetTree(query);
             var condition = tree.body().restrictions().restriction(0).condition();
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
 
             var visitResult = (HashSet<int>)visitor.VisitCondition(condition);
 
@@ -36,7 +36,7 @@ namespace SuggesterTest.Tests
         {
             var tree = QueryParser.GetTree(query);
             var restriction = tree.body().restrictions().restriction(0);
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
 
             var visitResult = (IEnumerable<int>)visitor.VisitRestriction(restriction);
 
@@ -57,7 +57,7 @@ namespace SuggesterTest.Tests
         {
             var tree = QueryParser.GetTree(query);
             var restrictions = tree.body().restrictions();
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
 
             var actualResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
 
@@ -80,7 +80,7 @@ namespace SuggesterTest.Tests
         {
             var tree = QueryParser.GetTree(query);
             var restrictions = tree.body().restrictions();
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
 
             var actualResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
 
@@ -109,7 +109,7 @@ namespace SuggesterTest.Tests
         {
             var tree = QueryParser.GetTree(query);
             var restrictions = tree.body().restrictions();
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
 
             var visitResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
             var mergeResult = visitor.MergeRestrictions(visitResult[0], inwin);
@@ -128,7 +128,7 @@ namespace SuggesterTest.Tests
         {
             var tree = QueryParser.GetTree(query);
             var query_seq = tree.body().query_seq();
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
 
             var visitResult = (List<List<MsgGroupList>>)visitor.VisitQuery_seq(query_seq);
             List<MsgGroupList> mergeResult = visitor.MergeQueries(visitResult, inwin);

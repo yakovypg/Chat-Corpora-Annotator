@@ -18,12 +18,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select (haswordofdict(dev) and haswordofdict(job)) or (haswordofdict(dev) and byuser(odrisck))",
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly ChatParser.RestrictionContext[] _restrictions;
 
         public VisitRestrictionBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _restrictions = new ChatParser.RestrictionContext[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

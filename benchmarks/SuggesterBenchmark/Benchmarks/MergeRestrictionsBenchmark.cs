@@ -24,12 +24,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly MsgGroupList[] _visitResults;
 
         public MergeRestrictionsBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _visitResults = new MsgGroupList[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

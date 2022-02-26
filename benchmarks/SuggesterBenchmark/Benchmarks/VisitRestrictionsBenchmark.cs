@@ -18,12 +18,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select haswordofdict(area), haswordofdict(os), haswordofdict(dev), haswordofdict(money) unr",
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly ChatParser.RestrictionsContext[] _restrictions;
 
         public VisitRestrictionsBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _restrictions = new ChatParser.RestrictionsContext[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

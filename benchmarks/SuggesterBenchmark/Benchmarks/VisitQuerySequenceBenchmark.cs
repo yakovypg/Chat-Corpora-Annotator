@@ -14,12 +14,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(money) or haswordofdict(dev)) inwin 1000",
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly ChatParser.Query_seqContext[] _querySequences;
 
         public VisitQuerySequenceBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _querySequences = new ChatParser.Query_seqContext[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

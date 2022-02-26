@@ -19,12 +19,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select byuser(cerissa)",
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly ChatParser.ConditionContext[] _conditions;
 
         public VisitConditionBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _conditions = new ChatParser.ConditionContext[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

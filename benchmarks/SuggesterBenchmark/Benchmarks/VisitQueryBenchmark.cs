@@ -19,12 +19,12 @@ namespace SuggesterBenchmark.Benchmarks
             "select (select haswordofdict(job), haswordofdict(skill) inwin 5); (select haswordofdict(area) or haswordofdict(money), haswordofdict(dev) unr inwin 5) inwin 15",
         };
 
-        private readonly ChatVisitor _visitor;
+        private readonly QueryContextVisitor _visitor;
         private readonly ChatParser.QueryContext[] _trees;
 
         public VisitQueryBenchmark()
         {
-            _visitor = new ChatVisitor();
+            _visitor = new QueryContextVisitor();
             _trees = new ChatParser.QueryContext[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

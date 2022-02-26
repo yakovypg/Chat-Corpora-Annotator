@@ -10,7 +10,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     using MsgGroupList = List<List<int>>;
 
-    public class ChatVisitor : ChatBaseVisitor<object>
+    public class QueryContextVisitor : ChatBaseVisitor<object>
     {
         public const int DEFAULT_WINDOW_SIZE = 70;
         public const int MAX_MESSAGES_RECEIVED_NOT = 1000 * 1000;

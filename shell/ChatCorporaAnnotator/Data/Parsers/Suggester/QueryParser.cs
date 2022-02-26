@@ -11,7 +11,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
         public static List<MsgGroupList> Parse(string query)
         {
             var tree = GetTree(query);
-            var visitor = new ChatVisitor();
+            var visitor = new QueryContextVisitor();
             var result = (List<MsgGroupList>)visitor.Visit(tree);
 
             return result;
