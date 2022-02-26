@@ -1,4 +1,4 @@
-﻿grammar Chat;
+grammar Chat;
 
 query
     :

@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
 	<UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
+    <Configurations>Debug;Release;ContinuousIntegration</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Antlr4 Include="Data\Parsers\Suggester\Config\Chat.g4">
+    <Antlr4 Include="Data\Parsers\Suggester\Config\Chat.g4" Condition="'$(Configuration)'!='ContinuousIntegration'">
 	  <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>ChatCorporaAnnotator.Data.Parsers.Suggester</CustomToolNamespace>
 	  <Listener>True</Listener>
