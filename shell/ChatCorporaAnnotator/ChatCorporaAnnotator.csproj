@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
 	<UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
+    <Configurations>Debug;Release;ContinuousIntegration</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Antlr4 Include="Data\Parsers\Suggester\Config\Chat.g4">
+    <Antlr4 Include="Data\Parsers\Suggester\Config\Chat.g4" Condition="'$(Configuration)'!='ContinuousIntegration'">
 	  <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>ChatCorporaAnnotator.Data.Parsers.Suggester</CustomToolNamespace>
 	  <Listener>True</Listener>
@@ -34,6 +35,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime" Version="4.6.4" />
+    <PackageReference Include="FontAwesome5" Version="2.1.6" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="OpenTextSummarizer" Version="1.0.2" />
     <PackageReference Include="SoftCircuits.CsvParser" Version="3.5.1" />
@@ -42,8 +44,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\core\ColorEngine\ColorEngine.csproj" />
     <ProjectReference Include="..\..\core\IndexEngine\IndexEngine.csproj" />
-    <ProjectReference Include="..\..\vendor\FontAwesome5\src\FontAwesome5.Net\FontAwesome5.Net.csproj" />
-    <ProjectReference Include="..\..\vendor\FontAwesome5\src\FontAwesome5\FontAwesome5.csproj" />
   </ItemGroup>
 
   <ItemGroup>

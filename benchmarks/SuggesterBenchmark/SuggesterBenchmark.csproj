@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<UseWPF>true</UseWPF>
+	<Configurations>Debug;Release;ContinuousIntegration</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
