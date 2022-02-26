@@ -37,6 +37,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Suggester", "Suggester", "{E92F77CA-FE90-49FD-883F-C5F8D01FCD77}"
 	ProjectSection(SolutionItems) = preProject
 		docs\Suggester\Antlr4Issues.txt = docs\Suggester\Antlr4Issues.txt
+		docs\Suggester\G4ManualCompilation.txt = docs\Suggester\G4ManualCompilation.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggesterBenchmark", "benchmarks\SuggesterBenchmark\SuggesterBenchmark.csproj", "{18A42B30-861B-4746-B867-F90079208561}"

@@ -1,0 +1,10 @@
+The .g4 file can be compiled using one of the following commands:
+
+1) By using jre
+java.exe -cp antlr4-csharp-4.6.6-complete.jar org.antlr.v4.Tool Grammar.g4 -Dlanguage=CSharp -package <namespace> -o <outputPath> -visitor -listener
+
+2) By using java
+java -jar antlr4-csharp-4.6.6-complete.jar Grammar.g4 -Dlanguage=CSharp_v4_5 -package <namespace> -o <outputPath> -visitor -listener
+
+When using manual compilation, make sure that there is no automatic compilation (specified in the
+project configuration .csproj)
