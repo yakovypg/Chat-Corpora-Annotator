@@ -27,7 +27,6 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             var speakParser = new ChatParser(commonTokenStream);
 
             var tree = speakParser.query();
-
             return tree;
         }
     }
