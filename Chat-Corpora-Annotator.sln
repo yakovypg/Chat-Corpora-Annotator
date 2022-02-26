@@ -9,16 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Submodules", "Submodules", "{6C84F69D-74E4-41BB-85C2-16C43FD8EE90}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FontAwesome", "FontAwesome", "{9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAwesome5", "vendor\FontAwesome5\src\FontAwesome5\FontAwesome5.csproj", "{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAwesome5.Net", "vendor\FontAwesome5\src\FontAwesome5.Net\FontAwesome5.Net.csproj", "{E2255AB1-1E63-4429-A600-B70D58682BF7}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FontAwesome.Shared", "vendor\FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.shproj", "{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{C292BC9D-2485-4A1A-8F83-5D170FDD5A52}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8FC52CC9-EBE9-47FB-BA9A-1F92B7478A92}"
@@ -53,28 +43,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggesterTest", "tests\SuggesterTest\SuggesterTest.csproj", "{F8B809FC-0C87-437B-BEC9-B4A2583663E4}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		vendor\FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.projitems*{2f36f2df-f8b2-49cb-91e7-e5c88e3a96d5}*SharedItemsImports = 13
-		vendor\FontAwesome5\src\FontAwesome.Shared\FontAwesome.Shared.projitems*{e2255ab1-1e63-4429-a600-b70d58682bf7}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		ContinuousIntegration|Any CPU = ContinuousIntegration|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}.ContinuousIntegration|Any CPU.ActiveCfg = ContinuousIntegration|Any CPU
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}.ContinuousIntegration|Any CPU.Build.0 = ContinuousIntegration|Any CPU
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2255AB1-1E63-4429-A600-B70D58682BF7}.ContinuousIntegration|Any CPU.ActiveCfg = ContinuousIntegration|Any CPU
-		{E2255AB1-1E63-4429-A600-B70D58682BF7}.ContinuousIntegration|Any CPU.Build.0 = ContinuousIntegration|Any CPU
-		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2255AB1-1E63-4429-A600-B70D58682BF7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5AF072DD-83C2-4F21-B9ED-6A80B9FBE626}.ContinuousIntegration|Any CPU.ActiveCfg = ContinuousIntegration|Any CPU
 		{5AF072DD-83C2-4F21-B9ED-6A80B9FBE626}.ContinuousIntegration|Any CPU.Build.0 = ContinuousIntegration|Any CPU
 		{5AF072DD-83C2-4F21-B9ED-6A80B9FBE626}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -116,10 +90,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF} = {6C84F69D-74E4-41BB-85C2-16C43FD8EE90}
-		{B8E1321E-91B3-4DAB-8376-E7C76CD1C5BF} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
-		{E2255AB1-1E63-4429-A600-B70D58682BF7} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
-		{2F36F2DF-F8B2-49CB-91E7-E5C88E3A96D5} = {9E9D6E21-A54A-4FE1-AC4C-18BE4FDB03FF}
 		{8B025998-B3DE-4E91-B039-EFF870E36170} = {E7836F73-0E71-4733-A02B-C5EDD966F7FD}
 		{5AF072DD-83C2-4F21-B9ED-6A80B9FBE626} = {96BF8904-DAEF-4646-8FB3-837F306623D8}
 		{23DB99DE-CB41-4E90-829C-1D2F4BDB02BF} = {96BF8904-DAEF-4646-8FB3-837F306623D8}
