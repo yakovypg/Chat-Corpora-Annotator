@@ -10,3 +10,5 @@ BenchmarkRunner.Run<VisitQueryBenchmark>();
 BenchmarkRunner.Run<VisitQuerySequenceBenchmark>();
 BenchmarkRunner.Run<VisitRestrictionBenchmark>();
 BenchmarkRunner.Run<VisitRestrictionsBenchmark>();
+
+BenchmarkRunner.Run<ControlBenchmark>();
