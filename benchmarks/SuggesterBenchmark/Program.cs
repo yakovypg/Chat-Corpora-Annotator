@@ -1,14 +1,17 @@
 ﻿using BenchmarkDotNet.Running;
 using SuggesterBenchmark.Benchmarks;
+using SuggesterBenchmark.Benchmarks.Control;
+using SuggesterBenchmark.Benchmarks.Comparison;
 
-BenchmarkRunner.Run<MergeQueriesBenchmark>();
+//BenchmarkRunner.Run<MergeQueriesBenchmark>();
 BenchmarkRunner.Run<MergeRestrictionsBenchmark>();
 
-BenchmarkRunner.Run<ParseQueryBenchmark>();
-BenchmarkRunner.Run<VisitConditionBenchmark>();
-BenchmarkRunner.Run<VisitQueryBenchmark>();
-BenchmarkRunner.Run<VisitQuerySequenceBenchmark>();
-BenchmarkRunner.Run<VisitRestrictionBenchmark>();
-BenchmarkRunner.Run<VisitRestrictionsBenchmark>();
+//BenchmarkRunner.Run<ParseQueryBenchmark>();
+//BenchmarkRunner.Run<VisitConditionBenchmark>();
+//BenchmarkRunner.Run<VisitQueryBenchmark>();
+//BenchmarkRunner.Run<VisitQuerySequenceBenchmark>();
+//BenchmarkRunner.Run<VisitRestrictionBenchmark>();
+//BenchmarkRunner.Run<VisitRestrictionsBenchmark>();
 
-BenchmarkRunner.Run<ControlBenchmark>();
+//BenchmarkRunner.Run<ControlBenchmark>();
+//BenchmarkRunner.Run<MergeRestrictionsComparisonBenchmark>();
