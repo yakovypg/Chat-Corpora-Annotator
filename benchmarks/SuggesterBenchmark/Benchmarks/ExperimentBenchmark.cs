@@ -6,30 +6,30 @@ namespace SuggesterBenchmark.Benchmarks
 {
     public class ExperimentBenchmark : BenchmarkBase
     {
-        private const string Q0 = "select " +
-            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(money) inwin 5);";
-
         private const string Q1 = "select " +
-            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(money) inwin 5); " +
-            "(select haswordofdict(job), haswordofdict(area), haswordofdict(money) inwin 5); " +
-            "inwin 1000";
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10);";
 
         private const string Q2 = "select " +
-            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(money) inwin 5); " +
-            "(select haswordofdict(job), haswordofdict(area), haswordofdict(money) inwin 5); " +
-            "(select haswordofdict(job), haswordofdict(money), haswordofdict(area) inwin 5); " +
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10); " +
             "inwin 1000";
 
         private const string Q3 = "select " +
-            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(money) inwin 5); " +
-            "(select haswordofdict(job), haswordofdict(area), haswordofdict(money) inwin 5); " +
-            "(select haswordofdict(job), haswordofdict(money), haswordofdict(area) inwin 5); " +
-            "(select haswordofdict(dev), haswordofdict(money), haswordofdict(area) inwin 5); " +
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "(select haswordofdict(dev), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "inwin 1000";
+
+        private const string Q4 = "select " +
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "(select haswordofdict(dev), haswordofdict(dev), haswordofdict(area) inwin 10); " +
+            "(select haswordofdict(dev), haswordofdict(dev), haswordofdict(area) inwin 10); " +
             "inwin 1000";
 
         private readonly string[] _queries = new string[]
         {
-            Q0, Q1, Q2, Q3
+            Q1, Q2, Q3, Q4
         };
 
         private readonly QueryContextVisitor _visitor;
@@ -47,25 +47,25 @@ namespace SuggesterBenchmark.Benchmarks
             }
         }
 
-        [Benchmark(Description = "Experiment_0")]
+        [Benchmark(Description = "Subqueries-1")]
         public void ExperimentTest_0()
         {
             var result = _visitor.VisitQuery(_queryContexts[0]);
         }
 
-        [Benchmark(Description = "Experiment_1")]
+        [Benchmark(Description = "Subqueries-2")]
         public void ExperimentTest_1()
         {
             var result = _visitor.VisitQuery(_queryContexts[1]);
         }
 
-        [Benchmark(Description = "Experiment_2")]
+        [Benchmark(Description = "Subqueries-3")]
         public void ExperimentTest_2()
         {
             var result = _visitor.VisitQuery(_queryContexts[2]);
         }
 
-        [Benchmark(Description = "Experiment_3")]
+        [Benchmark(Description = "Subqueries-4")]
         public void ExperimentTest_3()
         {
             var result = _visitor.VisitQuery(_queryContexts[3]);
