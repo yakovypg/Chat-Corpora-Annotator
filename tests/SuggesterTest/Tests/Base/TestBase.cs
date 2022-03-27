@@ -29,18 +29,17 @@ namespace SuggesterTest.Tests.Base
 
         public TestBase()
         {
-            if (CreatedTestsCount == 0)
-                DeleteOldTests();
-
             SetPaths();
-            ExtractTestProject();
+
+            if (CreatedTestsCount++ == 0)
+            {
+                DeleteOldTests();
+                ExtractTestProject();
+            }
 
             ProjectInfo.LoadProject(ProjectFilePath);
             LuceneService.OpenIndex();
-
             UserDictsIndex.GetInstance().ImportIndex(UserDictsFilePath);
-
-            CreatedTestsCount++;
         }
 
         private void ExtractTestProject()
@@ -78,20 +77,10 @@ namespace SuggesterTest.Tests.Base
             ProjectFilePath = Path.Combine(ProjectFolderPath, TEST_PROJECT_FILE_NAME);
         }
 
-        private string GetWorkingDirectory()
+        private static string GetWorkingDirectory()
         {
-            int hash = GetHashCode() - 1;
-
-            string name;
-            string workingDirectory;
-            
-            do
-            {
-                hash += 1;
-                name = $"test{hash}";
-                workingDirectory = Path.Combine(EXTRACTED_DATA_FOLDER_PATH, name);
-            }
-            while (Directory.Exists(workingDirectory));
+            string name = TEST_PROJECT_NAME;
+            string workingDirectory = Path.Combine(EXTRACTED_DATA_FOLDER_PATH, name);
 
             return workingDirectory;
         }
