@@ -2,43 +2,45 @@
 using ChatCorporaAnnotator.Data.Parsers.Suggester;
 using SuggesterBenchmark.Benchmarks.Base;
 
-namespace SuggesterBenchmark.Benchmarks.Control
+namespace SuggesterBenchmark.Benchmarks
 {
     using MsgGroupList = List<List<int>>;
     using SubqueryResults = List<List<List<List<int>>>>;
 
     public class ControlBenchmark : BenchmarkBase
     {
-        private const int MERGE_QUERIES_QUERIES_INWIN = 1000;
+        private const int MERGE_QUERIES_INWIN = 1000;
 
-
-        private readonly string[] _visitRestrictionQueries = new string[]
+        private readonly string[] _visitQueryQueries = new string[]
         {
-            "select (haswordofdict(skill) or haswordofdict(job)) and (byuser(odrisck) or byuser(cerissa))",
-            "select (haswordofdict(dev) and haswordofdict(job)) or (haswordofdict(dev) and byuser(odrisck))"
+            "select (select haswordofdict(skill), haswordofdict(job) unr inwin 5); (select haswordofdict(dev) and (byuser(odrisck) or byuser(jsonify)) inwin 3); inwin 50",
+            "select (select haswordofdict(job), haswordofdict(dev) unr inwin 5); (select haswordofdict(skill), haswordofdict(dev), haswordofdict(money) inwin 10); (select haswordofdict(area) or haswordofdict(money)); (select haswordofdict(dev), haswordofdict(money) or byuser(odrisck) inwin 50) inwin 500",
+            
+            "select haswordofdict(dev), haswordofdict(area), haswordofdict(area), haswordofdict(money)",
+            "select haswordofdict(dev), haswordofdict(area), haswordofdict(area), haswordofdict(money) unr"
         };
 
         private readonly string[] _visitRestrictionsQueries = new string[]
         {
-            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area)",
-            "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev), haswordofdict(area) unr"
+            "select haswordofdict(dev), haswordofdict(area), haswordofdict(area), haswordofdict(money)",
+            "select haswordofdict(dev), haswordofdict(area), haswordofdict(area), haswordofdict(money) unr"
         };
 
         private readonly string[] _mergeRestrictionsQueries = new string[]
         {
-            "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill)",
-            "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill), haswordofdict(dev)"
+            "select haswordofdict(job), haswordofdict(dev), haswordofdict(job), haswordofdict(dev), haswordofdict(job)",
+            "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(dev), haswordofdict(area)"
         };
 
         private readonly string[] _mergeQueriesQueries = new string[]
         {
-            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5) inwin " + MERGE_QUERIES_QUERIES_INWIN,
-            "select (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(job) and haswordofdict(dev)); (select haswordofdict(area), haswordofdict(money) inwin 5); (select haswordofdict(money) or haswordofdict(dev)) inwin " + MERGE_QUERIES_QUERIES_INWIN
+            "select (select haswordofdict(job), haswordofdict(dev) inwin 5); (select haswordofdict(dev), haswordofdict(job) inwin 5); (select haswordofdict(job), haswordofdict(dev) inwin 5); (select haswordofdict(dev), haswordofdict(job) inwin 5) inwin " + MERGE_QUERIES_INWIN,
+            "select (select haswordofdict(skill) or byuser(odrisck)); (select haswordofdict(job), haswordofdict(skill) inwin 50); (select haswordofdict(area), haswordofdict(money) inwin 2); (select haswordofdict(dev) and haswordofdict(money)) inwin " + MERGE_QUERIES_INWIN
         };
 
         private readonly QueryContextVisitor _visitor;
 
-        private readonly ChatParser.RestrictionContext[] _restrictionContexts;
+        private readonly ChatParser.QueryContext[] _queryContexts;
         private readonly ChatParser.RestrictionsContext[] _restrictionsContexts;
 
         private readonly SubqueryResults[] _visitQueryResults;
@@ -48,18 +50,16 @@ namespace SuggesterBenchmark.Benchmarks.Control
         {
             _visitor = new QueryContextVisitor();
 
-            _restrictionContexts = new ChatParser.RestrictionContext[_visitRestrictionQueries.Length];
+            _queryContexts = new ChatParser.QueryContext[_visitQueryQueries.Length];
             _restrictionsContexts = new ChatParser.RestrictionsContext[_visitRestrictionsQueries.Length];
 
             _visitQueryResults = new SubqueryResults[_mergeQueriesQueries.Length];
             _visitRestrictionsResults = new MsgGroupList[_mergeRestrictionsQueries.Length];
 
-            for (int i = 0; i < _visitRestrictionQueries.Length; ++i)
+            for (int i = 0; i < _visitQueryQueries.Length; ++i)
             {
-                var tree = QueryParser.GetTree(_visitRestrictionQueries[i]);
-                var restriction = tree.body().restrictions().restriction(0);
-
-                _restrictionContexts[i] = restriction;
+                var tree = QueryParser.GetTree(_visitQueryQueries[i]);
+                _queryContexts[i] = tree;
             }
 
             for (int i = 0; i < _visitRestrictionsQueries.Length; ++i)
@@ -87,16 +87,28 @@ namespace SuggesterBenchmark.Benchmarks.Control
             }
         }
 
-        [Benchmark(Description = "VisitRestriction_0")]
-        public void VisitRestrictionTest_0()
+        [Benchmark(Description = "VisitQuery_0")]
+        public void VisitQueryTest_0()
         {
-            var result = _visitor.VisitRestriction(_restrictionContexts[0]);
+            var result = _visitor.VisitQuery(_queryContexts[0]);
         }
 
-        [Benchmark(Description = "VisitRestriction_1")]
-        public void VisitRestrictionTest_1()
+        [Benchmark(Description = "VisitQuery_1")]
+        public void VisitQueryTest_1()
         {
-            var result = _visitor.VisitRestriction(_restrictionContexts[1]);
+            var result = _visitor.VisitQuery(_queryContexts[1]);
+        }
+
+        [Benchmark(Description = "VisitQuery_2")]
+        public void VisitQueryTest_2()
+        {
+            var result = _visitor.VisitQuery(_queryContexts[2]);
+        }
+
+        [Benchmark(Description = "VisitQuery_3")]
+        public void VisitQueryTest_3()
+        {
+            var result = _visitor.VisitQuery(_queryContexts[3]);
         }
 
         [Benchmark(Description = "VisitRestrictions_0")]
@@ -126,13 +138,13 @@ namespace SuggesterBenchmark.Benchmarks.Control
         [Benchmark(Description = "MergeQueries_0")]
         public void MergeQueriesTest_0()
         {
-            var result = _visitor.MergeQueries(_visitQueryResults[0], MERGE_QUERIES_QUERIES_INWIN);
+            var result = _visitor.MergeQueries(_visitQueryResults[0], MERGE_QUERIES_INWIN);
         }
 
         [Benchmark(Description = "MergeQueries_1")]
         public void MergeQueriesTest_1()
         {
-            var result = _visitor.MergeQueries(_visitQueryResults[1], MERGE_QUERIES_QUERIES_INWIN);
+            var result = _visitor.MergeQueries(_visitQueryResults[1], MERGE_QUERIES_INWIN);
         }
     }
 }

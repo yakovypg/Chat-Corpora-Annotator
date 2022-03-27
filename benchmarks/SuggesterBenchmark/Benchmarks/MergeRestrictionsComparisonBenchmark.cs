@@ -2,7 +2,7 @@
 using ChatCorporaAnnotator.Data.Parsers.Suggester;
 using SuggesterBenchmark.Benchmarks.Base;
 
-namespace SuggesterBenchmark.Benchmarks.Comparison
+namespace SuggesterBenchmark.Benchmarks
 {
     using MsgGroupList = List<List<int>>;
 
