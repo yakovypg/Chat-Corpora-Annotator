@@ -98,7 +98,7 @@
                 </MenuItem>
             </MenuItem>
 
-            <MenuItem Header="Extract" Command="{Binding ExtractFileCommand}"/>
+            <MenuItem Header="Extractor" Command="{Binding OpenExtractorCommand}"/>
         </Menu>
 
         <Grid DockPanel.Dock="Bottom">

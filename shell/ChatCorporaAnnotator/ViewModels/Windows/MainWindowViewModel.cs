@@ -616,16 +616,16 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
-        #region ExtractCommands
+        #region ExtractorCommands
 
-        public ICommand ExtractFileCommand { get; }
-        public bool CanExtractFileCommandExecute(object parameter)
+        public ICommand OpenExtractorCommand { get; }
+        public bool CanOpenExtractorCommandExecute(object parameter)
         {
             return true;
         }
-        public void OnExtractFileCommandExecuted(object parameter)
+        public void OnOpenExtractorCommandExecuted(object parameter)
         {
-            if (!CanExtractFileCommandExecute(parameter))
+            if (!CanOpenExtractorCommandExecute(parameter))
                 return;
 
             Extractor.Config.CoreNLPPath = @"C:\Laptop\Downloads\Services\stanford-corenlp-4.4.0";
@@ -774,7 +774,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
-            ExtractFileCommand = new RelayCommand(OnExtractFileCommandExecuted, CanExtractFileCommandExecute);
+            OpenExtractorCommand = new RelayCommand(OnOpenExtractorCommandExecuted, CanOpenExtractorCommandExecute);
 
             ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
             ExportCsvCommand = new RelayCommand(OnExportCsvCommandExecuted, CanExportCsvCommandExecute);

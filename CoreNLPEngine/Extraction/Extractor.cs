@@ -128,7 +128,8 @@ namespace CoreNLPEngine.Extraction
                     List<ParseTree> leaves = subtree.GetLeaves();
                     string keys = string.Join(' ', leaves);
 
-                    keyPhrases.Add(keys);
+                    if (!string.IsNullOrEmpty(keys))
+                        keyPhrases.Add(keys);
                 }
             }
 
