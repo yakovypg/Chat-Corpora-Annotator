@@ -18,6 +18,7 @@ using ChatCorporaAnnotator.ViewModels.Analyzers;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
 using ChatCorporaAnnotator.Views.Windows;
+using CoreNLPEngine.Extraction;
 using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
 using IndexEngine.Search;
@@ -615,17 +616,20 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
-        #region ExtractFileCommands
+        #region ExtractCommands
 
         public ICommand ExtractFileCommand { get; }
         public bool CanExtractFileCommandExecute(object parameter)
         {
-            return false;
+            return true;
         }
         public void OnExtractFileCommandExecuted(object parameter)
         {
             if (!CanExtractFileCommandExecute(parameter))
                 return;
+
+            Extractor.Config.CoreNLPPath = @"C:\Laptop\Downloads\Services\stanford-corenlp-4.4.0";
+            Extractor.Extract();
         }
 
         #endregion

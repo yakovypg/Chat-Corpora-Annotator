@@ -4,9 +4,7 @@ module NPExtractor =
 
     open edu.stanford.nlp.trees
     open java.util
-    open System
  
-
     let toSeq (iter:Iterator) =
         let rec loop (x:Iterator) = 
             seq { 
@@ -14,9 +12,7 @@ module NPExtractor =
                 if x.hasNext() then 
                     yield! (loop x)
                 }
-        loop iter
-     
-    
+        loop iter 
      
     let getKeyPhrases (tree:Tree) = 
         let isNPwithNNx (node:Tree)= 
