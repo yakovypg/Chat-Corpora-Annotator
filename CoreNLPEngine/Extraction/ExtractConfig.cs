@@ -1,4 +1,5 @@
 ﻿using IndexEngine.Data.Paths;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace CoreNLPEngine.Extraction
@@ -24,22 +25,64 @@ namespace CoreNLPEngine.Extraction
                     "tokenize", "ssplit", "pos", "lemma", "ner", "parse", "depparse", "coref"
                 };
 
-                return new ExtractConfig(coreNLPPath, annotators);
+                return new ExtractConfig(coreNLPPath, annotators)
+                {
+                    //CoreNLPClientProperties = GetCoreNLPClientDefaultProperties()
+                };
             }
         }
 
-        public ExtractConfig(string coreNLPPath, int coreNLPClientMemory = 8, int coreNLPClientTimeout = 30000)
-            : this(coreNLPPath, Array.Empty<string>(), coreNLPClientMemory, coreNLPClientTimeout)
+        public ExtractConfig() : this(string.Empty)
         {
         }
 
-        public ExtractConfig(string coreNLPPath, string[] annotators, int coreNLPClientMemory = 8, int coreNLPClientTimeout = 30000)
+        public ExtractConfig(string coreNLPPath, string[]? annotators = null, int coreNLPClientMemory = 8, int coreNLPClientTimeout = 30000)
         {
             CoreNLPPath = coreNLPPath;
-            Annotators = annotators;
+            Annotators = annotators ?? Array.Empty<string>();
 
             CoreNLPClientMemory = coreNLPClientMemory;
             CoreNLPClientTimeout = coreNLPClientTimeout;
+        }
+
+        public void LoadConfigFromDisk()
+        {
+            ExtractConfig config;
+
+            try
+            {
+                string json = File.ReadAllText(ToolInfo.ExtractorConfigPath);
+                config = JsonConvert.DeserializeObject<ExtractConfig>(json) ?? Default;
+            }
+            catch
+            {
+                config = Default;
+            }
+
+            CoreNLPPath = config.CoreNLPPath;
+            Annotators = config.Annotators;
+            CoreNLPClientMemory = config.CoreNLPClientMemory;
+            CoreNLPClientTimeout = config.CoreNLPClientTimeout;
+            CoreNLPClientProperties = config.CoreNLPClientProperties;
+        }
+
+        public void SaveConfigToDisk()
+        {
+            string json = JsonConvert.SerializeObject(this);
+            File.WriteAllText(ToolInfo.ExtractorConfigPath, json);
+        }
+
+        public bool TrySaveConfigToDisk()
+        {
+            try
+            {
+                SaveConfigToDisk();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static JObject GetCoreNLPClientDefaultProperties()

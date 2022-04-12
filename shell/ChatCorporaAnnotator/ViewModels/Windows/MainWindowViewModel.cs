@@ -18,7 +18,6 @@ using ChatCorporaAnnotator.ViewModels.Analyzers;
 using ChatCorporaAnnotator.ViewModels.Base;
 using ChatCorporaAnnotator.ViewModels.Chat;
 using ChatCorporaAnnotator.Views.Windows;
-using CoreNLPEngine.Extraction;
 using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
 using IndexEngine.Search;
@@ -35,9 +34,10 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 {
     internal class MainWindowViewModel : ViewModel
     {
-        private IndexFileWindow _indexFileWindow;
-        private TagsetEditorWindow _tagsetEditorWindow;
-        private SuggesterWindow _suggesterWindow;
+        private IndexFileWindow? _indexFileWindow;
+        private ExtractorWindow? _extractorWindow;
+        private TagsetEditorWindow? _tagsetEditorWindow;
+        private SuggesterWindow? _suggesterWindow;
 
         private CsvExportService _csvExportService;
 
@@ -618,18 +618,29 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region ExtractorCommands
 
-        public ICommand OpenExtractorCommand { get; }
-        public bool CanOpenExtractorCommandExecute(object parameter)
+        public ICommand ShowExtractorCommand { get; }
+        public bool CanShowExtractorCommandExecute(object parameter)
         {
-            return true;
+            return IsFileLoaded && !StatisticsVM.IsStatisticsCaulculatingActive;
         }
-        public void OnOpenExtractorCommandExecuted(object parameter)
+        public void OnShowExtractorCommandExecuted(object parameter)
         {
-            if (!CanOpenExtractorCommandExecute(parameter))
+            if (!CanShowExtractorCommandExecute(parameter))
                 return;
 
-            Extractor.Config.CoreNLPPath = @"C:\Laptop\Downloads\Services\stanford-corenlp-4.4.0";
-            Extractor.Extract();
+            if (_extractorWindow != null)
+            {
+                new WindowInteract(_extractorWindow).MoveToForeground();
+                return;
+            }
+
+            var vm = new ExtractorWindowViewModel()
+            {
+                DeactivateAction = () => _extractorWindow = null
+            };
+
+            _extractorWindow = new ExtractorWindow(vm);
+            _extractorWindow.Show();
         }
 
         #endregion
@@ -685,6 +696,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             MemoryCleaninigTimer.Stop();
 
             CloseIndexFileWindowCommand.Execute(null);
+            CloseExtractorWindowCommand.Execute(null);
             CloseTagsetEditorWindowCommand.Execute(null);
             CloseSuggesterWindowCommand.Execute(null);
             CloseMessageExplorerWindowsCommand.Execute(null);
@@ -705,7 +717,20 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanCloseIndexFileWindowCommandExecute(parameter))
                 return;
 
-            _indexFileWindow.Close();
+            _indexFileWindow?.Close();
+        }
+
+        public ICommand CloseExtractorWindowCommand { get; }
+        public bool CanCloseExtractorWindowCommandExecute(object parameter)
+        {
+            return _extractorWindow != null;
+        }
+        public void OnCloseExtractorWindowCommandExecuted(object parameter)
+        {
+            if (!CanCloseExtractorWindowCommandExecute(parameter))
+                return;
+
+            _extractorWindow?.Close();
         }
 
         public ICommand CloseTagsetEditorWindowCommand { get; }
@@ -718,7 +743,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanCloseTagsetEditorWindowCommandExecute(parameter))
                 return;
 
-            _tagsetEditorWindow.Close();
+            _tagsetEditorWindow?.Close();
         }
 
         public ICommand CloseSuggesterWindowCommand { get; }
@@ -731,7 +756,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanCloseSuggesterWindowCommandExecute(parameter))
                 return;
 
-            _suggesterWindow.Close();
+            _suggesterWindow?.Close();
         }
 
         public ICommand CloseMessageExplorerWindowsCommand { get; }
@@ -774,7 +799,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             ShowPlotCommand = new RelayCommand(OnShowPlotCommandExecuted, CanShowPlotCommandExecute);
             ShowHeatmapCommand = new RelayCommand(OnShowHeatmapCommandExecuted, CanShowHeatmapCommandExecute);
-            OpenExtractorCommand = new RelayCommand(OnOpenExtractorCommandExecuted, CanOpenExtractorCommandExecute);
+            ShowExtractorCommand = new RelayCommand(OnShowExtractorCommandExecuted, CanShowExtractorCommandExecute);
 
             ExportXmlCommand = new RelayCommand(OnExportXmlCommandExecuted, CanExportXmlCommandExecute);
             ExportCsvCommand = new RelayCommand(OnExportCsvCommandExecuted, CanExportCsvCommandExecute);
@@ -789,6 +814,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             MainWindowLoadedCommand = new RelayCommand(OnMainWindowLoadedCommandExecuted, CanMainWindowLoadedCommandExecute);
             MainWindowClosingCommand = new RelayCommand(OnMainWindowClosingCommandExecuted, CanMainWindowClosingCommandExecute);
             CloseIndexFileWindowCommand = new RelayCommand(OnCloseIndexFileWindowCommandExecuted, CanCloseIndexFileWindowCommandExecute);
+            CloseExtractorWindowCommand = new RelayCommand(OnCloseExtractorWindowCommandExecuted, CanCloseExtractorWindowCommandExecute);
             CloseTagsetEditorWindowCommand = new RelayCommand(OnCloseTagsetEditorWindowCommandExecuted, CanCloseTagsetEditorWindowCommandExecute);
             CloseSuggesterWindowCommand = new RelayCommand(OnCloseSuggesterWindowCommandExecuted, CanCloseSuggesterWindowCommandExecute);
             CloseMessageExplorerWindowsCommand = new RelayCommand(OnCloseMessageExplorerWindowsCommandExecuted, CanCloseMessageExplorerWindowsCommandExecute);

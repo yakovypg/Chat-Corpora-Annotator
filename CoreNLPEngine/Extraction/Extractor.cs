@@ -35,10 +35,28 @@ namespace CoreNLPEngine.Extraction
             KeyPhrases = new BTreeDictionary<int, List<string>>();
         }
 
+        public static void Clear()
+        {
+            MessagesWithQuestion.Clear();
+            URLs.Clear();
+            Dates.Clear();
+            Times.Clear();
+            Locations.Clear();
+            Organisations.Clear();
+            KeyPhrases.Clear();
+        }
+
+        public static Task ExtractAsync()
+        {
+            return Task.Run(Extract);
+        }
+
         public static void Extract()
         {
             if (LuceneService.DirReader == null)
                 return;
+
+            Clear();
 
             var coreNLPClient = CreateCoreNLPClient();
 

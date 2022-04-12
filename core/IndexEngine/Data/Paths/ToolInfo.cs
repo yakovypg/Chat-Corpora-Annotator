@@ -12,6 +12,9 @@ namespace IndexEngine.Data.Paths
         public static string sutimeRules { get; private set; }
         public static string root { get; private set; }
 
+        public static string ExtractorComponentSitesPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorcomponentsites.txt";
+        public static string ExtractorConfigPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorconfig.txt";
+        
         public static string RecentProjectsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\recentprojects.txt";
         public static string TagsetColorIndexPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\tagsetscolors.txt";
         public static string UserDictsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\user_dicts.txt";
@@ -46,7 +49,7 @@ namespace IndexEngine.Data.Paths
             }
             catch
             {
-                data = new string[0];
+                data = Array.Empty<string>();
                 return false;
             }
         }
@@ -60,6 +63,20 @@ namespace IndexEngine.Data.Paths
             }
             catch
             {
+                return false;
+            }
+        }
+
+        public static bool TryReadExtractorComponentSites(out string[] sites)
+        {
+            try
+            {
+                sites = File.ReadAllLines(ExtractorComponentSitesPath);
+                return true;
+            }
+            catch
+            {
+                sites = Array.Empty<string>();
                 return false;
             }
         }
