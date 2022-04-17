@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 using ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers;
+using ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using CoreNLPEngine.Search;
 using IndexEngine.Indexes;
@@ -15,6 +16,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
     public class QueryContextVisitor : ChatBaseVisitor<object>
     {
         public const int DEFAULT_WINDOW_SIZE = 70;
+        public const int MSG_GROUP_COUNT_MAX_DELTA = 200;
+        public const int DEFAULT_HISTOGRAM_INTERVAL = 100;
         public const int MAX_MESSAGES_RECEIVED_NOT = 1000 * 1000;
 
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
@@ -212,16 +215,44 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 return groupList[0].Select(t => new List<int>() { t }).ToList();
 
             var result = new MsgGroupList();
-            int[] counts = new int[groupList.Count - 1];
-            int[] placement = new int[groupList.Count - 1];
+            int[] counts = new int[groupList.Count];
+            int[] placement = new int[groupList.Count];
 
-            for (int i = 1; i < groupList.Count; ++i)
+            for (int i = 0; i < groupList.Count; ++i)
             {
-                counts[i - 1] = groupList[i].Count;
-                placement[i - 1] = i;
+                counts[i] = groupList[i].Count;
+                placement[i] = i;
             }
 
-            Array.Sort(counts, placement);
+            Array.Sort(counts, placement, 1, groupList.Count - 1);
+
+            for (int i = 2; i < counts.Length; ++i)
+            {
+                int delta = counts[i] - counts[i - 1];
+
+                if (delta <= MSG_GROUP_COUNT_MAX_DELTA)
+                {
+                    var group1 = groupList[placement[i - 2]];
+                    var group2 = groupList[placement[i - 1]];
+                    var group3 = groupList[placement[i]];
+
+                    int max = Math.Max(group1.Max(), group2.Max());
+                    int axisXLength = Math.Max(max, group3.Max()) + 1;
+
+                    var hist1 = new MsgGroupHistogram(group1, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+                    var hist2 = new MsgGroupHistogram(group2, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+                    var hist3 = new MsgGroupHistogram(group3, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+
+                    var intersect12 = hist1.Intersect(hist2);
+                    var intersect13 = hist1.Intersect(hist3);
+
+                    if (intersect12.HitsSum < intersect13.HitsSum)
+                    {
+                        counts.Swap(i - 1, i);
+                        placement.Swap(i - 1, i);
+                    }
+                }
+            }
 
             List<int> firstGroup = groupList[0];
 
@@ -232,7 +263,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 for (int j = 1; j < groupList.Count; ++j)
                     accumulatedMsgs.Add(-1);
 
-                var newGroups = MergeRestrictions(groupList, placement, windowSize, accumulatedMsgs, 0);
+                var newGroups = MergeRestrictions(groupList, placement, windowSize, accumulatedMsgs, 1);
                 result.AddRange(newGroups);
             }
 
