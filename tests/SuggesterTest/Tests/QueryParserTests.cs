@@ -376,7 +376,6 @@ namespace SuggesterTest.Tests
             Assert.AreEqual(4, result[2][0][0]);
             Assert.AreEqual(5, result[2][0][1]);
 
-
             Assert.AreEqual(4, result[3][0][0]);
             Assert.AreEqual(6, result[3][0][1]);
 
