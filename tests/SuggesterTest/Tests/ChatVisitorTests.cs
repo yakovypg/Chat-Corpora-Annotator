@@ -1,4 +1,5 @@
 ﻿using ChatCorporaAnnotator.Data.Parsers.Suggester;
+using ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SuggesterTest.Tests.Base;
 using System.Collections.Generic;
@@ -11,6 +12,17 @@ namespace SuggesterTest.Tests
     [TestClass]
     public class ChatVisitorTests : TestBase
     {
+        private void SortMsgGroupList(MsgGroupList list, bool sortGroups)
+        {
+            if (sortGroups)
+            {
+                foreach (var group in list)
+                    group.Sort();
+            }
+
+            list.Sort(new MsgGroupComparer());
+        }
+
         private void CheckCondition(string query, IEnumerable<int> expectedResult)
         {
             var tree = QueryParser.GetTree(query);
@@ -64,6 +76,12 @@ namespace SuggesterTest.Tests
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(expectedResult.Count, actualResult.Count);
 
+            foreach (var groupList in actualResult)
+                SortMsgGroupList(groupList, true);
+
+            foreach (var groupList in expectedResult)
+                SortMsgGroupList(groupList, true);
+
             for (int i = 0; i < actualResult.Count; ++i)
             {
                 Assert.AreEqual(expectedResult[i].Count, actualResult[i].Count);
@@ -85,6 +103,11 @@ namespace SuggesterTest.Tests
             var actualResult = (List<MsgGroupList>)visitor.VisitRestrictions(restrictions);
 
             Assert.IsNotNull(actualResult);
+
+            foreach (var groupList in actualResult)
+                SortMsgGroupList(groupList, true);
+
+            expectedGroups.Sort(new MsgGroupComparer());
 
             for (int i = 0; i < actualResult.Count; ++i)
             {
@@ -116,6 +139,9 @@ namespace SuggesterTest.Tests
 
             Assert.IsNotNull(mergeResult);
             Assert.AreEqual(expected.Count, mergeResult.Count);
+
+            SortMsgGroupList(expected, false);
+            SortMsgGroupList(mergeResult, false);
 
             for (int i = 0; i < expected.Count; ++i)
             {

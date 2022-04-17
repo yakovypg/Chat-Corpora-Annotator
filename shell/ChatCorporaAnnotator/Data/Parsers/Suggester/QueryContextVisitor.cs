@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using CoreNLPEngine.Search;
 using IndexEngine.Indexes;
@@ -45,7 +46,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 for (int i = 0; i < restrResultPermutations.Count; ++i)
                 {
                     var mergedRestrcitions = MergeRestrictions(restrResultPermutations[i], windowSize);
-                    var comp = new MsgGroupEqualityComparer<int>();
+                    var comp = new MsgGroupEqualityComparer();
 
                     var uniqueRestrcitions = mergedRestrcitions
                         .Where(x => !result.Any(y => y.Any(z => comp.Equals(x, z))))
@@ -89,7 +90,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             for (int i = 0; i < restrictions.Length; ++i)
             {
                 var visitResult = ((IEnumerable<int>)VisitRestriction(restrictions[i])).ToList();
-                visitResult.Sort();
+                //visitResult.Sort();
 
                 visitResults.Add(visitResult);
             }
@@ -255,13 +256,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             {
                 int curMsg = curGroup[i];
 
-                if (!previousMsg.HasValue || curMsg <= previousMsg)
+                if (curMsg <= previousMsg)
                     continue;
 
                 if ((nextMsg.HasValue && curMsg >= nextMsg) ||
                     (curMsg - firstItem > windowSize))
                 {
-                    break;
+                    continue;
                 }
 
                 var newAccumulatedMsgs = new List<int>(accumulatedMsgs)
