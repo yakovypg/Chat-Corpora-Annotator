@@ -15,6 +15,8 @@ namespace IndexEngine.Indexes
 {
     public static class IndexHelper
     {
+        private const int PERIOD_OF_SAVING_INTERMEDIATE_RESULTS_OF_POPULATING_INDEX = 2 * 1000 * 1000;
+
         #region fields
         private static int viewerReadIndex = 0;
         private static int[] lookup = new int[3];
@@ -420,13 +422,15 @@ namespace IndexEngine.Indexes
                                 {
                                     document.Add(new StringField(allFields[i], row[i], Field.Store.YES));
                                 }
-
                             }
 
                             //TODO: Still need to redesign this. Rework storing/indexing paradigm.
                         }
 
                         LuceneService.Writer.AddDocument(document);
+
+                        if (count % PERIOD_OF_SAVING_INTERMEDIATE_RESULTS_OF_POPULATING_INDEX == 0)
+                            LuceneService.Writer.Commit();
                     }
 
                     LuceneService.Writer.Commit();
