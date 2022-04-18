@@ -25,6 +25,7 @@ namespace SuggesterBenchmark.CLI
                 { "MergeQueriesBenchmark", () => BenchmarkRunner.Run<MergeQueriesBenchmark>(BenchmarkRunnerConfig) },
                 { "MergeRestrictionsBenchmark", () => BenchmarkRunner.Run<MergeRestrictionsBenchmark>(BenchmarkRunnerConfig) },
                 { "MergeRestrictionsComparisonBenchmark", () => BenchmarkRunner.Run<MergeRestrictionsComparisonBenchmark>(BenchmarkRunnerConfig) },
+                { "NaturalQueriesBenchmark", () => BenchmarkRunner.Run<NaturalQueriesBenchmark>(BenchmarkRunnerConfig) },
                 { "ParseQueryBenchmark", () => BenchmarkRunner.Run<ParseQueryBenchmark>(BenchmarkRunnerConfig) },
                 { "VisitConditionBenchmark", () => BenchmarkRunner.Run<VisitConditionBenchmark>(BenchmarkRunnerConfig) },
                 { "VisitQueryBenchmark", () => BenchmarkRunner.Run<VisitQueryBenchmark>(BenchmarkRunnerConfig) },
