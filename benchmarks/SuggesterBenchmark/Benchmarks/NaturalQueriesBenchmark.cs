@@ -11,9 +11,9 @@ namespace SuggesterBenchmark.Benchmarks
             "unr inwin 20";
 
         private const string Q1 = "select " +
-            "(select haswordofdict(dev) or haswordofdict(area), haswordofdict(job));" +
-            "(select haswordofdict(area) and haswordofdict(money))" +
-            "inwin 40";
+            "(select haswordofdict(job), haswordofdict(skill), haswordofdict(area), haswordofdict(money) unr inwin 60);" +
+            "(select haswordofdict(area) and (haswordofdict(payment) or haswordofdict(money)))" +
+            "inwin 200";
 
         private const string Q2 = "select" +
             "(select (byuser(Lumiras) or byuser(sircharleswatson) or byuser(Kadams223)) and hasusermentioned(odrisck));" +
