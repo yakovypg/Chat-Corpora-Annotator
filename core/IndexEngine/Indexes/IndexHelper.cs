@@ -15,6 +15,7 @@ namespace IndexEngine.Indexes
 {
     public static class IndexHelper
     {
+        private const int MAX_TERM_LENGTH = 32766;
         private const int PERIOD_OF_SAVING_INTERMEDIATE_RESULTS_OF_POPULATING_INDEX = 2 * 1000 * 1000;
 
         #region fields
@@ -399,34 +400,34 @@ namespace IndexEngine.Indexes
 
                         for (int i = 0; i < row.Length; i++)
                         {
+                            string rowText = row[i];
+                            string value = rowText.Length <= MAX_TERM_LENGTH ? rowText : string.Empty;
+
                             if (lookup.Contains(i))
                             {
                                 if (i == lookup[0])
                                 {
-                                    var temp = DateTools.DateToString(date, DateTools.Resolution.SECOND); //just in case
+                                    string temp = DateTools.DateToString(date, DateTools.Resolution.SECOND); //just in case
                                     document.Add(new StringField(allFields[i], temp, Field.Store.YES));
                                 }
                                 if (i == lookup[1])
                                 {
-                                    document.Add(new StringField(allFields[i], row[i], Field.Store.YES));
+                                    document.Add(new StringField(allFields[i], value, Field.Store.YES));
                                 }
                                 if (i == lookup[2])
                                 {
-
-                                    document.Add(new TextField(allFields[i], row[i], Field.Store.YES));
+                                    document.Add(new TextField(allFields[i], value, Field.Store.YES));
                                 }
                             }
                             else
                             {
                                 if (ProjectInfo.Data.SelectedFields.Contains(allFields[i]))
-                                {
-                                    document.Add(new StringField(allFields[i], row[i], Field.Store.YES));
-                                }
+                                    document.Add(new StringField(allFields[i], value, Field.Store.YES));
                             }
 
                             //TODO: Still need to redesign this. Rework storing/indexing paradigm.
                         }
-
+                        
                         LuceneService.Writer.AddDocument(document);
 
                         if (count % PERIOD_OF_SAVING_INTERMEDIATE_RESULTS_OF_POPULATING_INDEX == 0)
