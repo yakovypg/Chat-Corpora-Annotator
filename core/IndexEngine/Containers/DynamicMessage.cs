@@ -1,4 +1,5 @@
-﻿using IndexEngine.Indexes;
+﻿using IndexEngine.Data.Paths;
+using IndexEngine.Indexes;
 using Lucene.Net.Documents;
 using System;
 using System.Collections.Generic;
@@ -101,10 +102,20 @@ namespace IndexEngine.Containers
 
             for (int i = 0; i < fields.Length; ++i)
             {
-                if (!Contents.TryGetValue(fields[i], out object value))
+                if (!Contents.TryGetValue(fields[i], out object? value))
                     throw new Exception($"Message does not contain the field {fields[i]}.");
 
-                items[i] = value.ToString();
+                if (fields[i] == ProjectInfo.DateFieldKey)
+                {
+                    string dateText = value?.ToString() ?? string.Empty;
+                    DateTime date = DateTime.Parse(dateText);
+
+                    items[i] = date.ToString("O");
+                }
+                else
+                {
+                    items[i] = value?.ToString() ?? string.Empty;
+                }
             }
 
             return items;
