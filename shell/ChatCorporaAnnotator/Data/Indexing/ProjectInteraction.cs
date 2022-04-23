@@ -22,7 +22,7 @@ namespace ChatCorporaAnnotator.Data.Indexing
                 return dates;
             }
 
-            HashSet<ActiveDate> activeDates = IndexHelper.LoadAllActiveDates();
+            HashSet<ActiveDate> activeDates = IndexEngine.Data.Paths.ProjectInfo.Data.ActiveDates;
             ActiveDateParser.TrySaveToFile(path, activeDates);
 
             return activeDates;

@@ -366,6 +366,8 @@ namespace IndexEngine.Indexes
                 string[] row = null;
                 DateTime date;
 
+                var activeDates = new HashSet<ActiveDate>();
+
                 using (var fileReader = new CsvReader(filePath))
                 {
                     if (!header)
@@ -377,6 +379,9 @@ namespace IndexEngine.Indexes
 
                         var t = row[lookup[0]];
                         date = DateTime.Parse(t);
+
+                        var shortDate = new DateTime(date.Year, date.Month, date.Day);
+                        activeDates.Add(new ActiveDate(shortDate, indexingValue));
 
                         ProjectInfo.Data.UserKeys.Add(row[lookup[1]]);
 
@@ -436,7 +441,9 @@ namespace IndexEngine.Indexes
 
                     LuceneService.Writer.Commit();
                     LuceneService.Writer.Flush(triggerMerge: false, applyAllDeletes: false);
+
                     ProjectInfo.Data.LineCount = count;
+                    ProjectInfo.Data.ActiveDates = activeDates;
 
                     CheckDir();
                     PopulateUserColors();
