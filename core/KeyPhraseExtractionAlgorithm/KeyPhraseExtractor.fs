@@ -13,7 +13,7 @@ module KeyPhraseExtractor =
                    y = "NN" || y = "NNS" || y = "NNP" || y = "NNPS")
         let rec foldTree acc (node:ParseTree) =
             let acc =
-                if (node.Child = null) then acc
+                if (node.Child = null || node.Child.Count = 0) then acc
                 else node.Child
                     |> Seq.cast<ParseTree>
                     |> Seq.fold

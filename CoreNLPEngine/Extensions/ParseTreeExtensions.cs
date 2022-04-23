@@ -6,7 +6,7 @@ namespace CoreNLPEngine.Extensions
     {
         public static List<ParseTree> GetLeaves(this ParseTree tree)
         {
-            if (tree.Child == null)
+            if (tree.Child == null || tree.Child.Count == 0)
                 return new List<ParseTree>() { tree };
 
             var leaves = new List<ParseTree>();
