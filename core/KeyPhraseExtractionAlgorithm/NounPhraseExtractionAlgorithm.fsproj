@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="KeyPhraseExtractor.fs" />
+    <Compile Include="NounPhraseExtractor.fs" />
   </ItemGroup>
 
   <ItemGroup>

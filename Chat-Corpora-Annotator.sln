@@ -46,9 +46,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggesterTest", "tests\Sugg
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreNLPClient.Net", "core\CoreNLPClient.Net\CoreNLPClient.Net.csproj", "{542D84B4-4E47-4B44-8C8F-FAD76A3C46B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreNLPEngine", "CoreNLPEngine\CoreNLPEngine.csproj", "{5ED10F84-BA84-4C50-88A9-ED0B72F6EF77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreNLPEngine", "CoreNLPEngine\CoreNLPEngine.csproj", "{5ED10F84-BA84-4C50-88A9-ED0B72F6EF77}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "KeyPhraseExtractionAlgorithm", "core\KeyPhraseExtractionAlgorithm\KeyPhraseExtractionAlgorithm.fsproj", "{C3FBBC6D-2EE9-48E2-8D5E-7087828D0C6E}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "NounPhraseExtractionAlgorithm", "core\KeyPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj", "{C3FBBC6D-2EE9-48E2-8D5E-7087828D0C6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

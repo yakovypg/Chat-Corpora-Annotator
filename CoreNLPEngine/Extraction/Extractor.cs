@@ -4,7 +4,7 @@ using CSharpTest.Net.Collections;
 using Edu.Stanford.Nlp.Pipeline;
 using IndexEngine.Data.Paths;
 using IndexEngine.Search;
-using KeyPhraseExtractionAlgorithm;
+using NounPhraseExtractionAlgorithm;
 
 namespace CoreNLPEngine.Extraction
 {
@@ -19,7 +19,7 @@ namespace CoreNLPEngine.Extraction
         public static BTreeDictionary<int, string> Times { get; set; }
         public static BTreeDictionary<int, string> Locations { get; set; }
         public static BTreeDictionary<int, string> Organisations { get; set; }
-        public static BTreeDictionary<int, List<string>> KeyPhrases { get; set; }
+        public static BTreeDictionary<int, List<string>> NounPhrases { get; set; }
 
         static Extractor()
         {
@@ -32,7 +32,7 @@ namespace CoreNLPEngine.Extraction
             Times = new BTreeDictionary<int, string>();
             Locations = new BTreeDictionary<int, string>();
             Organisations = new BTreeDictionary<int, string>();
-            KeyPhrases = new BTreeDictionary<int, List<string>>();
+            NounPhrases = new BTreeDictionary<int, List<string>>();
         }
 
         public static void Clear()
@@ -43,7 +43,7 @@ namespace CoreNLPEngine.Extraction
             Times.Clear();
             Locations.Clear();
             Organisations.Clear();
-            KeyPhrases.Clear();
+            NounPhrases.Clear();
         }
 
         public static Task ExtractAsync()
@@ -72,7 +72,7 @@ namespace CoreNLPEngine.Extraction
                     continue;
 
                 List<string> keyPhrases = ExtractKeyPhrases(annDoc);
-                KeyPhrases.Add(msgId, keyPhrases);
+                NounPhrases.Add(msgId, keyPhrases);
 
                 //List<string> nouns = ExtractNouns(annDoc);
                 //KeyPhrases.Add(msgId, nouns);
@@ -139,7 +139,7 @@ namespace CoreNLPEngine.Extraction
                 if (sentence.ParseTree == null)
                     continue;
 
-                IEnumerable<ParseTree> nnxSubtrees = KeyPhraseExtractor.getKeyPhrases(sentence.ParseTree);
+                IEnumerable<ParseTree> nnxSubtrees = NounPhraseExtractor.getKeyPhrases(sentence.ParseTree);
 
                 foreach (var subtree in nnxSubtrees)
                 {

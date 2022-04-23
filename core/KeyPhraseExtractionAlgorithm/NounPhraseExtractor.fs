@@ -1,6 +1,6 @@
-﻿namespace KeyPhraseExtractionAlgorithm
+﻿namespace NounPhraseExtractionAlgorithm
 
-module KeyPhraseExtractor =
+module NounPhraseExtractor =
     open Edu.Stanford.Nlp.Pipeline
 
     let getKeyPhrases (tree:ParseTree) =
