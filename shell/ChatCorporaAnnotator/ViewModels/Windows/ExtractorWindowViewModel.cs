@@ -1,9 +1,13 @@
 ﻿using ChatCorporaAnnotator.Data.Dialogs;
+using ChatCorporaAnnotator.Data.Indexing;
+using ChatCorporaAnnotator.Data.Windows;
 using ChatCorporaAnnotator.Infrastructure.Commands;
 using ChatCorporaAnnotator.Models.Messages;
 using ChatCorporaAnnotator.ViewModels.Base;
+using ChatCorporaAnnotator.Views.Windows;
 using CoreNLPEngine.Diagnostics;
 using CoreNLPEngine.Extraction;
+using CoreNLPEngine.Search;
 using IndexEngine.Data.Paths;
 using System;
 using System.Diagnostics;
@@ -14,6 +18,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 {
     internal class ExtractorWindowViewModel : ViewModel
     {
+        private readonly Extractor _extractor;
+        
         public Action? DeactivateAction { get; set; }
 
         #region ConfigItems
@@ -41,8 +47,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 if (!SetValue(ref _coreNLPPath, value))
                     return;
 
-               Extractor.Config.CoreNLPPath = value;
-               IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled();
+                _extractor.Config.CoreNLPPath = value;
+               IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath);
             }
         }
 
@@ -74,7 +80,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 if (!SetValue(ref _isCoreNLPInstalled, value))
                     return;
 
-                CoreNLPInfoBackground = ExtractComponentsVerifier.IsCoreNLPInstalled()
+                CoreNLPInfoBackground = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath)
                     ? Brushes.LightGreen
                     : Brushes.Pink;
             }
@@ -100,29 +106,63 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
+        #region ProgressBarItems
+
+        private const int DEFAULT_PROGRESS_UPDATE_INTERVAL = 10;
+
+        private bool _isExtractionActive = false;
+        public bool IsExtractionActive
+        {
+            get => _isExtractionActive;
+            private set => SetValue(ref _isExtractionActive, value);
+        }
+
+        private double _progressBarMinimum = 0;
+        public double ProgressBarMinimum
+        {
+            get => _progressBarMinimum;
+            set => SetValue(ref _progressBarMinimum, value);
+        }
+
+        private double _progressBarMaximum = 100;
+        public double ProgressBarMaximum
+        {
+            get => _progressBarMaximum;
+            set => SetValue(ref _progressBarMaximum, value);
+        }
+
+        private double _progressBarCurrentValue = 0;
+        public double ProgressBarCurrentValue
+        {
+            get => _progressBarCurrentValue;
+            set => SetValue(ref _progressBarCurrentValue, value);
+        }
+
+        #endregion
+
         #region ExtractCommands
 
         public ICommand ResetConfigCommand { get; }
         public bool CanResetConfigCommandExecute(object parameter)
         {
-            return true;
+            return !IsExtractionActive;
         }
         public void OnResetConfigCommandExecuted(object parameter)
         {
             if (!CanResetConfigCommandExecute(parameter))
                 return;
 
-            Extractor.Config = ExtractConfig.Default;
+            _extractor.Config = ExtractConfig.Default;
 
-            CoreNLPPath = Extractor.Config.CoreNLPPath;
-            CoreNLPClientMemoryText = Extractor.Config.CoreNLPClientMemory.ToString();
-            CoreNLPClientTimeoutText = Extractor.Config.CoreNLPClientTimeout.ToString();
+            CoreNLPPath = _extractor.Config.CoreNLPPath;
+            CoreNLPClientMemoryText = _extractor.Config.CoreNLPClientMemory.ToString();
+            CoreNLPClientTimeoutText = _extractor.Config.CoreNLPClientTimeout.ToString();
         }
 
         public ICommand SetCoreNLPPathCommand { get; }
         public bool CanSetCoreNLPPathCommandExecute(object parameter)
         {
-            return true;
+            return !IsExtractionActive;
         }
         public void OnSetCoreNLPPathCommandExecuted(object parameter)
         {
@@ -138,7 +178,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ICommand ExtractCommand { get; }
         public bool CanExtractCommandExecute(object parameter)
         {
-            return IsJavaInstalled && IsCoreNLPInstalled;
+            return IsJavaInstalled && IsCoreNLPInstalled && !IsExtractionActive;
         }
         public void OnExtractCommandExecuted(object parameter)
         {
@@ -152,11 +192,17 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
             }
 
-            Extractor.Config.CoreNLPClientMemory = memory;
-            Extractor.Config.CoreNLPClientTimeout = timeout;
+            IsExtractionActive = true;
+            ProgressBarCurrentValue = 0;
+
+            ProgressBarMinimum = 0;
+            ProgressBarMaximum = ProjectInteraction.MessagesCount;
+
+            _extractor.Config.CoreNLPClientMemory = memory;
+            _extractor.Config.CoreNLPClientTimeout = timeout;
 
             //Extractor.Extract();
-            Extractor.ExtractAsync();
+            _ = _extractor.ExtractAsync();
         }
 
         #endregion
@@ -214,7 +260,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanSaveExtractConfigCommandExecute(parameter))
                 return;
 
-            Extractor.Config.TrySaveConfigToDisk();
+            _extractor.Config.TrySaveConfigToDisk();
         }
 
         public ICommand DeactivateWindowCommand { get; }
@@ -226,6 +272,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             if (!CanDeactivateWindowCommandExecute(parameter))
                 return;
+
+            _extractor.StopExtraction();
 
             try
             {
@@ -241,14 +289,37 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         public ExtractorWindowViewModel()
         {
-            Extractor.Config.LoadConfigFromDisk();
+            _extractor = new Extractor() { ProgressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL };
+            _extractor.Config.LoadConfigFromDisk();
 
-            CoreNLPPath = Extractor.Config.CoreNLPPath;
-            CoreNLPClientMemoryText = Extractor.Config.CoreNLPClientMemory.ToString();
-            CoreNLPClientTimeoutText = Extractor.Config.CoreNLPClientTimeout.ToString();
+            var mainWindowDispatcher = new WindowFinder().Find(typeof(MainWindow)).Dispatcher;
+
+            _extractor.ProgressChanged += (delta, currValue) =>
+            {
+                mainWindowDispatcher.Invoke(() => ProgressBarCurrentValue = currValue);
+            };
+            _extractor.FailedExtraction += () =>
+            {
+                mainWindowDispatcher.Invoke(() =>
+                    new QuickMessage("Extraction was failed.").ShowInformation()
+                );
+            };
+            _extractor.SuccessfulExtraction += () =>
+            {
+                IsExtractionActive = false;
+                RetrieversSearch.Extractor = _extractor;
+
+                mainWindowDispatcher.Invoke(() =>
+                    new QuickMessage("Extraction was successful.").ShowInformation()
+                );
+            };
+
+            CoreNLPPath = _extractor.Config.CoreNLPPath;
+            CoreNLPClientMemoryText = _extractor.Config.CoreNLPClientMemory.ToString();
+            CoreNLPClientTimeoutText = _extractor.Config.CoreNLPClientTimeout.ToString();
 
             IsJavaInstalled = ExtractComponentsVerifier.IsJavaInstalled();
-            IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled();
+            IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath);
 
             #region CommandsInitialization
 

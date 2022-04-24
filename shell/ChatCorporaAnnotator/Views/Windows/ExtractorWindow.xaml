@@ -84,7 +84,15 @@
             </Button>
         </Grid>
 
-        <ProgressBar DockPanel.Dock="Top" Margin="0, 0, 0, 5" Height="25"/>
+        <ProgressBar
+            DockPanel.Dock="Top"
+            Margin="0, 0, 0, 5"
+            Height="25"
+            Style="{StaticResource CircleProgressBar}"
+            Minimum="{Binding ProgressBarMinimum}"
+            Maximum="{Binding ProgressBarMaximum}"
+            Value="{Binding ProgressBarCurrentValue}">
+        </ProgressBar>
 
         <Grid DockPanel.Dock="Bottom" Height="25">
             <Grid.ColumnDefinitions>

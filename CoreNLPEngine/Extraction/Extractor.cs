@@ -1,5 +1,6 @@
 ﻿using CoreNLPClientDotNet;
 using CoreNLPEngine.Extensions;
+using CoreNLPEngine.Search;
 using CSharpTest.Net.Collections;
 using Edu.Stanford.Nlp.Pipeline;
 using IndexEngine.Data.Paths;
@@ -8,20 +9,36 @@ using NounPhraseExtractionAlgorithm;
 
 namespace CoreNLPEngine.Extraction
 {
-    public static class Extractor
+    public class Extractor
     {
-        public static ExtractConfig Config { get; set; }
+        public delegate void SuccessfulExtractionHandler();
+        public event SuccessfulExtractionHandler? SuccessfulExtraction;
 
-        public static List<int> MessagesWithQuestion { get; set; }
+        public delegate void FailedExtractionHandler();
+        public event FailedExtractionHandler? FailedExtraction;
 
-        public static BTreeDictionary<int, string> URLs { get; set; }
-        public static BTreeDictionary<int, string> Dates { get; set; }
-        public static BTreeDictionary<int, string> Times { get; set; }
-        public static BTreeDictionary<int, string> Locations { get; set; }
-        public static BTreeDictionary<int, string> Organisations { get; set; }
-        public static BTreeDictionary<int, List<string>> NounPhrases { get; set; }
+        public delegate void ProgressChangedHandler(long delta, long currValue);
+        public event ProgressChangedHandler? ProgressChanged;
 
-        static Extractor()
+        public ExtractConfig Config { get; set; }
+        public int ProgressUpdateInterval { get; set; }
+
+        public List<int> MessagesWithQuestion { get; set; }
+
+        public BTreeDictionary<int, string> URLs { get; set; }
+        public BTreeDictionary<int, string> Dates { get; set; }
+        public BTreeDictionary<int, string> Times { get; set; }
+        public BTreeDictionary<int, string> Locations { get; set; }
+        public BTreeDictionary<int, string> Organisations { get; set; }
+        public BTreeDictionary<int, List<string>> NounPhrases { get; set; }
+
+        private Task? _extractionTask = null;
+        public Task? ExtractionTask => _extractionTask;
+
+        private bool _stopExtraction = false;
+        private bool _isExtractionActive = false;
+
+        public Extractor()
         {
             Config = ExtractConfig.Default;
 
@@ -35,7 +52,7 @@ namespace CoreNLPEngine.Extraction
             NounPhrases = new BTreeDictionary<int, List<string>>();
         }
 
-        public static void Clear()
+        public void Clear()
         {
             MessagesWithQuestion.Clear();
             URLs.Clear();
@@ -46,22 +63,44 @@ namespace CoreNLPEngine.Extraction
             NounPhrases.Clear();
         }
 
-        public static Task ExtractAsync()
+        public async Task ExtractAsync()
         {
-            return Task.Run(Extract);
+            _extractionTask = Task.Run(Extract);
+            await _extractionTask;
         }
 
-        public static void Extract()
+        public void StopExtraction()
         {
-            if (LuceneService.DirReader == null)
+            _stopExtraction = true;
+        }
+
+        public void StopExtractionAndWait()
+        {
+            StopExtraction();
+            _extractionTask?.Wait();
+        }
+
+        public void Extract()
+        {
+            if (LuceneService.DirReader == null || _isExtractionActive)
                 return;
+
+            _isExtractionActive = true;
 
             Clear();
 
+            bool extractionSuccess = true;
             var coreNLPClient = CreateCoreNLPClient();
 
             for (int i = 0; i < LuceneService.DirReader.MaxDoc; i++)
             {
+                if (_stopExtraction)
+                {
+                    coreNLPClient.Stop();
+                    extractionSuccess = false;
+                    break;
+                }
+                
                 var msgDoc = LuceneService.DirReader.Document(i);
                 int msgId = msgDoc.GetField(ProjectInfo.IdKey).GetInt32Value() ?? -1;
                 string msgText = msgDoc.GetField(ProjectInfo.TextFieldKey).GetStringValue();
@@ -85,12 +124,27 @@ namespace CoreNLPEngine.Extraction
                     foreach (var ner in annDoc.Mentions)
                         ExtractNERTags(ner, msgId);
                 }
+
+                int currProgressValue = i + 1;
+
+                if (currProgressValue % ProgressUpdateInterval == 0)
+                    ProgressChanged?.Invoke(ProgressUpdateInterval, currProgressValue);
             }
 
             coreNLPClient.Dispose();
+
+            if (extractionSuccess)
+            {
+                SuccessfulExtraction?.Invoke();
+                RetrieversSearch.Extractor = this;
+            }
+            else
+            {
+                FailedExtraction?.Invoke();
+            }
         }
 
-        private static void ExtractNERTags(NERMention mention, int msgId)
+        private void ExtractNERTags(NERMention mention, int msgId)
         {
             string nerType = mention.EntityType;
             string nerText = mention.EntityMentionText;
@@ -185,14 +239,14 @@ namespace CoreNLPEngine.Extraction
             return nouns;
         }
 
-        private static Document? GetAnnotatedDocument(string text, CoreNLPClient coreNLPClient)
+        private Document? GetAnnotatedDocument(string text, CoreNLPClient coreNLPClient)
         {
             return Config == null || string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text)
                 ? null
                 : (Document)coreNLPClient.Annotate(text);
         }
 
-        private static CoreNLPClient CreateCoreNLPClient()
+        private CoreNLPClient CreateCoreNLPClient()
         {
             return new CoreNLPClient(
                 startServer: StartServer.TryStart,

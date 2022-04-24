@@ -737,7 +737,7 @@
                                     Minimum="{Binding ProgressBarMinimum}"
                                     Maximum="{Binding ProgressBarMaximum}"
                                     Value="{Binding ProgressBarCurrentValue}"
-                                    Style="{StaticResource dd}">
+                                    Style="{StaticResource CircleProgressBar}">
                                 </ProgressBar>
                             </DockPanel>
 

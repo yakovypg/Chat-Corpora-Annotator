@@ -6,12 +6,12 @@ namespace CoreNLPEngine.Diagnostics
 {
     public static class ExtractComponentsVerifier
     {
-        public static bool IsCoreNLPInstalled()
+        public static bool IsCoreNLPInstalled(string coreNLPPath)
         {
-            if (!Directory.Exists(Extractor.Config.CoreNLPPath))
+            if (!Directory.Exists(coreNLPPath))
                 return false;
 
-            string[] files = Directory.GetFiles(Extractor.Config.CoreNLPPath);
+            string[] files = Directory.GetFiles(coreNLPPath);
 
             return files.Length != 0 && files.Any(t => t.Contains("stanford"));
         }

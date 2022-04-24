@@ -16,6 +16,8 @@ namespace CoreNLPEngine.Search
 
     public static class RetrieversSearch
     {
+        public static Extraction.Extractor Extractor { get; set; } = new Extraction.Extractor();
+        
         public static HashSet<int> HasWordOfList(List<string> words)
         {
             HashSet<int> results = new HashSet<int>();
@@ -51,11 +53,11 @@ namespace CoreNLPEngine.Search
         {
             switch (tag)
             {
-                case NERLabels.ORG: return Extraction.Extractor.Organisations.Keys.ToList();
-                case NERLabels.LOC: return Extraction.Extractor.Locations.Keys.ToList();
-                case NERLabels.TIME: return Extraction.Extractor.Times.Keys.ToList();
-                case NERLabels.URL: return Extraction.Extractor.URLs.Keys.ToList();
-                case NERLabels.DATE: return Extraction.Extractor.Dates.Keys.ToList();
+                case NERLabels.ORG: return Extractor.Organisations.Keys.ToList();
+                case NERLabels.LOC: return Extractor.Locations.Keys.ToList();
+                case NERLabels.TIME: return Extractor.Times.Keys.ToList();
+                case NERLabels.URL: return Extractor.URLs.Keys.ToList();
+                case NERLabels.DATE: return Extractor.Dates.Keys.ToList();
 
                 default: return new List<int>();
             }
@@ -63,7 +65,7 @@ namespace CoreNLPEngine.Search
 
         public static List<int> HasQuestion()
         {
-            return Extraction.Extractor.MessagesWithQuestion.ToList();
+            return Extractor.MessagesWithQuestion.ToList();
         }
 
         public static HashSet<int> HasUser(string user)
