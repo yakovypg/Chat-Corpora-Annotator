@@ -4,8 +4,12 @@ using System.Linq;
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms
 {
-    internal class MsgGroupHistogram : ICloneable
+    public class MsgGroupHistogram : ICloneable
     {
+        public const int DEFAULT_HISTOGRAM_INTERVAL = 100;
+
+        public List<int> MsgGroup { get; }
+
         public int Interval { get; }
         public int AxisXLength { get; }
         public Range[] Hits { get; private set; }
@@ -14,7 +18,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms
         public int MaxY => Hits.Max(t => t.Value);
         public int HitsSum => Hits.Sum(t => t.Value);
 
-        public MsgGroupHistogram(List<int> msgGroup, int axisXLength, int interval)
+        public MsgGroupHistogram(List<int> msgGroup, int axisXLength, int interval, Range[]? hits = null)
         {
             if (interval <= 0)
                 throw new ArgumentException("Interval must be greater than zero.");
@@ -22,25 +26,36 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms
             if (interval > axisXLength)
                 interval = axisXLength;
 
+            MsgGroup = msgGroup;
             Interval = interval;
             AxisXLength = axisXLength;
-            Hits = Array.Empty<Range>();
 
-            CountHits(msgGroup);
+            if (hits == null)
+            {
+                Hits = Array.Empty<Range>();
+                CountHits(msgGroup);
+            }
+            else
+            {
+                Hits = new Range[hits.Length];
+                hits.CopyTo(Hits, 0);
+            }
         }
 
-        public MsgGroupHistogram(Range[] hits, int axisXLength, int interval)
+        public static MsgGroupHistogram[] CreateHistograms(int interval = DEFAULT_HISTOGRAM_INTERVAL, params List<int>[] groups)
         {
-            Interval = interval;
-            AxisXLength = axisXLength;
+            int axisXLength = groups.Max(t => t.Count) + 1;
+            var histograms = new MsgGroupHistogram[groups.Length];
 
-            Hits = new Range[hits.Length];
-            hits.CopyTo(Hits, 0);
+            for (int i = 0; i < histograms.Length; ++i)
+                histograms[i] = new MsgGroupHistogram(groups[i], axisXLength, interval);
+
+            return histograms;
         }
 
         public object Clone()
         {
-            return new MsgGroupHistogram(Hits, AxisXLength, Interval);
+            return new MsgGroupHistogram(MsgGroup, AxisXLength, Interval, Hits);
         }
 
         public MsgGroupHistogram Intersect(MsgGroupHistogram other)
@@ -54,7 +69,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms
             for (int i = 0; i < minLength; ++i)
                 newHits[i] = Hits[i].IntersectValue(other.Hits[i]);
 
-            return new MsgGroupHistogram(newHits, AxisXLength, Interval);
+            return new MsgGroupHistogram(MsgGroup, AxisXLength, Interval, newHits);
         }
 
         private void CountHits(List<int> msgGroup)

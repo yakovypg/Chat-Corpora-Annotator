@@ -1,8 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 using ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers;
-using ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
-using CoreNLPEngine.Search;
 using IndexEngine.Indexes;
 using IndexEngine.Search;
 using System;
@@ -13,11 +11,9 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     using MsgGroupList = List<List<int>>;
 
-    public class QueryContextVisitor4 : ChatBaseVisitor<object>
+    public class QueryContextVisitor2 : ChatBaseVisitor<object>
     {
         public const int DEFAULT_WINDOW_SIZE = 70;
-        public const int MSG_GROUP_COUNT_MAX_DELTA = 200;
-        public const int DEFAULT_HISTOGRAM_INTERVAL = 100;
         public const int MAX_MESSAGES_RECEIVED_NOT = 1000 * 1000;
 
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
@@ -163,7 +159,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 var userDicts = UserDictsIndex.GetInstance().IndexCollection;
 
                 return userDicts.TryGetValue(dictname, out List<string> words)
-                    ? RetrieversSearch.HasWordOfList(words)
+                    ? Retrievers.HasWordOfList(words)
                     : null;
             }
 
@@ -172,7 +168,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 string username = context.huser().GetText();
 
                 return username != errorString
-                    ? RetrieversSearch.HasUser(username)
+                    ? Retrievers.HasUser(username)
                     : null;
             }
 
@@ -181,27 +177,27 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 string username = context.huser().GetText();
 
                 return username != errorString
-                    ? RetrieversSearch.HasUserMentioned(username)
+                    ? Retrievers.HasUserMentioned(username)
                     : null;
             }
 
             if (context.HasQuestion() != null)
-                return RetrieversSearch.HasQuestion();
+                return Retrievers.HasQuestion();
 
             if (context.HasDate() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.DATE);
+                return Retrievers.HasNERTag(NER.DATE);
 
             if (context.HasLocation() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.LOC);
+                return Retrievers.HasNERTag(NER.LOC);
 
             if (context.HasOrganization() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.ORG);
+                return Retrievers.HasNERTag(NER.ORG);
 
             if (context.HasTime() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.TIME);
+                return Retrievers.HasNERTag(NER.TIME);
 
             if (context.HasURL() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.URL);
+                return Retrievers.HasNERTag(NER.URL);
 
             return null;
         }
@@ -214,177 +210,49 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             if (groupList.Count == 1)
                 return groupList[0].Select(t => new List<int>() { t }).ToList();
 
-            var result = new MsgGroupList();
-            int[] counts = new int[groupList.Count];
-            int[] placement = new int[groupList.Count];
-
-            for (int i = 0; i < groupList.Count; ++i)
-            {
-                counts[i] = groupList[i].Count;
-                placement[i] = i;
-            }
-
-            Array.Sort(counts, placement, 1, groupList.Count - 1);
-
-            for (int i = 2; i < counts.Length; ++i)
-            {
-                int delta = counts[i] - counts[i - 1];
-
-                if (delta <= MSG_GROUP_COUNT_MAX_DELTA)
-                {
-                    var group1 = groupList[placement[i - 2]];
-                    var group2 = groupList[placement[i - 1]];
-                    var group3 = groupList[placement[i]];
-
-                    int max = Math.Max(group1.Max(), group2.Max());
-                    int axisXLength = Math.Max(max, group3.Max()) + 1;
-
-                    var hist1 = new MsgGroupHistogram(group1, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
-                    var hist2 = new MsgGroupHistogram(group2, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
-                    var hist3 = new MsgGroupHistogram(group3, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
-
-                    var intersect12 = hist1.Intersect(hist2);
-                    var intersect13 = hist1.Intersect(hist3);
-
-                    if (intersect12.HitsSum < intersect13.HitsSum)
-                    {
-                        counts.Swap(i - 1, i);
-                        placement.Swap(i - 1, i);
-                    }
-                }
-            }
-
             List<int> firstGroup = groupList[0];
+            var result = new MsgGroupList();
 
-            for (int i = 0; i < firstGroup.Count; ++i)
+            for (int i = 0; i < firstGroup.Count; i++)
             {
-                var accumulatedMsgs = new List<int>(groupList.Count) { firstGroup[i] };
+                var accumulatedMsgs = new List<int>() { firstGroup[i] };
+                var newGroups = MergeRestrictions(groupList, windowSize, accumulatedMsgs, 1);
 
-                for (int j = 1; j < groupList.Count; ++j)
-                    accumulatedMsgs.Add(-1);
-
-                var newGroups = MergeRestrictions(groupList, placement, windowSize, accumulatedMsgs, 1);
                 result.AddRange(newGroups);
             }
 
             return result;
         }
 
-        public MsgGroupList MergeRestrictions(MsgGroupList groupList, int[] placement, int windowSize, List<int> accumulatedMsgs, int curIndex)
+        private MsgGroupList MergeRestrictions(MsgGroupList groupList, int windowSize, IReadOnlyList<int> accumulatedMsgs, int startGroup)
         {
-            if (curIndex >= placement.Length)
-                return new MsgGroupList() { accumulatedMsgs };
+            if (startGroup >= groupList.Count)
+                return new MsgGroupList() { accumulatedMsgs.ToList() };
 
+            List<int> curGroup = groupList[startGroup];
             var result = new MsgGroupList();
 
             int firstItem = accumulatedMsgs[0];
-            int curGroupPosition = placement[curIndex];
-            List<int> curGroup = groupList[curGroupPosition];
-
-            (int? previousMsg, int? nextMsg) = GetPreviousAndNextMessage(accumulatedMsgs, curGroupPosition);
+            int previousItem = accumulatedMsgs[accumulatedMsgs.Count - 1];
 
             for (int i = 0; i < curGroup.Count; ++i)
             {
-                int curMsg = curGroup[i];
+                int curItem = curGroup[i];
 
-                if (curMsg <= previousMsg)
+                if (curItem <= previousItem)
                     continue;
 
-                if ((nextMsg.HasValue && curMsg >= nextMsg) ||
-                    (curMsg - firstItem > windowSize))
-                {
+                if (curItem - firstItem > windowSize)
                     continue;
-                }
 
-                var newAccumulatedMsgs = new List<int>(accumulatedMsgs)
-                {
-                    [curGroupPosition] = curMsg
-                };
+                var newAccumulatedMsgs = new List<int>(accumulatedMsgs) { curItem };
 
-                var newGroups = MergeRestrictions(groupList, placement, windowSize, newAccumulatedMsgs, curIndex + 1);
+                var newGroups = MergeRestrictions(groupList, windowSize, newAccumulatedMsgs, startGroup + 1);
                 result.AddRange(newGroups);
             }
 
             return result;
         }
-
-        private static (int? previousItem, int? nextItem) GetPreviousAndNextMessage(List<int> list, int startIndex)
-        {
-            int? previousItem = null;
-            int? nextItem = null;
-
-            for (int i = startIndex + 1; i < list.Count; ++i)
-            {
-                if (list[i] < 0)
-                    continue;
-
-                nextItem = list[i];
-                break;
-            }
-
-            for (int i = startIndex - 1; i >= 0; --i)
-            {
-                if (list[i] < 0)
-                    continue;
-
-                previousItem = list[i];
-                break;
-            }
-
-            return (previousItem, nextItem);
-        }
-
-        //public MsgGroupList MergeRestrictions(MsgGroupList groupList, int windowSize)
-        //{
-        //    if (groupList.Count == 0)
-        //        return new MsgGroupList();
-
-        //    if (groupList.Count == 1)
-        //        return groupList[0].Select(t => new List<int>() { t }).ToList();
-
-        //    List<int> firstGroup = groupList[0];
-        //    var result = new MsgGroupList();
-
-        //    for (int i = 0; i < firstGroup.Count; i++)
-        //    {
-        //        var accumulatedMsgs = new List<int>() { firstGroup[i] };
-        //        var newGroups = MergeRestrictions(groupList, windowSize, accumulatedMsgs, 1);
-
-        //        result.AddRange(newGroups);
-        //    }
-
-        //    return result;
-        //}
-
-        //private MsgGroupList MergeRestrictions(MsgGroupList groupList, int windowSize, IReadOnlyList<int> accumulatedMsgs, int startGroup)
-        //{
-        //    if (startGroup >= groupList.Count)
-        //        return new MsgGroupList() { accumulatedMsgs.ToList() };
-
-        //    List<int> curGroup = groupList[startGroup];
-        //    var result = new MsgGroupList();
-
-        //    int firstItem = accumulatedMsgs[0];
-        //    int previousItem = accumulatedMsgs[accumulatedMsgs.Count - 1];
-
-        //    for (int i = 0; i < curGroup.Count; ++i)
-        //    {
-        //        int curItem = curGroup[i];
-
-        //        if (curItem <= previousItem)
-        //            continue;
-
-        //        if (curItem - firstItem > windowSize)
-        //            break;
-
-        //        var newAccumulatedMsgs = new List<int>(accumulatedMsgs) { curItem };
-
-        //        var newGroups = MergeRestrictions(groupList, windowSize, newAccumulatedMsgs, startGroup + 1);
-        //        result.AddRange(newGroups);
-        //    }
-
-        //    return result;
-        //}
 
         public List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> subqueryResults, int windowSize)
         {
@@ -469,3 +337,4 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
         }
     }
 }
+

@@ -1,5 +1,9 @@
 ﻿using Antlr4.Runtime;
+using ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms;
+using IndexEngine.Data.Paths;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester
@@ -10,8 +14,10 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
     {
         public static List<MsgGroupList> Parse(string query)
         {
+            TryLoadHistograms(out HashSet<MsgGroupHistogram> histograms);
+
             var tree = GetTree(query);
-            var visitor = new QueryContextVisitor();
+            var visitor = new QueryContextVisitor()/* { Histograms = histograms }*/;
             var result = (List<MsgGroupList>)visitor.Visit(tree);
 
             return result;
@@ -28,6 +34,39 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 
             var tree = speakParser.query();
             return tree;
+        }
+
+        public static bool TrySaveHistograms(HashSet<MsgGroupHistogram> histograms)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(histograms);
+                File.WriteAllText(ToolInfo.HistogramsPath, json);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool TryLoadHistograms(out HashSet<MsgGroupHistogram> histograms)
+        {
+            try
+            {
+                string json = File.ReadAllText(ToolInfo.HistogramsPath);
+
+                histograms = JsonConvert.DeserializeObject<HashSet<MsgGroupHistogram>>(json)
+                    ?? new HashSet<MsgGroupHistogram>();
+
+                return true;
+            }
+            catch
+            {
+                histograms = new HashSet<MsgGroupHistogram>();
+                return false;
+            }
         }
     }
 }

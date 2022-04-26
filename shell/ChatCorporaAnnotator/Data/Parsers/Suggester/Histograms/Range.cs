@@ -2,7 +2,7 @@
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms
 {
-    internal struct Range
+    public struct Range
     {
         public int Start { get; }
         public int End { get; }

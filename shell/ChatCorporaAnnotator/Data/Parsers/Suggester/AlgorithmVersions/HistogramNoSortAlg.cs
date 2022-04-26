@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 using ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers;
+using ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
 using CoreNLPEngine.Search;
 using IndexEngine.Indexes;
@@ -12,10 +13,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
     using MsgGroupList = List<List<int>>;
 
-    public class QueryContextVisitor2 : ChatBaseVisitor<object>
+    public class QueryContextVisitor4 : ChatBaseVisitor<object>
     {
         public const int DEFAULT_WINDOW_SIZE = 70;
+        public const int MSG_GROUP_COUNT_MAX_DELTA = 250;
         public const int MAX_MESSAGES_RECEIVED_NOT = 1000 * 1000;
+
+        public HashSet<MsgGroupHistogram> Histograms { get; set; } = new(new MsgGroupHistogramEqualityComparer());
 
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
         {
@@ -90,7 +94,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             for (int i = 0; i < restrictions.Length; ++i)
             {
                 var visitResult = ((IEnumerable<int>)VisitRestriction(restrictions[i])).ToList();
-                visitResult.Sort();
+                //visitResult.Sort();
 
                 visitResults.Add(visitResult);
             }
@@ -212,16 +216,59 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 return groupList[0].Select(t => new List<int>() { t }).ToList();
 
             var result = new MsgGroupList();
-            int[] counts = new int[groupList.Count - 1];
-            int[] placement = new int[groupList.Count - 1];
+            int[] counts = new int[groupList.Count];
+            int[] placement = new int[groupList.Count];
 
-            for (int i = 1; i < groupList.Count; ++i)
+            for (int i = 0; i < groupList.Count; ++i)
             {
-                counts[i - 1] = groupList[i].Count;
-                placement[i - 1] = i;
+                counts[i] = groupList[i].Count;
+                placement[i] = i;
             }
 
-            Array.Sort(counts, placement);
+            Array.Sort(counts, placement, 1, groupList.Count - 1);
+
+            for (int i = 2; i < counts.Length; ++i)
+            {
+                int delta = counts[i] - counts[i - 1];
+
+                if (delta <= MSG_GROUP_COUNT_MAX_DELTA)
+                {
+                    var group1 = groupList[placement[i - 2]];
+                    var group2 = groupList[placement[i - 1]];
+                    var group3 = groupList[placement[i]];
+
+                    //int max = Math.Max(group1.Max(), group2.Max());
+                    //int axisXLength = Math.Max(max, group3.Max()) + 1;
+
+                    //var h1 = new MsgGroupHistogram(group1, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+                    //var h2 = new MsgGroupHistogram(group2, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+                    //var h3 = new MsgGroupHistogram(group3, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+
+                    //Histograms.Add(h1);
+                    //Histograms.Add(h2);
+                    //Histograms.Add(h3);
+
+                    //QueryParser.TrySaveHistograms(Histograms);
+
+                    var comparer = new MsgGroupEqualityComparer();
+
+                    MsgGroupHistogram? hist1 = Histograms.FirstOrDefault(t => comparer.Equals(t.MsgGroup, group1));
+                    MsgGroupHistogram? hist2 = Histograms.FirstOrDefault(t => comparer.Equals(t.MsgGroup, group2));
+                    MsgGroupHistogram? hist3 = Histograms.FirstOrDefault(t => comparer.Equals(t.MsgGroup, group3));
+
+                    if (hist1 is null || hist2 is null || hist3 is null)
+                        continue;
+
+                    var intersect12 = hist1.Intersect(hist2);
+                    var intersect13 = hist1.Intersect(hist3);
+
+                    if (intersect12.HitsSum > intersect13.HitsSum)
+                    {
+                        counts.Swap(i - 1, i);
+                        placement.Swap(i - 1, i);
+                    }
+                }
+            }
 
             List<int> firstGroup = groupList[0];
 
@@ -232,7 +279,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 for (int j = 1; j < groupList.Count; ++j)
                     accumulatedMsgs.Add(-1);
 
-                var newGroups = MergeRestrictions(groupList, placement, windowSize, accumulatedMsgs, 0);
+                var newGroups = MergeRestrictions(groupList, placement, windowSize, accumulatedMsgs, 1);
                 result.AddRange(newGroups);
             }
 
@@ -256,13 +303,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             {
                 int curMsg = curGroup[i];
 
-                if (!previousMsg.HasValue || curMsg <= previousMsg)
+                if (curMsg <= previousMsg)
                     continue;
 
                 if ((nextMsg.HasValue && curMsg >= nextMsg) ||
                     (curMsg - firstItem > windowSize))
                 {
-                    break;
+                    continue;
                 }
 
                 var newAccumulatedMsgs = new List<int>(accumulatedMsgs)

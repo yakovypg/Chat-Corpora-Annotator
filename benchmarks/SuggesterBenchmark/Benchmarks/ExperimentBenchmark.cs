@@ -6,6 +6,11 @@ namespace SuggesterBenchmark.Benchmarks
 {
     public class ExperimentBenchmark : BenchmarkBase
     {
+        // private const string Q1 = "select haswordofdict(test), haswordofdict(test), haswordofdict(skill) inwin 30"; // 1 100k
+        // private const string Q1 = "select haswordofdict(test500), haswordofdict(test500), haswordofdict(job) inwin 15"; // 2 500k
+        // private const string Q1 = "select haswordofdict(testX), haswordofdict(testX), haswordofdict(dev) inwin 10"; // 3 1kk
+        // private const string Q1 = "select haswordofdict(testX), haswordofdict(dev), haswordofdict(testZ)"; // 4 1kk
+
         private const string Q1 = "select " +
             "(select haswordofdict(job), haswordofdict(dev), haswordofdict(area) inwin 10);";
 

@@ -14,6 +14,8 @@ namespace IndexEngine.Data.Paths
 
         public static string ExtractorComponentSitesPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorcomponentsites.txt";
         public static string ExtractorConfigPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorconfig.txt";
+
+        public static string HistogramsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\histograms.json";
         
         public static string RecentProjectsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\recentprojects.txt";
         public static string TagsetColorIndexPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\tagsetscolors.txt";
