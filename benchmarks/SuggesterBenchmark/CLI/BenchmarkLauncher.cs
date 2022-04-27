@@ -22,6 +22,7 @@ namespace SuggesterBenchmark.CLI
             {
                 { "ControlBenchmark", () => BenchmarkRunner.Run<ControlBenchmark>(BenchmarkRunnerConfig) },
                 { "ExperimentBenchmark", () => BenchmarkRunner.Run<ExperimentBenchmark>(BenchmarkRunnerConfig) },
+                { "HistogramAlgorithmBenchmark", () => BenchmarkRunner.Run<HistogramAlgorithmBenchmark>(BenchmarkRunnerConfig) },
                 { "HistogramCreationBenchmark", () => BenchmarkRunner.Run<HistogramCreationBenchmark>(BenchmarkRunnerConfig) },
                 { "MergeQueriesBenchmark", () => BenchmarkRunner.Run<MergeQueriesBenchmark>(BenchmarkRunnerConfig) },
                 { "MergeRestrictionsBenchmark", () => BenchmarkRunner.Run<MergeRestrictionsBenchmark>(BenchmarkRunnerConfig) },
