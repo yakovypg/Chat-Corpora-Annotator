@@ -9,14 +9,8 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers
     {
         public bool Equals(MsgGroup? x, MsgGroup? y)
         {
-            if (x == null && y == null)
-                return true;
-
-            if (x == null || y == null)
-                return false;
-
-            bool isSeqEqual = x.SequenceEqual(y);
-            return isSeqEqual;
+            return (x == null && y == null) ||
+                   (x != null && y != null && x.SequenceEqual(y));
         }
 
         public int GetHashCode(MsgGroup obj)

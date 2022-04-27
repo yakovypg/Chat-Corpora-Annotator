@@ -44,7 +44,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester.Histograms
 
         public static MsgGroupHistogram[] CreateHistograms(int interval = DEFAULT_HISTOGRAM_INTERVAL, params List<int>[] groups)
         {
-            int axisXLength = groups.Max(t => t.Count) + 1;
+            int axisXLength = groups.Max(t => t.Max()) + 1;
             var histograms = new MsgGroupHistogram[groups.Length];
 
             for (int i = 0; i < histograms.Length; ++i)
