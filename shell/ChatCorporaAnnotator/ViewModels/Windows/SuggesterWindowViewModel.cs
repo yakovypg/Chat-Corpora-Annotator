@@ -265,6 +265,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             set => SetValue(ref _queryExecutionWaitingPanelVisibility, value);
         }
 
+        private Visibility _suggestionShiftingPanelVisibility = Visibility.Hidden;
+        public Visibility SuggestionShiftingPanelVisibility
+        {
+            get => _suggestionShiftingPanelVisibility;
+            set => SetValue(ref _suggestionShiftingPanelVisibility, value);
+        }
+
         #endregion
 
         #region ButtonBackgrounds
@@ -782,6 +789,69 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             DisplaySituation(CurrentSuggestionIndex - 1);
         }
 
+        public ICommand ChangeSuggestionShiftingPanelVisibilityCommand { get; }
+        public bool CanChangeSuggestionShiftingPanelVisibilityCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnChangeSuggestionShiftingPanelVisibilityCommandExecuted(object parameter)
+        {
+            if (!CanChangeSuggestionShiftingPanelVisibilityCommandExecute(parameter))
+                return;
+
+            SuggestionShiftingPanelVisibility = SuggestionShiftingPanelVisibility == Visibility.Hidden
+                ? Visibility.Visible
+                : Visibility.Hidden;
+        }
+
+        public ICommand ShiftToFirstSuggestionCommand { get; }
+        public bool CanShiftToFirstSuggestionCommandExecute(object parameter)
+        {
+            return !_queryResult.IsNullOrEmpty();
+        }
+        public void OnShiftToFirstSuggestionCommandExecuted(object parameter)
+        {
+            if (!CanShiftToFirstSuggestionCommandExecute(parameter))
+                return;
+
+            CurrentSuggestionIndex = 1;
+            DisplaySituation(CurrentSuggestionIndex - 1);
+        }
+
+        public ICommand ShiftToLastSuggestionCommand { get; }
+        public bool CanShiftToLastSuggestionCommandExecute(object parameter)
+        {
+            return !_queryResult.IsNullOrEmpty();
+        }
+        public void OnShiftToLastSuggestionCommandExecuted(object parameter)
+        {
+            if (!CanShiftToLastSuggestionCommandExecute(parameter))
+                return;
+
+            CurrentSuggestionIndex = _queryResult.Count;
+            DisplaySituation(CurrentSuggestionIndex - 1);
+        }
+
+        public ICommand ShiftToSpecifiedSuggestionCommand { get; }
+        public bool CanShiftToSpecifiedSuggestionCommandExecute(object parameter)
+        {
+            return !_queryResult.IsNullOrEmpty() &&
+                   int.TryParse(parameter as string, out int position) &&
+                   position >= 1 &&
+                   position <= _queryResult.Count;
+        }
+        public void OnShiftToSpecifiedSuggestionCommandExecuted(object parameter)
+        {
+            if (!CanShiftToSpecifiedSuggestionCommandExecute(parameter))
+                return;
+
+            if (!int.TryParse(parameter as string, out int position))
+                return;
+
+            CurrentSuggestionIndex = position;
+            DisplaySituation(CurrentSuggestionIndex - 1);
+        }
+
         #endregion
 
         #region DragDropCommands
@@ -962,6 +1032,10 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             ShowPreviousSuggestionCommand = new RelayCommand(OnShowPreviousSuggestionCommandExecuted, CanShowPreviousSuggestionCommandExecute);
             ShowNextSuggestionCommand = new RelayCommand(OnShowNextSuggestionCommandExecuted, CanShowNextSuggestionCommandExecute);
+            ChangeSuggestionShiftingPanelVisibilityCommand = new RelayCommand(OnChangeSuggestionShiftingPanelVisibilityCommandExecuted, CanChangeSuggestionShiftingPanelVisibilityCommandExecute);
+            ShiftToFirstSuggestionCommand = new RelayCommand(OnShiftToFirstSuggestionCommandExecuted, CanShiftToFirstSuggestionCommandExecute);
+            ShiftToLastSuggestionCommand = new RelayCommand(OnShiftToLastSuggestionCommandExecuted, CanShiftToLastSuggestionCommandExecute);
+            ShiftToSpecifiedSuggestionCommand = new RelayCommand(OnShiftToSpecifiedSuggestionCommandExecuted, CanShiftToSpecifiedSuggestionCommandExecute);
 
             DragButtonCommand = new RelayCommand(OnDragButtonCommandExecuted, CanDragButtonCommandExecute);
             WrapPanelTakeDropCommand = new RelayCommand(OnWrapPanelTakeDropCommandExecuted, CanWrapPanelTakeDropCommandExecute);

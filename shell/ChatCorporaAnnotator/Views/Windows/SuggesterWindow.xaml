@@ -768,6 +768,7 @@
             <Grid Grid.Row="2" Grid.Column="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
+                    <ColumnDefinition Width="40"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
@@ -778,12 +779,70 @@
                     Command="{Binding ShowPreviousSuggestionCommand}">
                 </Button>
 
+                <Button Grid.Column="1"
+                        Style="{StaticResource GhostButton}"
+                        Command="{Binding ChangeSuggestionShiftingPanelVisibilityCommand}">
+                    <fa:ImageAwesome Height="15" Icon="Solid_Search"/>
+                </Button>
+
                 <Button
-                    Grid.Column="1"
+                    Grid.Column="2"
                     Content="Next suggestion  ᐳ"
                     Style="{StaticResource GhostButton}"
                     Command="{Binding ShowNextSuggestionCommand}">
                 </Button>
+            </Grid>
+
+            <Grid Grid.Row="2" Grid.Column="2" Background="AliceBlue" Visibility="{Binding SuggestionShiftingPanelVisibility}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0" Name="SuggestionShiftingInfoTextBox" MaxLength="10">
+                        <TextBox.InputBindings>
+                            <KeyBinding
+                                Key="Enter"
+                                Command="{Binding ShiftToSpecifiedSuggestionCommand}"
+                                CommandParameter="{Binding ElementName=SuggestionShiftingInfoTextBox, Path=Text}">
+                            </KeyBinding>
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <Button
+                        Grid.Column="2"
+                        Content="Move"
+                        Style="{StaticResource GhostButton}"
+                        Command="{Binding ShiftToSpecifiedSuggestionCommand}"
+                        CommandParameter="{Binding ElementName=SuggestionShiftingInfoTextBox, Path=Text}">
+                    </Button>
+                    
+                    <Button
+                        Grid.Column="3"
+                        Content="First"
+                        Style="{StaticResource GhostButton}"
+                        Command="{Binding ShiftToFirstSuggestionCommand}">
+                    </Button>
+                    
+                    <Button
+                        Grid.Column="4"
+                        Content="Last"
+                        Style="{StaticResource GhostButton}"
+                        Command="{Binding ShiftToLastSuggestionCommand}">
+                    </Button>
+
+                    <Button
+                        Grid.Column="5"
+                        Content="Hide"
+                        Style="{StaticResource GhostButton}"
+                        Command="{Binding ChangeSuggestionShiftingPanelVisibilityCommand}">
+                    </Button>
+                </Grid>
             </Grid>
 
         </Grid>
