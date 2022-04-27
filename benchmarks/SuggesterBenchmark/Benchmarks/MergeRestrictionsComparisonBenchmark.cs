@@ -11,12 +11,6 @@ namespace SuggesterBenchmark.Benchmarks
         [Params(10)]
         public int Inwin;
 
-        private const string QueryForHistogramAlg1 = "select " +
-            "byuser(sludge256), " +
-            "byuser(sludge256), " +
-            "byuser(trisell) or byuser(seahik) or byuser(odrisck) or byuser(jsonify) or byuser(cerissa) or byuser(mykey007) or byuser(AhsanBudhani) or hasusermentioned(seahik) " +
-            "inwin 50";
-
         private readonly string[] _queries = new string[]
         {
             "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill), haswordofdict(brand)",
@@ -25,8 +19,6 @@ namespace SuggesterBenchmark.Benchmarks
             "select haswordofdict(job), haswordofdict(dev)",
             "select haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
             "select haswordofdict(skill), haswordofdict(skill), haswordofdict(job), haswordofdict(skill), haswordofdict(dev)",
-
-            QueryForHistogramAlg1,
         };
 
         private readonly QueryContextVisitor _visitor;
@@ -74,12 +66,6 @@ namespace SuggesterBenchmark.Benchmarks
         public void MergeRestrictionsTest_4()
         {
             var result = _visitor.MergeRestrictions(_visitResults[4], Inwin);
-        }
-
-        [Benchmark]
-        public void MergeRestrictionsTest_5()
-        {
-            var result = _visitor.MergeRestrictions(_visitResults[5], Inwin);
         }
     }
 }
