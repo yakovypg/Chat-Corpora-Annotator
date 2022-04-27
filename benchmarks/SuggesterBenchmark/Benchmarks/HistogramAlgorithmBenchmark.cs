@@ -33,7 +33,7 @@ namespace SuggesterBenchmark.Benchmarks
 
             Console.WriteLine($"\n{histograms.Count} histograms were loaded from {ToolInfo.HistogramsPath}\n");
 
-            _visitor = new QueryContextVisitor()/* { Histograms = histograms }*/;
+            _visitor = new QueryContextVisitor() { Histograms = histograms };
             _queryContexts = new ChatParser.QueryContext[_queries.Length];
 
             for (int i = 0; i < _queries.Length; ++i)

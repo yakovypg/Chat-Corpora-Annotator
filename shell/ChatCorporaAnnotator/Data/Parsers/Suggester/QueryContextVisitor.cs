@@ -16,9 +16,10 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
     public class QueryContextVisitor : ChatBaseVisitor<object>
     {
         public const int DEFAULT_WINDOW_SIZE = 70;
-        public const int MSG_GROUP_COUNT_MAX_DELTA = 200;
-        public const int DEFAULT_HISTOGRAM_INTERVAL = 100;
+        public const int MSG_GROUP_COUNT_MAX_DELTA = 250;
         public const int MAX_MESSAGES_RECEIVED_NOT = 1000 * 1000;
+
+        public HashSet<MsgGroupHistogram> Histograms { get; set; } = new(new MsgGroupHistogramEqualityComparer());
 
         public override object VisitQuery([NotNull] ChatParser.QueryContext context)
         {
@@ -93,7 +94,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             for (int i = 0; i < restrictions.Length; ++i)
             {
                 var visitResult = ((IEnumerable<int>)VisitRestriction(restrictions[i])).ToList();
-                //visitResult.Sort();
+                visitResult.Sort();
 
                 visitResults.Add(visitResult);
             }
@@ -236,17 +237,28 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                     var group2 = groupList[placement[i - 1]];
                     var group3 = groupList[placement[i]];
 
-                    int max = Math.Max(group1.Max(), group2.Max());
-                    int axisXLength = Math.Max(max, group3.Max()) + 1;
+                    //var histograms = MsgGroupHistogram.CreateHistograms(MsgGroupHistogram.DEFAULT_HISTOGRAM_INTERVAL,
+                    //    group1, group2, group3);
 
-                    var hist1 = new MsgGroupHistogram(group1, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
-                    var hist2 = new MsgGroupHistogram(group2, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
-                    var hist3 = new MsgGroupHistogram(group3, axisXLength, DEFAULT_HISTOGRAM_INTERVAL);
+                    //Histograms.Add(histograms[0]);
+                    //Histograms.Add(histograms[1]);
+                    //Histograms.Add(histograms[2]);
+
+                    //QueryParser.TrySaveHistograms(Histograms);
+
+                    var comparer = new MsgGroupEqualityComparer();
+
+                    MsgGroupHistogram? hist1 = Histograms.FirstOrDefault(t => comparer.Equals(t.MsgGroup, group1));
+                    MsgGroupHistogram? hist2 = Histograms.FirstOrDefault(t => comparer.Equals(t.MsgGroup, group2));
+                    MsgGroupHistogram? hist3 = Histograms.FirstOrDefault(t => comparer.Equals(t.MsgGroup, group3));
+
+                    if (hist1 is null || hist2 is null || hist3 is null)
+                        continue;
 
                     var intersect12 = hist1.Intersect(hist2);
                     var intersect13 = hist1.Intersect(hist3);
 
-                    if (intersect12.HitsSum < intersect13.HitsSum)
+                    if (intersect12.HitsSum > intersect13.HitsSum)
                     {
                         counts.Swap(i - 1, i);
                         placement.Swap(i - 1, i);
@@ -287,13 +299,13 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             {
                 int curMsg = curGroup[i];
 
-                if (curMsg <= previousMsg)
+                if (!previousMsg.HasValue || curMsg <= previousMsg)
                     continue;
 
                 if ((nextMsg.HasValue && curMsg >= nextMsg) ||
                     (curMsg - firstItem > windowSize))
                 {
-                    continue;
+                    break;
                 }
 
                 var newAccumulatedMsgs = new List<int>(accumulatedMsgs)

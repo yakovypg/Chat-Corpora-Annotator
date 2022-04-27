@@ -17,7 +17,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             TryLoadHistograms(out HashSet<MsgGroupHistogram> histograms);
 
             var tree = GetTree(query);
-            var visitor = new QueryContextVisitor()/* { Histograms = histograms }*/;
+            var visitor = new QueryContextVisitor() { Histograms = histograms };
             var result = (List<MsgGroupList>)visitor.Visit(tree);
 
             return result;
