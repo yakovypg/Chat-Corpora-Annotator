@@ -25,9 +25,28 @@ namespace SuggesterBenchmark.Benchmarks
             "(select haswordofdict(job))" +
             "inwin 40";
 
+        private const string Q4 = "select " +
+            "haswordofdict(job), haswordofdict(code), hasusermentioned(Kadams223) " +
+            "unr inwin 40";
+
+        private const string Q5 = "select " +
+            "haswordofdict(job), haswordofdict(skill), haswordofdict(skill), haswordofdict(area), haswordofdict(money) " +
+            "inwin 40";
+
+        private const string Q6 = "select " +
+            "(select haswordofdict(job), haswordofdict(skill), haswordofdict(code), byuser(Lumiras) inwin 60);" +
+            "(select byuser(Lumiras) and haswordofdict(issue))" +
+            "inwin 200";
+
+        private const string Q7 = "select " +
+            "(select haswordofdict(job), haswordofdict(skill), haswordofdict(code), byuser(Lumiras));" +
+            "(select haswordofdict(job), haswordofdict(skill), haswordofdict(code), byuser(odrisck) inwin 40);" +
+            "(select haswordofdict(job), haswordofdict(skill), haswordofdict(code), byuser(odrisck) inwin 40)" +
+            "inwin 300";
+
         private readonly string[] _queries = new string[]
         {
-            Q0, Q1, Q2, Q3
+            Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7
         };
 
         private readonly QueryContextVisitor _visitor;
@@ -67,6 +86,30 @@ namespace SuggesterBenchmark.Benchmarks
         public void VisitQueryTest_3()
         {
             var result = _visitor.VisitQuery(_trees[3]);
+        }
+
+        [Benchmark]
+        public void VisitQueryTest_4()
+        {
+            var result = _visitor.VisitQuery(_trees[4]);
+        }
+
+        [Benchmark]
+        public void VisitQueryTest_5()
+        {
+            var result = _visitor.VisitQuery(_trees[5]);
+        }
+
+        [Benchmark]
+        public void VisitQueryTest_6()
+        {
+            var result = _visitor.VisitQuery(_trees[6]);
+        }
+
+        [Benchmark]
+        public void VisitQueryTest_7()
+        {
+            var result = _visitor.VisitQuery(_trees[7]);
         }
     }
 }
