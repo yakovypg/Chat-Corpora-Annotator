@@ -22,7 +22,7 @@ namespace CoreNLPEngine.Extraction
 
                 string[] annotators = new string[]
                 {
-                    "tokenize", "ssplit", "pos", "lemma", "ner", "parse", "depparse", "coref"
+                    "tokenize", "ssplit", "pos", "lemma", "ner", "parse" //, "depparse", "coref"
                 };
 
                 return new ExtractConfig(coreNLPPath, annotators)
