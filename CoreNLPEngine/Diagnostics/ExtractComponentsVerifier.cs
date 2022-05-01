@@ -1,5 +1,4 @@
-﻿using CoreNLPEngine.Extraction;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Runtime.Versioning;
 
 namespace CoreNLPEngine.Diagnostics
@@ -14,6 +13,19 @@ namespace CoreNLPEngine.Diagnostics
             string[] files = Directory.GetFiles(coreNLPPath);
 
             return files.Length != 0 && files.Any(t => t.Contains("stanford"));
+        }
+
+        public static bool ContainsEnglishModelsForSRParser(string coreNLPPath)
+        {
+            if (!Directory.Exists(coreNLPPath))
+                return false;
+
+            string[] files = Directory.GetFiles(coreNLPPath);
+
+            return Array.Exists(
+                files,
+                t => t.EndsWith("-models-english.jar") || t.EndsWith("-models-english-kbp.jar")
+            );
         }
 
         [SupportedOSPlatform("windows")]

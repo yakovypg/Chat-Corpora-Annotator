@@ -6,6 +6,16 @@ namespace CoreNLPEngine.Extraction
 {
     public class ExtractConfig
     {
+        public static readonly string[] DefaultAnnotators = new string[]
+        {
+            "tokenize", "ssplit", "pos", "lemma", "ner", "parse"
+        };
+
+        public static readonly string[] FullAnnotators = new string[]
+        {
+            "tokenize", "ssplit", "pos", "lemma", "ner", "parse", "depparse", "coref"
+        };
+
         public string CoreNLPPath { get; set; }
         public string[] Annotators { get; set; }
 
@@ -19,19 +29,11 @@ namespace CoreNLPEngine.Extraction
             get
             {
                 string coreNLPPath = Environment.GetEnvironmentVariable("CORENLP_HOME") ?? string.Empty;
-
-                string[] annotators = new string[]
-                {
-                    "tokenize", "ssplit", "pos", "lemma", "ner", "parse" //, "depparse", "coref"
-                };
-
-                return new ExtractConfig(coreNLPPath, annotators)
-                {
-                    //CoreNLPClientProperties = GetCoreNLPClientDefaultProperties()
-                };
+                return new ExtractConfig(coreNLPPath, DefaultAnnotators);
             }
         }
 
+        // This constructor is for serialization
         public ExtractConfig() : this(string.Empty)
         {
         }
@@ -60,7 +62,7 @@ namespace CoreNLPEngine.Extraction
             }
         }
 
-        public void LoadConfigFromDisk()
+        public void LoadConfigFromDisk(bool loadProperties)
         {
             ExtractConfig config;
 
@@ -78,20 +80,18 @@ namespace CoreNLPEngine.Extraction
             Annotators = config.Annotators;
             CoreNLPClientMemory = config.CoreNLPClientMemory;
             CoreNLPClientTimeout = config.CoreNLPClientTimeout;
-            CoreNLPClientProperties = config.CoreNLPClientProperties;
-        }
 
-        public void SaveConfigToDisk()
-        {
-            string json = JsonConvert.SerializeObject(this);
-            File.WriteAllText(ToolInfo.ExtractorConfigPath, json);
+            if (loadProperties)
+                CoreNLPClientProperties = config.CoreNLPClientProperties;
         }
 
         public bool TrySaveConfigToDisk()
         {
             try
             {
-                SaveConfigToDisk();
+                string json = JsonConvert.SerializeObject(this);
+                File.WriteAllText(ToolInfo.ExtractorConfigPath, json);
+
                 return true;
             }
             catch
@@ -101,6 +101,16 @@ namespace CoreNLPEngine.Extraction
         }
 
         public static JObject GetCoreNLPClientDefaultProperties()
+        {
+            var props = new JObject
+            {
+                ["parse.model"] = "edu/stanford/nlp/models/srparser/englishSR.ser.gz"
+            };
+
+            return props;
+        }
+
+        public static JObject GetCoreNLPClientFullProperties()
         {
             var props = new JObject
             {

@@ -51,6 +51,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 _extractor.UpdateStopwords();
 
                IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath);
+               IsSRParserModelsInstalled = ExtractComponentsVerifier.ContainsEnglishModelsForSRParser(_extractor.Config.CoreNLPPath);
             }
         }
 
@@ -67,7 +68,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 if (!SetValue(ref _isJavaInstalled, value))
                     return;
 
-                JavaInfoBackground = ExtractComponentsVerifier.IsJavaInstalled()
+                JavaInfoBackground = value
                     ? Brushes.LightGreen
                     : Brushes.Pink;
             }
@@ -82,7 +83,22 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 if (!SetValue(ref _isCoreNLPInstalled, value))
                     return;
 
-                CoreNLPInfoBackground = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath)
+                CoreNLPInfoBackground = value
+                    ? Brushes.LightGreen
+                    : Brushes.Pink;
+            }
+        }
+
+        private bool _isSRParserModelsInstalled = false;
+        public bool IsSRParserModelsInstalled
+        {
+            get => _isSRParserModelsInstalled;
+            private set
+            {
+                if (!SetValue(ref _isSRParserModelsInstalled, value))
+                    return;
+
+                SRParserModelsInfoBackground = value
                     ? Brushes.LightGreen
                     : Brushes.Pink;
             }
@@ -104,6 +120,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             get => _coreNLPInfoBackground;
             private set => SetValue(ref _coreNLPInfoBackground, value);
+        }
+
+        private SolidColorBrush _srParserModelsInfoBackground = Brushes.LightPink;
+        public SolidColorBrush SRParserModelsInfoBackground
+        {
+            get => _srParserModelsInfoBackground;
+            private set => SetValue(ref _srParserModelsInfoBackground, value);
         }
 
         #endregion
@@ -203,7 +226,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             _extractor.Config.CoreNLPClientMemory = memory;
             _extractor.Config.CoreNLPClientTimeout = timeout;
 
-            //Extractor.Extract();
+            if (IsSRParserModelsInstalled)
+                _extractor.Config.CoreNLPClientProperties = ExtractConfig.GetCoreNLPClientDefaultProperties();
+
             _ = _extractor.ExtractAsync();
         }
 
@@ -245,6 +270,45 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 }
                 catch { }
             }
+        }
+
+        public ICommand UpdateJavaInfoCommand { get; }
+        public bool CanUpdateJavaInfoCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnUpdateJavaInfoCommandExecuted(object parameter)
+        {
+            if (!CanUpdateJavaInfoCommandExecute(parameter))
+                return;
+
+            IsJavaInstalled = ExtractComponentsVerifier.IsJavaInstalled();
+        }
+
+        public ICommand UpdateCoreNLPInfoCommand { get; }
+        public bool CanUpdateCoreNLPInfoCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnUpdateCoreNLPInfoCommandExecuted(object parameter)
+        {
+            if (!CanUpdateCoreNLPInfoCommandExecute(parameter))
+                return;
+
+            IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath);
+        }
+
+        public ICommand UpdateSRParserModelsInfoCommand { get; }
+        public bool CanUpdateSRParserModelsInfoCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnUpdateSRParserModelsInfoCommandExecuted(object parameter)
+        {
+            if (!CanUpdateSRParserModelsInfoCommandExecute(parameter))
+                return;
+
+            IsSRParserModelsInstalled = ExtractComponentsVerifier.ContainsEnglishModelsForSRParser(_extractor.Config.CoreNLPPath);
         }
 
         #endregion
@@ -292,7 +356,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         public ExtractorWindowViewModel()
         {
             _extractor = new Extractor() { ProgressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL };
-            _extractor.Config.LoadConfigFromDisk();
+            _extractor.Config.LoadConfigFromDisk(false);
 
             var mainWindowDispatcher = new WindowFinder().Find(typeof(MainWindow)).Dispatcher;
 
@@ -322,6 +386,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             IsJavaInstalled = ExtractComponentsVerifier.IsJavaInstalled();
             IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath);
+            IsSRParserModelsInstalled = ExtractComponentsVerifier.ContainsEnglishModelsForSRParser(_extractor.Config.CoreNLPPath);
 
             #region CommandsInitialization
 
@@ -330,6 +395,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             ExtractCommand = new RelayCommand(OnExtractCommandExecuted, CanExtractCommandExecute);
 
             OpenComponentSitesCommand = new RelayCommand(OnOpenComponentSitesCommandExecuted, CanOpenComponentSitesCommandExecute);
+            UpdateJavaInfoCommand = new RelayCommand(OnUpdateJavaInfoCommandExecuted, CanUpdateJavaInfoCommandExecute);
+            UpdateCoreNLPInfoCommand = new RelayCommand(OnUpdateCoreNLPInfoCommandExecuted, CanUpdateCoreNLPInfoCommandExecute);
+            UpdateSRParserModelsInfoCommand = new RelayCommand(OnUpdateSRParserModelsInfoCommandExecuted, CanUpdateSRParserModelsInfoCommandExecute);
 
             DeactivateWindowCommand = new RelayCommand(OnDeactivateWindowCommandExecuted, CanDeactivateWindowCommandExecute);
             SaveExtractConfigCommand = new RelayCommand(OnSaveExtractConfigCommandExecuted, CanSaveExtractConfigCommandExecute);

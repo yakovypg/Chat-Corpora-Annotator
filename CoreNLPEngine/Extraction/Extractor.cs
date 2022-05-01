@@ -268,7 +268,7 @@ namespace CoreNLPEngine.Extraction
         {
             return Config == null || string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text)
                 ? null
-                : (Document)coreNLPClient.Annotate(text);
+                : (Document)coreNLPClient.Annotate(text, null, "", "", Config.CoreNLPClientProperties);
         }
 
         private CoreNLPClient CreateCoreNLPClient()
