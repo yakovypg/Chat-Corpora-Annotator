@@ -1,3 +1,5 @@
+// The code is based on the work of AMArostegui: https://github.com/AMArostegui/CoreNLPClient.Net
+
 syntax = "proto2";
 
 package edu.stanford.nlp.pipeline;

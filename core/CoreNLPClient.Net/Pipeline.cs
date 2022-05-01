@@ -1,4 +1,6 @@
-﻿namespace CoreNLPClientDotNet
+﻿// The code is based on the work of AMArostegui: https://github.com/AMArostegui/CoreNLPClient.Net
+
+namespace CoreNLPClientDotNet
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
