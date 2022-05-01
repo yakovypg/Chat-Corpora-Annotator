@@ -34,6 +34,7 @@ namespace CoreNLPEngine.Extraction
         public int ProgressUpdateInterval { get; set; }
 
         public List<int> MessagesWithQuestion { get; set; }
+        public List<List<string>> SelectedWords { get; set; }
 
         public BTreeDictionary<int, string> URLs { get; set; }
         public BTreeDictionary<int, string> Dates { get; set; }
@@ -41,8 +42,6 @@ namespace CoreNLPEngine.Extraction
         public BTreeDictionary<int, string> Locations { get; set; }
         public BTreeDictionary<int, string> Organisations { get; set; }
         public BTreeDictionary<int, List<string>> NounPhrases { get; set; }
-
-        public List<List<string>> SelectedWords { get; set; } = new List<List<string>>();
 
         private Task? _extractionTask = null;
         public Task? ExtractionTask => _extractionTask;
@@ -60,6 +59,7 @@ namespace CoreNLPEngine.Extraction
             Config = ExtractConfig.Default;
 
             MessagesWithQuestion = new List<int>();
+            SelectedWords = new List<List<string>>();
 
             URLs = new BTreeDictionary<int, string>();
             Dates = new BTreeDictionary<int, string>();
@@ -113,6 +113,7 @@ namespace CoreNLPEngine.Extraction
 
             bool extractionSuccess = true;
             var coreNLPClient = CreateCoreNLPClient();
+
             for (int i = 0; i < LuceneService.DirReader.MaxDoc; i++)
             {
                 if (_stopExtraction)
@@ -131,20 +132,7 @@ namespace CoreNLPEngine.Extraction
                 if (annDoc == null)
                     continue;
 
-                List<string> keyPhrases = ExtractKeyPhrases(annDoc);
-                NounPhrases.Add(msgId, keyPhrases);
-
-                List<string> nouns = ExtractCandidateKeywords(annDoc);
-                SelectedWords.Add(nouns);
-
-                if (annDoc.HasQuestion())
-                    MessagesWithQuestion.Add(msgId);
-
-                if (annDoc.Mentions != null)
-                {
-                    foreach (var ner in annDoc.Mentions)
-                        ExtractNERTags(ner, msgId);
-                }
+                ExtractDataFromDocument(annDoc, msgId);
 
                 int currProgressValue = i + 1;
 
@@ -165,6 +153,24 @@ namespace CoreNLPEngine.Extraction
             else
             {
                 FailedExtraction?.Invoke();
+            }
+        }
+
+        private void ExtractDataFromDocument(Document annDoc, int msgId)
+        {
+            List<string> keyPhrases = ExtractKeyPhrases(annDoc);
+            NounPhrases.Add(msgId, keyPhrases);
+
+            List<string> nouns = ExtractCandidateKeywords(annDoc);
+            SelectedWords.Add(nouns);
+
+            if (annDoc.HasQuestion())
+                MessagesWithQuestion.Add(msgId);
+
+            if (annDoc.Mentions != null)
+            {
+                foreach (var ner in annDoc.Mentions)
+                    ExtractNERTags(ner, msgId);
             }
         }
 
