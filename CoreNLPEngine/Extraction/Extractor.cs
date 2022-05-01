@@ -20,7 +20,17 @@ namespace CoreNLPEngine.Extraction
         public delegate void ProgressChangedHandler(long delta, long currValue);
         public event ProgressChangedHandler? ProgressChanged;
 
-        public ExtractConfig Config { get; set; }
+        private ExtractConfig _config;
+        public ExtractConfig Config
+        {
+            get => _config;
+            set
+            {
+                _config = value;
+                _stopwords = _config.LoadStopwordsFromDisk();
+            }
+        }
+
         public int ProgressUpdateInterval { get; set; }
 
         public List<int> MessagesWithQuestion { get; set; }
@@ -32,14 +42,21 @@ namespace CoreNLPEngine.Extraction
         public BTreeDictionary<int, string> Organisations { get; set; }
         public BTreeDictionary<int, List<string>> NounPhrases { get; set; }
 
+        public List<List<string>> SelectedWords { get; set; } = new List<List<string>>();
+
         private Task? _extractionTask = null;
         public Task? ExtractionTask => _extractionTask;
 
         private bool _stopExtraction = false;
         private bool _isExtractionActive = false;
 
+        private string[] _stopwords;
+
         public Extractor()
         {
+            _config = ExtractConfig.Default;
+            _stopwords = Array.Empty<string>();
+
             Config = ExtractConfig.Default;
 
             MessagesWithQuestion = new List<int>();
@@ -80,6 +97,11 @@ namespace CoreNLPEngine.Extraction
             _extractionTask?.Wait();
         }
 
+        public void UpdateStopwords()
+        {
+            _stopwords = Config.LoadStopwordsFromDisk();
+        }
+
         public void Extract()
         {
             if (LuceneService.DirReader == null || _isExtractionActive)
@@ -91,7 +113,6 @@ namespace CoreNLPEngine.Extraction
 
             bool extractionSuccess = true;
             var coreNLPClient = CreateCoreNLPClient();
-
             for (int i = 0; i < LuceneService.DirReader.MaxDoc; i++)
             {
                 if (_stopExtraction)
@@ -100,7 +121,7 @@ namespace CoreNLPEngine.Extraction
                     extractionSuccess = false;
                     break;
                 }
-                
+
                 var msgDoc = LuceneService.DirReader.Document(i);
                 int msgId = msgDoc.GetField(ProjectInfo.IdKey).GetInt32Value() ?? -1;
                 string msgText = msgDoc.GetField(ProjectInfo.TextFieldKey).GetStringValue();
@@ -113,8 +134,8 @@ namespace CoreNLPEngine.Extraction
                 List<string> keyPhrases = ExtractKeyPhrases(annDoc);
                 NounPhrases.Add(msgId, keyPhrases);
 
-                //List<string> nouns = ExtractNouns(annDoc);
-                //KeyPhrases.Add(msgId, nouns);
+                List<string> nouns = ExtractCandidateKeywords(annDoc);
+                SelectedWords.Add(nouns);
 
                 if (annDoc.HasQuestion())
                     MessagesWithQuestion.Add(msgId);
@@ -130,6 +151,9 @@ namespace CoreNLPEngine.Extraction
                 if (currProgressValue % ProgressUpdateInterval == 0)
                     ProgressChanged?.Invoke(ProgressUpdateInterval, currProgressValue);
             }
+
+            var res = KeywordRanker.GetKeywords(SelectedWords);
+            Console.Write(res);
 
             coreNLPClient.Dispose();
 
@@ -149,7 +173,7 @@ namespace CoreNLPEngine.Extraction
             string nerType = mention.EntityType;
             string nerText = mention.EntityMentionText;
 
-            var updateDictAction = delegate(BTreeDictionary<int, string> dict, int id, string value)
+            var updateDictAction = delegate (BTreeDictionary<int, string> dict, int id, string value)
             {
                 if (!dict.ContainsKey(id))
                     dict.Add(id, value);
@@ -208,12 +232,12 @@ namespace CoreNLPEngine.Extraction
             return keyPhrases;
         }
 
-        private static List<string> ExtractNouns(Document document)
+        private List<string> ExtractCandidateKeywords(Document document)
         {
             if (document.Sentence == null)
                 return new List<string>();
 
-            var nouns = new List<string>();
+            var cands = new List<string>();
 
             foreach (var sentence in document.Sentence)
             {
@@ -226,17 +250,18 @@ namespace CoreNLPEngine.Extraction
                         continue;
 
                     // If the word is a noun Pos starts with "NN"
-                    if (token.Pos.Contains("NN"))
+                    if (token.Pos.Contains("NN") || token.Pos.Contains("VB"))
                     {
                         string noun = token.Value;
-                        noun = noun.Remove(noun.Length - 2);
+                        // noun = noun.Remove(noun.Length - 2);
 
-                        nouns.Add(noun);
+                        if (!_stopwords.Contains(noun))
+                            cands.Add(noun);
                     }
                 }
             }
 
-            return nouns;
+            return cands;
         }
 
         private Document? GetAnnotatedDocument(string text, CoreNLPClient coreNLPClient)

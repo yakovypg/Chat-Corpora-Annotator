@@ -45,6 +45,21 @@ namespace CoreNLPEngine.Extraction
             CoreNLPClientTimeout = coreNLPClientTimeout;
         }
 
+        public string[] LoadStopwordsFromDisk()
+        {
+            try
+            {
+                string path = Path.Combine(CoreNLPPath, "patterns", "stopwords.txt");
+                string[] fileLines = File.ReadAllLines(path);
+
+                return fileLines.Where(t => !string.IsNullOrEmpty(t)).ToArray();
+            }
+            catch
+            {
+                return Array.Empty<string>();
+            }
+        }
+
         public void LoadConfigFromDisk()
         {
             ExtractConfig config;

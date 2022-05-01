@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Numpy" Version="3.7.1.28" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\core\CoreNLPClient.Net\CoreNLPClient.Net.csproj" />
     <ProjectReference Include="..\core\IndexEngine\IndexEngine.csproj" />
     <ProjectReference Include="..\core\KeyPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj" />

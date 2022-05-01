@@ -48,6 +48,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                     return;
 
                 _extractor.Config.CoreNLPPath = value;
+                _extractor.UpdateStopwords();
+
                IsCoreNLPInstalled = ExtractComponentsVerifier.IsCoreNLPInstalled(_extractor.Config.CoreNLPPath);
             }
         }
