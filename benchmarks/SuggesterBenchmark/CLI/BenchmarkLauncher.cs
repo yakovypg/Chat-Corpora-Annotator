@@ -20,6 +20,7 @@ namespace SuggesterBenchmark.CLI
         {
             Benchmarks = new Dictionary<string, Func<Summary>>()
             {
+                { "ComponentByComponentBenchmark", () => BenchmarkRunner.Run<ComponentByComponentBenchmark>(BenchmarkRunnerConfig) },
                 { "ControlBenchmark", () => BenchmarkRunner.Run<ControlBenchmark>(BenchmarkRunnerConfig) },
                 { "ExperimentBenchmark", () => BenchmarkRunner.Run<ExperimentBenchmark>(BenchmarkRunnerConfig) },
                 { "HistogramAlgorithmBenchmark", () => BenchmarkRunner.Run<HistogramAlgorithmBenchmark>(BenchmarkRunnerConfig) },
