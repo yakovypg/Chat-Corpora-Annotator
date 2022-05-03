@@ -169,6 +169,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
          * && - and
          * st - select
          * ! - not
+         * u - unr
          * || - or
          * i - inwin
          * org - hasorganization
@@ -178,27 +179,32 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
          * lc - haslocation
          * bs - byuser
          * dc - haswordofdict
+         * qs - hasquestion
+         * ur - hasurl
          */
-        private static readonly Dictionary<string, int[]> HighlightRules = new Dictionary<string, int[]>()
+        private static readonly Dictionary<string, int[]> HighlightRules = new()
         {
-            //                               ;  ,  )  (  n  && st ! ||  i org dt tm us lc bs dc
-            {";",                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
-            {",",                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1} },
-            {")",                 new int[] {1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"(",                 new int[] {0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1} },
-            {"num",               new int[] {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
-            {"and",               new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1} },
-            {"select",            new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1} },
-            {"not",               new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1} },
-            {"or",                new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1} },
-            {"inwin",             new int[] {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
-            {"hasorganization()", new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"hasdate()",         new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"hastime()",         new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"hasusermentioned()",new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"haslocation()",     new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"byuser()",          new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
-            {"haswordofdict()",   new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0} },
+            //                               ;  ,  )  (  n  && st !  u ||  i org dt tm us lc bs dc qs ur
+            {";",                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {",",                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1} },
+            {")",                 new int[] {1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"(",                 new int[] {0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1} },
+            {"num",               new int[] {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"and",               new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1} },
+            {"select",            new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1} },
+            {"not",               new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1} },
+            {"unr",               new int[] {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"or",                new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1} },
+            {"inwin",             new int[] {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"hasorganization()", new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"hasdate()",         new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"hastime()",         new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"hasusermentioned()",new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"haslocation()",     new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"byuser()",          new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"haswordofdict()",   new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"hasquestion()",     new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            {"hasurl()",          new int[] {0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },
         };
 
         #endregion
@@ -306,6 +312,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             private set => SetValue(ref _notBtnBackground, value);
         }
 
+        private SolidColorBrush _unrBtnBackground = new SolidColorBrush(DefaultButtonBackgroundColor);
+        public SolidColorBrush UnrBtnBackground
+        {
+            get => _unrBtnBackground;
+            private set => SetValue(ref _unrBtnBackground, value);
+        }
+
         private SolidColorBrush _numBtnBackground = new SolidColorBrush(DefaultButtonBackgroundColor);
         public SolidColorBrush NumBtnBackground
         {
@@ -395,6 +408,20 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             get => _hasDateBtnBackground;
             private set => SetValue(ref _hasDateBtnBackground, value);
+        }
+
+        private SolidColorBrush _hasQuestionBtnBackground = new SolidColorBrush(DefaultButtonBackgroundColor);
+        public SolidColorBrush HasQuestionBtnBackground
+        {
+            get => _hasQuestionBtnBackground;
+            private set => SetValue(ref _hasQuestionBtnBackground, value);
+        }
+
+        private SolidColorBrush _hasUrlBtnBackground = new SolidColorBrush(DefaultButtonBackgroundColor);
+        public SolidColorBrush HasUrlBtnBackground
+        {
+            get => _hasUrlBtnBackground;
+            private set => SetValue(ref _hasUrlBtnBackground, value);
         }
 
         #endregion
@@ -996,6 +1023,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 AndBtnBackground,
                 SelectBtnBackground,
                 NotBtnBackground,
+                UnrBtnBackground,
                 OrBtnBackground,
                 InwinBtnBackground,
                 HasOrganizationBtnBackground,
@@ -1004,7 +1032,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 HasUserMentionedBtnBackground,
                 HasLocationBtnBackground,
                 ByUserBtnBackground,
-                HasWordOfDictBtnBackground
+                HasWordOfDictBtnBackground,
+                HasQuestionBtnBackground,
+                HasUrlBtnBackground,
             };
 
             LastQueryItemChanged += UpdateHighlights;

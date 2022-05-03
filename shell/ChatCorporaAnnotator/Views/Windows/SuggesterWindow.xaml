@@ -10,8 +10,8 @@
         mc:Ignorable="d"
         Icon="/Resources/Icons/MainWindowIcon.png"
         Title="Run Matcher"
-        Width="800" Height="450"
-        MinWidth="725" MinHeight="400">
+        Width="850" Height="480"
+        MinWidth="725" MinHeight="430">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
@@ -32,7 +32,7 @@
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="400"/>
+                <ColumnDefinition MinWidth="420"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="2*" MinWidth="300"/>
             </Grid.ColumnDefinitions>
@@ -66,7 +66,7 @@
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
-                    <RowDefinition Height="120"/>
+                    <RowDefinition Height="150"/>
                     <RowDefinition Height="32"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
@@ -74,6 +74,7 @@
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
@@ -148,8 +149,24 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button Name="NumBtn"
+                    <Button Name="UnrBtn"
                             Grid.Column="4"
+                            Content="unr"
+                            Style="{StaticResource RedButton}"
+                            Background="{Binding UnrBtnBackground}">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseDown">
+                                <i:InvokeCommandAction
+                                    CommandParameter="{Binding ElementName=UnrBtn}"
+                                    Command="{Binding DragButtonCommand}">
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+
+                    <Button Name="NumBtn"
+                            Grid.Column="5"
                             Content="num"
                             Style="{StaticResource GreenButton}"
                             Background="{Binding NumBtnBackground}">
@@ -165,7 +182,7 @@
                     </Button>
 
                     <Button Name="CommaBtn"
-                            Grid.Column="5"
+                            Grid.Column="6"
                             Content=","
                             Style="{StaticResource GreenButton}"
                             Background="{Binding CommaBtnBackground}">
@@ -181,7 +198,7 @@
                     </Button>
 
                     <Button Name="SemicolonBtn"
-                            Grid.Column="6"
+                            Grid.Column="7"
                             Content=";"
                             Style="{StaticResource GreenButton}"
                             Background="{Binding SemicolonBtnBackground}">
@@ -197,7 +214,7 @@
                     </Button>
 
                     <Button Name="LeftBracketBtn"
-                            Grid.Column="7"
+                            Grid.Column="8"
                             Content="("
                             Style="{StaticResource GreenButton}"
                             Background="{Binding LeftBracketBtnBackground}">
@@ -213,7 +230,7 @@
                     </Button>
 
                     <Button Name="RightBracketBtn"
-                            Grid.Column="8"
+                            Grid.Column="9"
                             Content=")"
                             Style="{StaticResource GreenButton}"
                             Background="{Binding RightBracketBtnBackground}">
@@ -236,6 +253,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid.RowDefinitions>
+                        <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
@@ -310,6 +328,23 @@
                         </i:Interaction.Triggers>
                     </Button>
 
+                    <Button Name="HasQuestionBtn"
+                            Grid.Row="4"
+                            Grid.Column="0"
+                            Content="hasquestion()"
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasQuestionBtnBackground}">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseDown">
+                                <i:InvokeCommandAction
+                                    CommandParameter="{Binding ElementName=HasQuestionBtn}"
+                                    Command="{Binding DragButtonCommand}">
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+
                     <Button Name="HasOrganizationBtn"
                             Grid.Row="0"
                             Grid.Column="1"
@@ -372,6 +407,23 @@
                             <i:EventTrigger EventName="PreviewMouseDown">
                                 <i:InvokeCommandAction
                                     CommandParameter="{Binding ElementName=HasDateBtn}"
+                                    Command="{Binding DragButtonCommand}">
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+
+                    <Button Name="HasUrlBtn"
+                            Grid.Row="4"
+                            Grid.Column="1"
+                            Content="hasurl()"
+                            Style="{StaticResource BlueButton}"
+                            Background="{Binding HasUrlBtnBackground}">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseDown">
+                                <i:InvokeCommandAction
+                                    CommandParameter="{Binding ElementName=HasUrlBtn}"
                                     Command="{Binding DragButtonCommand}">
                                 </i:InvokeCommandAction>
                             </i:EventTrigger>
@@ -671,6 +723,7 @@
 
                     <TextBox
                         AcceptsTab="True"
+                        FontFamily="Consolas"
                         Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"   
                         Visibility="{Binding QueryTextBoxVisibility}"
                         Style="{StaticResource MultilineTextBox}">
