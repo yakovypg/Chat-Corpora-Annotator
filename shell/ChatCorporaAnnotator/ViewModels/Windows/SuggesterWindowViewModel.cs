@@ -243,6 +243,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region ItemsVisibility
 
+        private Visibility _queryFontSizeSliderVisibility = Visibility.Hidden;
+        public Visibility QueryFontSizeSliderVisibility
+        {
+            get => _queryFontSizeSliderVisibility;
+            set => SetValue(ref _queryFontSizeSliderVisibility, value);
+        }
+
         private Visibility _queryTextBoxVisibility = Visibility.Visible;
         public Visibility QueryTextBoxVisibility
         {
@@ -928,6 +935,25 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
+        #region SettingsCommands
+
+        public ICommand ChangeQueryFontSizeSliderVisibilityCommand { get; }
+        public bool CanChangeQueryFontSizeSliderVisibilityCommandExecute(object parameter)
+        {
+            return true;
+        }
+        public void OnChangeQueryFontSizeSliderVisibilityCommandExecuted(object parameter)
+        {
+            if (!CanChangeQueryFontSizeSliderVisibilityCommandExecute(parameter))
+                return;
+
+            QueryFontSizeSliderVisibility = QueryFontSizeSliderVisibility == Visibility.Hidden
+                ? Visibility.Visible
+                : Visibility.Hidden;
+        }
+
+        #endregion
+
         #region SystemCommands
 
         public ICommand EndTasksCommand { get; }
@@ -1069,6 +1095,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             DragButtonCommand = new RelayCommand(OnDragButtonCommandExecuted, CanDragButtonCommandExecute);
             WrapPanelTakeDropCommand = new RelayCommand(OnWrapPanelTakeDropCommandExecuted, CanWrapPanelTakeDropCommandExecute);
+
+            ChangeQueryFontSizeSliderVisibilityCommand = new RelayCommand(OnChangeQueryFontSizeSliderVisibilityCommandExecuted, CanChangeQueryFontSizeSliderVisibilityCommandExecute);
 
             EndTasksCommand = new RelayCommand(OnEndTasksCommandExecuted, CanEndTasksCommandExecute);
             SaveUserDictionaryCommand = new RelayCommand(OnSaveUserDictionaryCommandExecuted, CanSaveUserDictionaryCommandExecute);
