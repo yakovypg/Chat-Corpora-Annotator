@@ -100,6 +100,7 @@ namespace IndexEngine.Data.Paths
             ActiveDatesPath = Path.Combine(InfoPath, Name + "-activedates.txt");
             OutputXmlFilePath = Path.Combine(InfoPath, "outputXml.xml");
             OutputCsvFilePath = Path.Combine(InfoPath, "outputCsv.csv");
+            ExtractedDataPath = Path.Combine(InfoPath, "extractedData.txt");
         }
 
         private static void SetKeys(string date, string sender, string text)
@@ -131,6 +132,7 @@ namespace IndexEngine.Data.Paths
         public static string ActiveDatesPath { get; private set; }
         public static string OutputXmlFilePath { get; private set; }
         public static string OutputCsvFilePath { get; private set; }
+        public static string ExtractedDataPath { get; private set; }
 
         public static string Tagset { get; private set; }
         public static bool TagsetSet { get { return File.Exists(TagsetPath); } }

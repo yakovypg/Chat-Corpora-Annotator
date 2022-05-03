@@ -1,10 +1,12 @@
 ﻿using CoreNLPClientDotNet;
 using CoreNLPEngine.Extensions;
 using CoreNLPEngine.Search;
+using CoreNLPEngine.Serialization;
 using CSharpTest.Net.Collections;
 using Edu.Stanford.Nlp.Pipeline;
 using IndexEngine.Data.Paths;
 using IndexEngine.Search;
+using Newtonsoft.Json;
 using NounPhraseExtractionAlgorithm;
 
 namespace CoreNLPEngine.Extraction
@@ -111,8 +113,23 @@ namespace CoreNLPEngine.Extraction
 
             Clear();
 
+            if (File.Exists(ProjectInfo.ExtractedDataPath))
+            {
+                bool success = LoadExtractedData();
+
+                if (success)
+                    SuccessfulExtraction?.Invoke();
+                else
+                    FailedExtraction?.Invoke();
+
+                _isExtractionActive = false;
+                return;
+            }
+
             bool extractionSuccess = true;
+
             var coreNLPClient = CreateCoreNLPClient();
+            var docSaver = new AnnotatedDocumentSaver();
 
             for (int i = 0; i < LuceneService.DirReader.MaxDoc; i++)
             {
@@ -129,21 +146,22 @@ namespace CoreNLPEngine.Extraction
 
                 Document? annDoc = GetAnnotatedDocument(msgText, coreNLPClient);
 
-                if (annDoc == null)
-                    continue;
+                if (annDoc != null)
+                {
+                    ExtractDataFromDocument(annDoc, msgId);
 
-                ExtractDataFromDocument(annDoc, msgId);
+                    var docInfo = new AnnotatedDocumentInfo(msgId, annDoc);
+                    docSaver.AddDocument(docInfo);
+                }
 
-                int currProgressValue = i + 1;
-
-                if (currProgressValue % ProgressUpdateInterval == 0)
-                    ProgressChanged?.Invoke(ProgressUpdateInterval, currProgressValue);
+                UpdateProgress(i + 1);
             }
 
             var res = KeywordRanker.GetKeywords(SelectedWords);
             Console.Write(res);
 
             coreNLPClient.Dispose();
+            docSaver.Dispose();
 
             if (extractionSuccess)
             {
@@ -154,6 +172,45 @@ namespace CoreNLPEngine.Extraction
             {
                 FailedExtraction?.Invoke();
             }
+
+            _isExtractionActive = false;
+        }
+
+        private void UpdateProgress(int progressValue)
+        {
+            if (progressValue % ProgressUpdateInterval == 0)
+                ProgressChanged?.Invoke(ProgressUpdateInterval, progressValue);
+        }
+
+        private bool LoadExtractedData()
+        {
+            bool success = true;
+            AnnotatedDocumentLoader? loader = null;
+
+            try
+            {
+                int currProgressValue = 0;
+                loader = new AnnotatedDocumentLoader();
+
+                while (loader.TryLoadNext(out AnnotatedDocumentInfo annDoc))
+                {
+                    if (_stopExtraction)
+                    {
+                        success = false;
+                        break;
+                    }
+
+                    ExtractDataFromDocument(annDoc.Document, annDoc.MessageId);
+                    UpdateProgress(++currProgressValue);
+                }
+            }
+            catch
+            {
+                success = false;
+            }
+
+            loader?.Dispose();
+            return success;
         }
 
         private void ExtractDataFromDocument(Document annDoc, int msgId)

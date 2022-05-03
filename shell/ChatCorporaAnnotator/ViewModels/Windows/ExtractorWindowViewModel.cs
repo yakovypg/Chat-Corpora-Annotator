@@ -366,6 +366,8 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             };
             _extractor.FailedExtraction += () =>
             {
+                IsExtractionActive = false;
+
                 mainWindowDispatcher.Invoke(() =>
                     new QuickMessage("Extraction was failed.").ShowInformation()
                 );
