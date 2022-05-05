@@ -6,6 +6,7 @@ using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CoreNLPEngine.Search;
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
@@ -159,7 +160,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 var userDicts = UserDictsIndex.GetInstance().IndexCollection;
 
                 return userDicts.TryGetValue(dictname, out List<string> words)
-                    ? Retrievers.HasWordOfList(words)
+                    ? RetrieversSearch.HasWordOfList(words)
                     : null;
             }
 
@@ -168,7 +169,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 string username = context.huser().GetText();
 
                 return username != errorString
-                    ? Retrievers.HasUser(username)
+                    ? RetrieversSearch.HasUser(username)
                     : null;
             }
 
@@ -177,27 +178,27 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 string username = context.huser().GetText();
 
                 return username != errorString
-                    ? Retrievers.HasUserMentioned(username)
+                    ? RetrieversSearch.HasUserMentioned(username)
                     : null;
             }
 
             if (context.HasQuestion() != null)
-                return Retrievers.HasQuestion();
+                return RetrieversSearch.HasQuestion();
 
             if (context.HasDate() != null)
-                return Retrievers.HasNERTag(NER.DATE);
+                return RetrieversSearch.HasNERTag(NERLabels.DATE);
 
             if (context.HasLocation() != null)
-                return Retrievers.HasNERTag(NER.LOC);
+                return RetrieversSearch.HasNERTag(NERLabels.LOC);
 
             if (context.HasOrganization() != null)
-                return Retrievers.HasNERTag(NER.ORG);
+                return RetrieversSearch.HasNERTag(NERLabels.ORG);
 
             if (context.HasTime() != null)
-                return Retrievers.HasNERTag(NER.TIME);
+                return RetrieversSearch.HasNERTag(NERLabels.TIME);
 
             if (context.HasURL() != null)
-                return Retrievers.HasNERTag(NER.URL);
+                return RetrieversSearch.HasNERTag(NERLabels.URL);
 
             return null;
         }
