@@ -17,34 +17,37 @@ namespace CoreNLPEngine.Search
     public static class RetrieversSearch
     {
         public static Extraction.Extractor Extractor { get; set; } = new Extraction.Extractor();
-        
+
+        public static readonly Dictionary<string, HashSet<int>> Cache = new();
+
+        public static HashSet<int> HasWordOfList(string dictName, List<string> words)
+        {
+            if (Cache.ContainsKey(dictName))
+                return Cache[dictName];
+
+            string queryText = string.Join(' ', words);
+            Query query = LuceneService.Parser.Parse(queryText);
+            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
+
+            HashSet<int> results = new(docs.ScoreDocs.Length);
+
+            for (var i = 0; i < docs.ScoreDocs.Length; i++)
+                results.Add(docs.ScoreDocs[i].Doc);
+
+            Cache.Add(dictName, results);
+            return results;
+        }
+
         public static HashSet<int> HasWordOfList(List<string> words)
         {
-            HashSet<int> results = new HashSet<int>();
+            string queryText = string.Join(' ', words);
+            Query query = LuceneService.Parser.Parse(queryText);
+            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
 
-            foreach (var word in words)
-            {
+            HashSet<int> results = new(docs.ScoreDocs.Length);
 
-                //TermQuery query = new TermQuery(new Lucene.Net.Index.Term(word));
-                //BooleanQuery boolquery = new BooleanQuery();
-                //boolquery.Add(query, Occur.MUST);
-
-                //А на самом деле можно построить фильтр сразу на весь список слов без цикла.
-                //string[] temp = new string[1];
-                //temp[0] = word;
-                //FieldCacheTermsFilter filter = new FieldCacheTermsFilter(ProjectInfo.TextFieldKey, temp);
-                //var boolFilter = new BooleanFilter();
-                //boolFilter.Add(new FilterClause(filter, Occur.MUST));
-
-                Query query = LuceneService.Parser.Parse(word);
-                TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
-
-                foreach (var doc in docs.ScoreDocs)
-                {
-                    Document idoc = LuceneService.Searcher.IndexReader.Document(doc.Doc);
-                    results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
-                }
-            }
+            for (var i = 0; i < docs.ScoreDocs.Length; i++)
+                results.Add(docs.ScoreDocs[i].Doc);
 
             return results;
         }
