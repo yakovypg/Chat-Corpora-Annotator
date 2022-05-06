@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\core\CoreNLPClient.Net\CoreNLPClient.Net.csproj" />
-    <ProjectReference Include="..\core\IndexEngine\IndexEngine.csproj" />
-    <ProjectReference Include="..\core\KeyPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj" />
+    <ProjectReference Include="..\CoreNLPClient.Net\CoreNLPClient.Net.csproj" />
+    <ProjectReference Include="..\IndexEngine\IndexEngine.csproj" />
+    <ProjectReference Include="..\KeyPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj" />
   </ItemGroup>
 
 </Project>

@@ -44,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CoreNLPEngine\CoreNLPEngine.csproj" />
     <ProjectReference Include="..\..\core\ColorEngine\ColorEngine.csproj" />
+    <ProjectReference Include="..\..\core\CoreNLPEngine\CoreNLPEngine.csproj" />
     <ProjectReference Include="..\..\core\IndexEngine\IndexEngine.csproj" />
   </ItemGroup>
 
