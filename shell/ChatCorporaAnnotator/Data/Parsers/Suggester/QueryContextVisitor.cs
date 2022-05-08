@@ -164,7 +164,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 var userDicts = UserDictsIndex.GetInstance().IndexCollection;
 
                 return userDicts.TryGetValue(dictname, out List<string> words)
-                    ? RetrieversSearch.HasWordOfList(words)
+                    ? Retrievers.HasWordOfList(words)
                     : null;
             }
 
@@ -173,7 +173,7 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 string username = context.huser().GetText();
 
                 return username != errorString
-                    ? RetrieversSearch.HasUser(username)
+                    ? Retrievers.HasUser(username)
                     : null;
             }
 
@@ -182,27 +182,27 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
                 string username = context.huser().GetText();
 
                 return username != errorString
-                    ? RetrieversSearch.HasUserMentioned(username)
+                    ? Retrievers.HasUserMentioned(username)
                     : null;
             }
 
             if (context.HasQuestion() != null)
-                return RetrieversSearch.HasQuestion();
+                return Retrievers.HasQuestion();
 
             if (context.HasDate() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.DATE);
+                return Retrievers.HasNERTag(NERLabels.DATE);
 
             if (context.HasLocation() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.LOC);
+                return Retrievers.HasNERTag(NERLabels.LOC);
 
             if (context.HasOrganization() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.ORG);
+                return Retrievers.HasNERTag(NERLabels.ORG);
 
             if (context.HasTime() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.TIME);
+                return Retrievers.HasNERTag(NERLabels.TIME);
 
             if (context.HasURL() != null)
-                return RetrieversSearch.HasNERTag(NERLabels.URL);
+                return Retrievers.HasNERTag(NERLabels.URL);
 
             return null;
         }

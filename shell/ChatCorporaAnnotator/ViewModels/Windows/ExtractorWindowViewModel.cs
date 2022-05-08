@@ -375,7 +375,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             _extractor.SuccessfulExtraction += () =>
             {
                 IsExtractionActive = false;
-                RetrieversSearch.Extractor = _extractor;
+                Retrievers.Extractor = _extractor;
 
                 mainWindowDispatcher.Invoke(() =>
                     new QuickMessage("Extraction was successful.").ShowInformation()

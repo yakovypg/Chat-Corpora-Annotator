@@ -14,7 +14,7 @@ namespace CoreNLPEngine.Search
         DATE
     }
 
-    public static class RetrieversSearch
+    public static class Retrievers
     {
         public static Extraction.Extractor Extractor { get; set; } = new Extraction.Extractor();
 

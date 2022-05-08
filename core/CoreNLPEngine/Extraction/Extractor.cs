@@ -166,7 +166,7 @@ namespace CoreNLPEngine.Extraction
             if (extractionSuccess)
             {
                 SuccessfulExtraction?.Invoke();
-                RetrieversSearch.Extractor = this;
+                Retrievers.Extractor = this;
             }
             else
             {
