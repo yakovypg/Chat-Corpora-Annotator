@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ColorEngine\ColorEngine.csproj" />
-    <ProjectReference Include="..\NounPhraseAlgorithm\NounPhraseAlgorithm.fsproj" />
+    <ProjectReference Include="..\NounPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj" />
   </ItemGroup>
 
 </Project>

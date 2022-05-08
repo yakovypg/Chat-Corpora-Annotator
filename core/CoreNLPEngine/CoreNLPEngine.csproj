@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CoreNLPClient.Net\CoreNLPClient.Net.csproj" />
     <ProjectReference Include="..\IndexEngine\IndexEngine.csproj" />
-    <ProjectReference Include="..\KeyPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj" />
+    <ProjectReference Include="..\NounPhraseExtractionAlgorithm\NounPhraseExtractionAlgorithm.fsproj" />
   </ItemGroup>
 
 </Project>
