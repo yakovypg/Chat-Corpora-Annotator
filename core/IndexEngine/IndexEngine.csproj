@@ -29,7 +29,6 @@
     <PackageReference Include="Lucene.Net.Suggest" Version="4.8.0-beta00008" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SoftCircuits.CsvParser" Version="3.5.1" />
-    <PackageReference Include="Stanford.NLP.CoreNLP" Version="4.3.2" />
     <PackageReference Include="XAct.Wintellect.PowerCollections" Version="0.0.1" />
   </ItemGroup>
 
