@@ -303,58 +303,6 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             return (previousItem, nextItem);
         }
 
-        //public MsgGroupList MergeRestrictions(MsgGroupList groupList, int windowSize)
-        //{
-        //    if (groupList.Count == 0)
-        //        return new MsgGroupList();
-
-        //    if (groupList.Count == 1)
-        //        return groupList[0].Select(t => new List<int>() { t }).ToList();
-
-        //    List<int> firstGroup = groupList[0];
-        //    var result = new MsgGroupList();
-
-        //    for (int i = 0; i < firstGroup.Count; i++)
-        //    {
-        //        var accumulatedMsgs = new List<int>() { firstGroup[i] };
-        //        var newGroups = MergeRestrictions(groupList, windowSize, accumulatedMsgs, 1);
-
-        //        result.AddRange(newGroups);
-        //    }
-
-        //    return result;
-        //}
-
-        //private MsgGroupList MergeRestrictions(MsgGroupList groupList, int windowSize, IReadOnlyList<int> accumulatedMsgs, int startGroup)
-        //{
-        //    if (startGroup >= groupList.Count)
-        //        return new MsgGroupList() { accumulatedMsgs.ToList() };
-
-        //    List<int> curGroup = groupList[startGroup];
-        //    var result = new MsgGroupList();
-
-        //    int firstItem = accumulatedMsgs[0];
-        //    int previousItem = accumulatedMsgs[accumulatedMsgs.Count - 1];
-
-        //    for (int i = 0; i < curGroup.Count; ++i)
-        //    {
-        //        int curItem = curGroup[i];
-
-        //        if (curItem <= previousItem)
-        //            continue;
-
-        //        if (curItem - firstItem > windowSize)
-        //            break;
-
-        //        var newAccumulatedMsgs = new List<int>(accumulatedMsgs) { curItem };
-
-        //        var newGroups = MergeRestrictions(groupList, windowSize, newAccumulatedMsgs, startGroup + 1);
-        //        result.AddRange(newGroups);
-        //    }
-
-        //    return result;
-        //}
-
         public List<MsgGroupList> MergeQueries(List<List<MsgGroupList>> subqueryResults, int windowSize)
         {
             if (subqueryResults.Any(t => t.IsNullOrEmpty()))

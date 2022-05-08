@@ -1,12 +1,12 @@
 ﻿using Antlr4.Runtime.Misc;
 using ChatCorporaAnnotator.Data.Parsers.Suggester.Comparers;
 using ChatCorporaAnnotator.Infrastructure.Extensions;
+using CoreNLPEngine.Search;
 using IndexEngine.Indexes;
 using IndexEngine.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CoreNLPEngine.Search;
 
 namespace ChatCorporaAnnotator.Data.Parsers.Suggester
 {
@@ -90,8 +90,6 @@ namespace ChatCorporaAnnotator.Data.Parsers.Suggester
             for (int i = 0; i < restrictions.Length; ++i)
             {
                 var visitResult = ((IEnumerable<int>)VisitRestriction(restrictions[i])).ToList();
-                //visitResult.Sort();
-
                 visitResults.Add(visitResult);
             }
 
