@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace IndexEngine.Containers
+﻿namespace IndexEngine.Containers
 {
     public class Project
     {

@@ -1,7 +1,5 @@
 ﻿using IndexEngine.Containers;
 using IndexEngine.Indexes;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 
 namespace IndexEngine.Data.Paths

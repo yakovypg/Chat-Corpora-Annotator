@@ -9,9 +9,6 @@ using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace IndexEngine.Search
 {

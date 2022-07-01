@@ -4,11 +4,7 @@ using IndexEngine.Data.Paths;
 using IndexEngine.Search;
 using Lucene.Net.Documents;
 using SoftCircuits.CsvParser;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using Wintellect.PowerCollections;
 
 namespace IndexEngine.Indexes
@@ -432,7 +428,7 @@ namespace IndexEngine.Indexes
 
                             //TODO: Still need to redesign this. Rework storing/indexing paradigm.
                         }
-                        
+
                         LuceneService.Writer.AddDocument(document);
 
                         if (count % PERIOD_OF_SAVING_INTERMEDIATE_RESULTS_OF_POPULATING_INDEX == 0)

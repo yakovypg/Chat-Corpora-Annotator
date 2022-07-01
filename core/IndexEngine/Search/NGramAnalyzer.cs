@@ -3,7 +3,6 @@ using Lucene.Net.Analysis.Core;
 using Lucene.Net.Analysis.Shingle;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Util;
-using System.IO;
 
 
 namespace IndexEngine.Search

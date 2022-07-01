@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace IndexEngine.Indexes
+﻿namespace IndexEngine.Indexes
 {
     public interface IIndex<TKey, TValue> : IUnloadable
     {
