@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace IndexEngine.Data.Paths
+﻿namespace IndexEngine.Data.Paths
 {
     public static class ToolInfo
     {
@@ -16,7 +13,7 @@ namespace IndexEngine.Data.Paths
         public static string ExtractorConfigPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorconfig.txt";
 
         public static string HistogramsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\histograms.json";
-        
+
         public static string RecentProjectsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\recentprojects.txt";
         public static string TagsetColorIndexPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\tagsetscolors.txt";
         public static string UserDictsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\user_dicts.txt";

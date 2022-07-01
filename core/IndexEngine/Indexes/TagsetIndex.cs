@@ -2,10 +2,7 @@ using ColorEngine;
 using CSharpTest.Net.Collections;
 using IndexEngine.Data.Paths;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 
 namespace IndexEngine.Indexes
 {

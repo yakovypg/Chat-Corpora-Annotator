@@ -1,9 +1,6 @@
 ﻿using IndexEngine.Data.Paths;
 using IndexEngine.Indexes;
 using Lucene.Net.Documents;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace IndexEngine.Containers
 {

@@ -1,7 +1,5 @@
 ﻿using CSharpTest.Net.Collections;
 using IndexEngine.Containers;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 
 namespace IndexEngine.Data.Paths
