@@ -55,31 +55,10 @@ namespace IndexEngine.Indexes
             }
         }
 
-        public bool CheckFiles()
+        public void InitializeIndex(List<string> list)
         {
-            return File.Exists(ToolInfo.TagsetColorIndexPath);
-        }
-
-        public bool CheckDirectory()
-        {
-            return Directory.Exists(ToolInfo.ModelsRootDirectory);
-        }
-
-        public void ReadIndexFromDisk()
-        {
-            if (!CheckFiles())
-                return;
-
-            var jsonString = File.ReadAllText(ToolInfo.TagsetColorIndexPath);
-
-            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Color>>>(jsonString)
-                ?? new Dictionary<string, Dictionary<string, Color>>();
-        }
-
-        public void FlushIndexToDisk()
-        {
-            var jsonString = JsonConvert.SerializeObject(IndexCollection);
-            File.WriteAllText(ToolInfo.TagsetColorIndexPath, jsonString);
+            foreach (var tag in list)
+                AddIndexEntry(tag, null);
         }
 
         public void AddIndexEntry(string key, Dictionary<string, Color>? value)
@@ -108,12 +87,6 @@ namespace IndexEngine.Indexes
                    IndexCollection[key].Remove(inkey);
         }
 
-        public void InitializeIndex(List<string> list)
-        {
-            foreach (var tag in list)
-                AddIndexEntry(tag, null);
-        }
-
         public void UpdateIndexEntry(string key, Dictionary<string, Color> value)
         {
             IndexCollection[key] = value;
@@ -136,6 +109,33 @@ namespace IndexEngine.Indexes
         public void UnloadData()
         {
             IndexCollection.Clear();
+        }
+
+        public bool CheckFiles()
+        {
+            return File.Exists(ToolInfo.TagsetColorIndexPath);
+        }
+
+        public bool CheckDirectory()
+        {
+            return Directory.Exists(ToolInfo.ModelsRootDirectory);
+        }
+
+        public void ReadIndexFromDisk()
+        {
+            if (!CheckFiles())
+                return;
+
+            var jsonString = File.ReadAllText(ToolInfo.TagsetColorIndexPath);
+
+            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Color>>>(jsonString)
+                ?? new Dictionary<string, Dictionary<string, Color>>();
+        }
+
+        public void FlushIndexToDisk()
+        {
+            var jsonString = JsonConvert.SerializeObject(IndexCollection);
+            File.WriteAllText(ToolInfo.TagsetColorIndexPath, jsonString);
         }
     }
 }

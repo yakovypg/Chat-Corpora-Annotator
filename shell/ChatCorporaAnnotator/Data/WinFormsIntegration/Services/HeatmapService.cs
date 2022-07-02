@@ -1,5 +1,4 @@
-﻿using CSharpTest.Net.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
     {
         List<string> DateBlocks { get; set; }
         Color HeatMapColor(double value, double min, double max);
-        List<Color> PopulateHeatmap(BTreeDictionary<DateTime, int> MessagesPerDay);
+        List<Color> PopulateHeatmap(Dictionary<DateTime, int> MessagesPerDay);
     }
 
     public class HeatmapService : IHeatmapService
@@ -29,7 +28,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
             return Color.FromArgb(255, r, g, b);
         }
 
-        public List<Color> PopulateHeatmap(BTreeDictionary<DateTime, int> MessagesPerDay)
+        public List<Color> PopulateHeatmap(Dictionary<DateTime, int> MessagesPerDay)
         {
             List<Color> colors = new List<Color>();
             double max = MessagesPerDay.Values.Max();

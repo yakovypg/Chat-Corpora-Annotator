@@ -1,5 +1,4 @@
-﻿using CSharpTest.Net.Collections;
-using IndexEngine.Containers;
+﻿using IndexEngine.Containers;
 using IndexEngine.Data.Paths;
 using IndexEngine.Search;
 using Lucene.Net.Documents;

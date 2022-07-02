@@ -7,21 +7,22 @@ namespace IndexEngine.Indexes
     {
         private static readonly Lazy<UserDictsIndex> lazy = new(() => new UserDictsIndex());
 
+        public int ItemCount => IndexCollection.Count;
+        public IDictionary<string, List<string>> IndexCollection { get; private set; }
+
+        private UserDictsIndex()
+        {
+            IndexCollection = new Dictionary<string, List<string>>();
+        }
+
         public static UserDictsIndex GetInstance()
         {
             return lazy.Value;
         }
 
-        private UserDictsIndex()
-        {
-        }
-
-        public IDictionary<string, List<string>> IndexCollection { get; private set; } = new Dictionary<string, List<string>>();
-        public int ItemCount { get { return IndexCollection.Count; } }
-
         public bool AddWordToIndexEntry(string key, string word)
         {
-            if (!IndexCollection.TryGetValue(key, out List<string> wordList))
+            if (!IndexCollection.TryGetValue(key, out List<string>? wordList))
                 return false;
 
             wordList.Add(word);
@@ -30,7 +31,7 @@ namespace IndexEngine.Indexes
 
         public bool RemoveWordFromIndexEntry(string key, string word)
         {
-            return IndexCollection.TryGetValue(key, out List<string> wordList) &&
+            return IndexCollection.TryGetValue(key, out List<string>? wordList) &&
                 wordList.Remove(word);
         }
 
@@ -39,24 +40,17 @@ namespace IndexEngine.Indexes
             IndexCollection.Add(key, value);
         }
 
-        public bool CheckDirectory()
-        {
-            return Directory.Exists(ProjectInfo.InfoPath);
-        }
-
-        public bool CheckFiles()
-        {
-            return File.Exists(ToolInfo.UserDictsPath);
-        }
-
         public bool DeleteIndexEntry(string key)
         {
             return IndexCollection.Remove(key);
         }
 
-        public void FlushIndexToDisk()
+        public void UpdateIndexEntry(string key, List<string> value)
         {
-            ExportIndex(ToolInfo.UserDictsPath);
+            if (!IndexCollection.ContainsKey(key))
+                AddIndexEntry(key, value);
+            else
+                IndexCollection[key] = value;
         }
 
         public int GetValueCount(string key)
@@ -66,19 +60,11 @@ namespace IndexEngine.Indexes
                 : -1;
         }
 
-        public void ReadIndexFromDisk()
-        {
-            if (!CheckFiles())
-                return;
-
-            ImportIndex(ToolInfo.UserDictsPath);
-        }
-
         public void ImportIndex(string path)
         {
-            var jsonString = File.ReadAllText(path);
+            var json = File.ReadAllText(path);
 
-            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString)
+            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)
                 ?? new Dictionary<string, List<string>>();
         }
 
@@ -119,28 +105,27 @@ namespace IndexEngine.Indexes
             IndexCollection.Clear();
         }
 
-        public void UpdateIndexEntry(string key, List<string> value)
+        public bool CheckDirectory()
         {
-            if (!IndexCollection.ContainsKey(key))
-                AddIndexEntry(key, value);
-            else
-                IndexCollection[key] = value;
+            return Directory.Exists(ProjectInfo.InfoPath);
         }
 
-        public string ImportNewDictFromFile(string path)
+        public bool CheckFiles()
         {
-            if (File.Exists(path))
-            {
-                var arr = File.ReadAllLines(path);
-                var value = arr.Skip(1);
+            return File.Exists(ToolInfo.UserDictsPath);
+        }
 
-                AddIndexEntry(arr[0], value.ToList());
-                return arr[0];
-            }
-            else
-            {
-                return null;
-            }
+        public void FlushIndexToDisk()
+        {
+            ExportIndex(ToolInfo.UserDictsPath);
+        }
+
+        public void ReadIndexFromDisk()
+        {
+            if (!CheckFiles())
+                return;
+
+            ImportIndex(ToolInfo.UserDictsPath);
         }
     }
 }

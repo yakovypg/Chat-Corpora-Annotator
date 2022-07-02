@@ -9,16 +9,26 @@ namespace IndexEngine.Indexes
 
         public int ItemCount => IndexCollection.Sum(t => t.Value.Count);
 
-        public IDictionary<string, Dictionary<int, List<int>>> IndexCollection { get; private set; } = new Dictionary<string, Dictionary<int, List<int>>>();
-        public IDictionary<int, Dictionary<string, int>> InvertedIndex { get; private set; } = new Dictionary<int, Dictionary<string, int>>();
+        public IDictionary<string, Dictionary<int, List<int>>> IndexCollection { get; private set; }
+        public IDictionary<int, Dictionary<string, int>> InvertedIndex { get; private set; }
 
         private SituationIndex()
         {
+            IndexCollection = new Dictionary<string, Dictionary<int, List<int>>>();
+            InvertedIndex = new Dictionary<int, Dictionary<string, int>>();
         }
 
         public static SituationIndex GetInstance()
         {
             return _lazy.Value;
+        }
+
+        public void InitializeIndex(List<string> list)
+        {
+            foreach (var str in list)
+            {
+                IndexCollection.Add(str, new Dictionary<int, List<int>>());
+            }
         }
 
         public void AddIndexEntry(string key, Dictionary<int, List<int>> value)
@@ -34,12 +44,13 @@ namespace IndexEngine.Indexes
                     AddInnerIndexEntry(key, kvp.Key, kvp.Value);
                 }
             }
+
             foreach (var kvp in value)
             {
-
                 AddInvertedIndexEntry(key, kvp.Key, kvp.Value);
             }
         }
+
         public void AddInnerIndexEntry(string key, int sid, List<int> messages)
         {
             if (IndexCollection.ContainsKey(key))
@@ -48,7 +59,12 @@ namespace IndexEngine.Indexes
             }
             else
             {
-                IndexCollection.Add(key, new Dictionary<int, List<int>>() { { sid, messages } });
+                var msgs = new Dictionary<int, List<int>>()
+                {
+                    { sid, messages }
+                };
+
+                IndexCollection.Add(key, msgs);
             }
 
             AddInvertedIndexEntry(key, sid, messages);
@@ -69,39 +85,6 @@ namespace IndexEngine.Indexes
                         InvertedIndex[id].Add(key, sid);
                 }
             }
-        }
-
-        public void CrossMergeItems(string key1, int id1, string key2, int id2)
-        {
-            AddInvertedIndexEntry(key2, id2, IndexCollection[key1][id1]);
-            AddInvertedIndexEntry(key1, id1, IndexCollection[key2][id2]);
-        }
-
-        public void MergeItems(string key1, int id1, string key2, int id2)
-        {
-            List<int> firstSitMsgIds = new List<int>(IndexCollection[key1][id1]);
-            List<int> secondSitMsgIds = IndexCollection[key2][id2];
-
-            foreach (int id in firstSitMsgIds.ToArray())
-            {
-                if (InvertedIndex[id].ContainsKey(key2))
-                    firstSitMsgIds.Remove(id);
-            }
-
-            secondSitMsgIds.AddRange(firstSitMsgIds);
-
-            int[] distinctedIds = secondSitMsgIds.Distinct().ToArray();
-
-            if (secondSitMsgIds.Count != distinctedIds.Length)
-            {
-                secondSitMsgIds.Clear();
-                secondSitMsgIds.AddRange(distinctedIds);
-            }
-
-            secondSitMsgIds.Sort();
-
-            DeleteInnerIndexEntry(key1, id1);
-            AddInvertedIndexEntry(key2, id2, firstSitMsgIds);
         }
 
         public bool DeleteIndexEntry(string key)
@@ -135,33 +118,73 @@ namespace IndexEngine.Indexes
             return true;
         }
 
-        public void FlushIndexToDisk()
+        public void UpdateIndexEntry(string key, Dictionary<int, List<int>> value)
         {
-            var json = JsonConvert.SerializeObject(IndexCollection);
-            File.WriteAllText(ProjectInfo.SituationsPath, json);
-
-            json = JsonConvert.SerializeObject(InvertedIndex);
-            File.WriteAllText(ProjectInfo.SavedTagsPathTemp, json);
+            IndexCollection[key] = value;
         }
 
-        public void ReadIndexFromDisk()
+        public void CrossMergeItems(string key1, int id1, string key2, int id2)
         {
-            if (CheckFiles())
+            AddInvertedIndexEntry(key2, id2, IndexCollection[key1][id1]);
+            AddInvertedIndexEntry(key1, id1, IndexCollection[key2][id2]);
+        }
+
+        public void MergeItems(string key1, int id1, string key2, int id2)
+        {
+            List<int> firstSitMsgIds = new(IndexCollection[key1][id1]);
+            List<int> secondSitMsgIds = IndexCollection[key2][id2];
+
+            foreach (int id in firstSitMsgIds.ToArray())
             {
-                InvertedIndex = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<string, int>>>(File.ReadAllText(ProjectInfo.SavedTagsPathTemp));
-                IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, List<int>>>>(File.ReadAllText(ProjectInfo.SituationsPath));
+                if (InvertedIndex[id].ContainsKey(key2))
+                    firstSitMsgIds.Remove(id);
             }
+
+            secondSitMsgIds.AddRange(firstSitMsgIds);
+
+            int[] distinctedIds = secondSitMsgIds.Distinct().ToArray();
+
+            if (secondSitMsgIds.Count != distinctedIds.Length)
+            {
+                secondSitMsgIds.Clear();
+                secondSitMsgIds.AddRange(distinctedIds);
+            }
+
+            secondSitMsgIds.Sort();
+
+            DeleteInnerIndexEntry(key1, id1);
+            AddInvertedIndexEntry(key2, id2, firstSitMsgIds);
+        }
+
+        public void DeleteMessageFromSituationAndIndex(string tag, int id, int messageid)
+        {
+            if (IndexCollection.ContainsKey(tag) && IndexCollection[tag].ContainsKey(id))
+                IndexCollection[tag][id].Remove(messageid);
+
+            if (InvertedIndex.ContainsKey(messageid) && InvertedIndex[messageid].ContainsKey(tag))
+                InvertedIndex[messageid].Remove(tag);
+        }
+
+        public int GetValueCount(string key)
+        {
+            return IndexCollection.ContainsKey(key)
+                ? IndexCollection[key].Count
+                : 0;
+        }
+
+        public int GetInnerValueCount(string key, int inkey)
+        {
+            if (!IndexCollection.ContainsKey(key) || !IndexCollection[key].ContainsKey(inkey))
+                return -1;
+
+            int count = IndexCollection[key][inkey].Count;
+            return count;
         }
 
         public void UnloadData()
         {
             IndexCollection.Clear();
             InvertedIndex.Clear();
-        }
-
-        public void UpdateIndexEntry(string key, Dictionary<int, List<int>> value)
-        {
-            throw new NotImplementedException();
         }
 
         public bool CheckDirectory()
@@ -174,112 +197,28 @@ namespace IndexEngine.Indexes
             return File.Exists(ProjectInfo.SituationsPath) && File.Exists(ProjectInfo.SavedTagsPathTemp);
         }
 
-        public void InitializeIndex(List<string> list)
+        public void FlushIndexToDisk()
         {
-            foreach (var str in list)
-            {
-                IndexCollection.Add(str, new Dictionary<int, List<int>>());
-            }
+            var json = JsonConvert.SerializeObject(IndexCollection);
+            File.WriteAllText(ProjectInfo.SituationsPath, json);
+
+            json = JsonConvert.SerializeObject(InvertedIndex);
+            File.WriteAllText(ProjectInfo.SavedTagsPathTemp, json);
         }
 
-        public void DeleteMessageFromSituation(string tag, int id, int messageid)
+        public void ReadIndexFromDisk()
         {
-            if (IndexCollection.ContainsKey(tag))
-            {
-                if (IndexCollection[tag].ContainsKey(id))
-                    IndexCollection[tag][id].Remove(messageid);
-            }
-        }
+            if (!CheckFiles())
+                return;
 
-        public void DeleteMessageFromSituationAndIndex(string tag, int id, int messageid)
-        {
-            DeleteMessageFromSituation(tag, id, messageid);
+            string indexJson = File.ReadAllText(ProjectInfo.SituationsPath);
+            string invIndexJson = File.ReadAllText(ProjectInfo.SavedTagsPathTemp);
 
-            if (InvertedIndex.ContainsKey(messageid))
-            {
-                if (InvertedIndex[messageid].ContainsKey(tag))
-                    InvertedIndex[messageid].Remove(tag);
-            }
-        }
+            InvertedIndex = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<string, int>>>(invIndexJson)
+                ?? new Dictionary<int, Dictionary<string, int>>();
 
-        public void AddMessageToSituation(string tag, int id, int messageid)
-        {
-            if (IndexCollection.ContainsKey(tag))
-            {
-                if (IndexCollection[tag].ContainsKey(id))
-                {
-                    if (!IndexCollection[tag][id].Contains(messageid))
-                    {
-                        IndexCollection[tag][id].Add(messageid);
-                        IndexCollection[tag][id].Sort();
-                    }
-                }
-            }
-        }
-        public int GetValueCount(string key)
-        {
-            return IndexCollection.ContainsKey(key)
-                ? IndexCollection[key].Count
-                : 0;
-        }
-
-        public int GetInnerValueCount(string key, int inkey)
-        {
-            if (IndexCollection.ContainsKey(key))
-            {
-                return IndexCollection[key].ContainsKey(inkey)
-                    ? IndexCollection[key][inkey].Count
-                    : -1;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        public void RemakeOldIndexFile()
-        {
-            using (StreamReader reader = new StreamReader(ProjectInfo.SavedTagsPath))
-            {
-                string line;
-
-                while ((line = reader.ReadLine()) != null)
-                {
-                    var MessageIdAndSituations = line.Split(' ');
-                    var situationsSet = MessageIdAndSituations[1].Split(new char[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
-                    var id = int.Parse(MessageIdAndSituations[0]);
-
-                    InvertedIndex.Add(id, new Dictionary<string, int>());
-
-                    foreach (var s in situationsSet)
-                    {
-                        var item = s.Split('-');
-                        InvertedIndex[id].Add(item[0], int.Parse(item[1]));
-                    }
-                }
-            }
-        }
-
-        public void RemakeFromInverted()
-        {
-            List<string> list = new List<string> { "JobSearch", "FCCBug", "CodeHelp", "Meeting", "OSSelection", "SoftwareSupport" };
-            InitializeIndex(list);
-
-            foreach (var kvp in InvertedIndex)
-            {
-                foreach (var pair in kvp.Value)
-                {
-                    if (IndexCollection[pair.Key].ContainsKey(pair.Value))
-                    {
-                        AddMessageToSituation(pair.Key, pair.Value, kvp.Key);
-                    }
-                    else
-                    {
-                        AddInnerIndexEntry(pair.Key, pair.Value, new List<int>());
-                        AddMessageToSituation(pair.Key, pair.Value, kvp.Key);
-                    }
-                }
-            }
+            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, List<int>>>>(indexJson)
+                ?? new Dictionary<string, Dictionary<int, List<int>>>();
         }
     }
 }
