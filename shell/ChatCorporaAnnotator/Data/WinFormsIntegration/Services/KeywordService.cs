@@ -23,7 +23,7 @@ namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
 
         public Dictionary<string, double> GetRakeKeywords(int length)
         {
-            Rake generator = new Rake(ToolInfo.root + "\\SMARTstopset.txt", 3, length, 3);
+            Rake generator = new Rake(ToolInfo.ModelsRootDirectory + "\\SMARTstopset.txt", 3, length, 3);
             return generator.Run(GetList());
         }
 

@@ -116,16 +116,16 @@ namespace CoreNLPEngine.Extraction
             {
                 { "annotators", "tokenize,ssplit,pos,lemma,ner,parse" },
 
-                { "pos.model", ToolInfo.POSpath },
-                { "ner.model", ToolInfo.NERpath },
-                { "parse.model", ToolInfo.SRparserpath },
+                { "pos.model", ToolInfo.PosPath },
+                { "ner.model", ToolInfo.NerPath },
+                { "parse.model", ToolInfo.SrParserPath },
 
                 { "ner.useSUTime", "true" },
                 { "ner.applyFineGrained", "false" },
 
                 { "sutime.binders", "0" },
 
-                { "sutime.rules", ToolInfo.sutimeRules },
+                { "sutime.rules", ToolInfo.SutimeRules },
                 { "sutime.markTimeRanges", "true" },
                 { "sutime.includeNested", "true" }
             };

@@ -16,12 +16,14 @@
                 .Where(t => !string.IsNullOrEmpty(t) && !string.IsNullOrWhiteSpace(t))
                 .ToArray();
 
-            Paths = data.ToDictionary(t => t.Remove(t.IndexOf(SEPARATOR)),
-                                      t => t.Substring(t.IndexOf(SEPARATOR) + 1));
+            Paths = data.ToDictionary(
+                t => t.Remove(t.IndexOf(SEPARATOR)),
+                t => t[(t.IndexOf(SEPARATOR) + 1)..]
+            );
 
             ConfigFilePath = filePath;
             Name = Path.GetFileNameWithoutExtension(filePath);
-            WorkingDirectory = Directory.GetParent(filePath).FullName;
+            WorkingDirectory = Directory.GetParent(filePath)?.FullName ?? string.Empty;
         }
 
         public static Project Create(string filePath)

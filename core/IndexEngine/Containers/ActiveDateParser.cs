@@ -7,7 +7,7 @@
             int sepIndex = data.IndexOf(" ");
 
             string idStr = data.Remove(sepIndex);
-            string dateStr = data.Substring(sepIndex + 1);
+            string dateStr = data[(sepIndex + 1)..];
 
             int id = int.Parse(idStr);
             DateTime date = DateTime.Parse(dateStr);
@@ -29,7 +29,7 @@
             return dates;
         }
 
-        public static bool TryParse(string data, out ActiveDate date)
+        public static bool TryParse(string data, out ActiveDate? date)
         {
             try
             {
@@ -43,7 +43,7 @@
             }
         }
 
-        public static bool TryParseFile(string path, out HashSet<ActiveDate> dates)
+        public static bool TryParseFile(string path, out HashSet<ActiveDate>? dates)
         {
             try
             {

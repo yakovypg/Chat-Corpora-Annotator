@@ -51,7 +51,7 @@ namespace IndexEngine.Indexes
 
         public bool CheckDirectory()
         {
-            return Directory.Exists(ToolInfo.root);
+            return Directory.Exists(ToolInfo.ModelsRootDirectory);
         }
 
         public void ReadIndexFromDisk()

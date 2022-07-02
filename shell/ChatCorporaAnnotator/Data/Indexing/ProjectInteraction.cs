@@ -1,6 +1,5 @@
 ﻿using ChatCorporaAnnotator.Models.Indexing;
 using IndexEngine.Containers;
-using IndexEngine.Indexes;
 using System.Collections.Generic;
 
 namespace ChatCorporaAnnotator.Data.Indexing
@@ -17,9 +16,9 @@ namespace ChatCorporaAnnotator.Data.Indexing
         {
             string path = IndexEngine.Data.Paths.ProjectInfo.ActiveDatesPath;
 
-            if (ActiveDateParser.TryParseFile(path, out HashSet<ActiveDate> dates))
+            if (ActiveDateParser.TryParseFile(path, out HashSet<ActiveDate>? dates))
             {
-                return dates;
+                return dates ?? new HashSet<ActiveDate>();
             }
 
             HashSet<ActiveDate> activeDates = IndexEngine.Data.Paths.ProjectInfo.Data.ActiveDates;

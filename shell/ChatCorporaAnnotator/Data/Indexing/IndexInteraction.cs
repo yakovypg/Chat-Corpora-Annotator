@@ -62,7 +62,7 @@ namespace ChatCorporaAnnotator.Data.Indexing
             var situations = invertedIndex[message.Id];
 
             foreach (var sit in situations)
-                message.AddSituation(sit.Key, sit.Value);
+                message.Situations.TryAdd(sit.Key, sit.Value);
         }
 
         public static IEnumerable<ChatMessage> GetMessages()

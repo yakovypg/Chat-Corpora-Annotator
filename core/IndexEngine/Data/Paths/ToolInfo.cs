@@ -2,38 +2,46 @@
 {
     public static class ToolInfo
     {
-        public static string SRparserpath { get; private set; }
-        public static string NERpath { get; private set; }
-        public static string POSpath { get; private set; }
+        public static string RootDirectory { get; }
+        public static string ModelsRootDirectory { get; }
 
-        public static string sutimeRules { get; private set; }
-        public static string root { get; private set; }
+        public static string NerPath { get; }
+        public static string PosPath { get; }
+        public static string SutimeRules { get; }
+        public static string SrParserPath { get; }
 
-        public static string ExtractorComponentSitesPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorcomponentsites.txt";
-        public static string ExtractorConfigPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\extractorconfig.txt";
-
-        public static string HistogramsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\histograms.json";
-
-        public static string RecentProjectsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\recentprojects.txt";
-        public static string TagsetColorIndexPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\tagsetscolors.txt";
-        public static string UserDictsPath { get; private set; } = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\CCA\user_dicts.txt";
-
-        public static void SetModelPaths()
-        {
-            root = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\CCA" + "\\Models";
-            POSpath = root + "\\POS" + @"\gate-EN-twitter.model";
-            NERpath = root + "\\NER" + @"\english.muc.7class.caseless.distsim.crf.ser.gz";
-            SRparserpath = root + "\\Parser" + @"\englishSR.ser.gz";
-            sutimeRules = root + @"\sutime\defs.sutime.txt,"
-                              + root + @"\sutime\english.holidays.sutime.txt,"
-                              + root + @"\sutime\english.sutime.txt";
-
-            Console.WriteLine(UserDictsPath.IndexOfAny(System.IO.Path.GetInvalidPathChars()) >= 0);
-        }
+        public static string UserDictsPath { get; }
+        public static string HistogramsPath { get; }
+        public static string RecentProjectsPath { get; }
+        public static string TagsetColorIndexPath { get; }
+        public static string ExtractorConfigPath { get; }
+        public static string ExtractorComponentSitesPath { get; }
 
         static ToolInfo()
         {
-            SetModelPaths();
+            string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            RootDirectory = Path.Combine(userPath, "CCA");
+            ModelsRootDirectory = Path.Combine(RootDirectory, "Models");
+
+            PosPath = Path.Combine(ModelsRootDirectory, "POS", "gate-EN-twitter.model");
+            NerPath = Path.Combine(ModelsRootDirectory, "NER", "english.muc.7class.caseless.distsim.crf.ser.gz");
+            SrParserPath = Path.Combine(ModelsRootDirectory, "Parser", "englishSR.ser.gz");
+
+            string sutimePath = Path.Combine(ModelsRootDirectory, "Sutime");
+
+            SutimeRules = string.Join(',',
+                Path.Combine(sutimePath, "defs.sutime.txt"),
+                Path.Combine(sutimePath, "english.holidays.sutime.txt"),
+                Path.Combine(sutimePath, "english.sutime.txt")
+            );
+
+            UserDictsPath = Path.Combine(RootDirectory, "user_dicts.txt");
+            HistogramsPath = Path.Combine(RootDirectory, "histograms.json");
+            RecentProjectsPath = Path.Combine(RootDirectory, "recentprojects.txt");
+            TagsetColorIndexPath = Path.Combine(RootDirectory, "tagsetscolors.txt");
+            ExtractorConfigPath = Path.Combine(RootDirectory, "extractorconfig.txt");
+            ExtractorComponentSitesPath = Path.Combine(RootDirectory, "extractorcomponentsites.txt");
         }
 
         public static bool TryReadRecentProjectsFile(out string[] data)
@@ -57,7 +65,7 @@
         {
             try
             {
-                File.WriteAllLines(RecentProjectsPath, data ?? new string[0]);
+                File.WriteAllLines(RecentProjectsPath, data ?? Array.Empty<string>());
                 return true;
             }
             catch

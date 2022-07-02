@@ -18,12 +18,12 @@
             return Date.ToString();
         }
 
-        public bool Equals(ActiveDate other)
+        public bool Equals(ActiveDate? other)
         {
-            return Date == other.Date;
+            return other != null && Date == other.Date;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is ActiveDate other && Date == other.Date;
         }

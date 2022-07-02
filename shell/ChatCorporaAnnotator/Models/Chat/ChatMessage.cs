@@ -105,7 +105,7 @@ namespace ChatCorporaAnnotator.Models.Chat
             if (Source.Situations.ContainsKey(situation.Header))
                 return;
 
-            Source.AddSituation(situation.Header, situation.Id);
+            Source.Situations.TryAdd(situation.Header, situation.Id);
 
             UpdateBackgroundBrush(tagset);
             OnPropertyChanged(nameof(TagsPresenter));
@@ -113,7 +113,7 @@ namespace ChatCorporaAnnotator.Models.Chat
 
         public void RemoveAllSituations()
         {
-            Source.RemoveAllSituations();
+            Source.Situations.Clear();
 
             UpdateBackgroundBrush();
             OnPropertyChanged(nameof(TagsPresenter));
@@ -124,7 +124,7 @@ namespace ChatCorporaAnnotator.Models.Chat
             if (string.IsNullOrEmpty(situationKey))
                 return false;
 
-            if (!Source.RemoveSituation(situationKey))
+            if (!Source.Situations.Remove(situationKey))
                 return false;
 
             UpdateBackgroundBrush(tagset);
