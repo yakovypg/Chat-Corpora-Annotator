@@ -143,17 +143,17 @@ namespace IndexEngine.Indexes
             return users;
         }
 
-        internal static BTreeDictionary<DateTime, int> LoadStatsFromDisk(string statsPath)
+        internal static Dictionary<DateTime, int> LoadStatsFromDisk(string statsPath)
         {
-            BTreeDictionary<DateTime, int> stats = new BTreeDictionary<DateTime, int>();
+            var stats = new Dictionary<DateTime, int>();
 
-            using (StreamReader reader = new StreamReader(statsPath))
+            using (var reader = new StreamReader(statsPath))
             {
                 while (!reader.EndOfStream)
                 {
-                    var line = reader.ReadLine();
-                    string[] kvp = line.Split('#');
-                    stats.Add(DateTime.Parse(kvp[0]), Int32.Parse(kvp[1]));
+                    string? line = reader.ReadLine();
+                    string[] kvp = line?.Split('#') ?? Array.Empty<string>();
+                    stats.Add(DateTime.Parse(kvp[0]), int.Parse(kvp[1]));
                 }
             }
 
@@ -383,16 +383,10 @@ namespace IndexEngine.Indexes
 
                         var day = date.Date;
 
-                        if (!ProjectInfo.Data.MessagesPerDay.Keys.Contains(day))
-                        {
+                        if (!ProjectInfo.Data.MessagesPerDay.ContainsKey(day))
                             ProjectInfo.Data.MessagesPerDay.Add(day, 1);
-                        }
                         else
-                        {
-                            int temp = ProjectInfo.Data.MessagesPerDay[day];
-                            temp++;
-                            ProjectInfo.Data.MessagesPerDay.TryUpdate(day, temp);
-                        }
+                            ProjectInfo.Data.MessagesPerDay[day]++;
 
                         Document document = new Document();
                         document.Add(new Int32Field(ProjectInfo.IdKey, indexingValue, Field.Store.YES));

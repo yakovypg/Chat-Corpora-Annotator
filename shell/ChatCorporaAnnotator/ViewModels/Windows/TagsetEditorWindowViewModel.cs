@@ -387,7 +387,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             CurrentTagset = new ObservableCollection<Tag>();
 
-            SelectedTagset = ProjectInfo.TagsetSet
+            SelectedTagset = ProjectInfo.IsTagsetSet
                 ? ProjectInfo.Tagset
                 : TagsetIndex.NOT_SELECTED_TAGSET_NAME;
 
@@ -421,7 +421,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         {
             try
             {
-                if (ProjectInfo.TagsetSet)
+                if (ProjectInfo.IsTagsetSet)
                     File.Delete(ProjectInfo.TagsetPath);
 
                 ProjectInfo.TryUpdateTagset();

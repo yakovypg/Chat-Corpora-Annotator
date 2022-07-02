@@ -6,6 +6,35 @@ namespace IndexEngine.Data.Paths
 {
     public static class ProjectInfo
     {
+        public static ProjectData Data { get; private set; } = new ProjectData();
+
+        public static string Name { get; private set; } = string.Empty;
+        public static string Tagset { get; private set; } = string.Empty;
+
+        public static string IndexPath { get; private set; } = string.Empty;
+        public static string InfoPath { get; private set; } = string.Empty;
+        public static string KeyPath { get; private set; } = string.Empty;
+        public static string FieldsPath { get; private set; } = string.Empty;
+        public static string UsersPath { get; private set; } = string.Empty;
+        public static string StatsPath { get; private set; } = string.Empty;
+        public static string IdKey { get; private set; } = string.Empty;
+        public static string DateFieldKey { get; private set; } = string.Empty;
+        public static string TextFieldKey { get; private set; } = string.Empty;
+        public static string SenderFieldKey { get; private set; } = string.Empty;
+
+        public static string SituationsPath { get; private set; } = string.Empty;
+        public static string TagCountsPath { get; private set; } = string.Empty;
+        public static string SavedTagsPath { get; private set; } = string.Empty;
+        public static string SavedTagsPathTemp { get; private set; } = string.Empty;
+        public static string TagsetPath { get; private set; } = string.Empty;
+        public static string ActiveDatesPath { get; private set; } = string.Empty;
+
+        public static string OutputXmlFilePath { get; private set; } = string.Empty;
+        public static string OutputCsvFilePath { get; private set; } = string.Empty;
+        public static string ExtractedDataPath { get; private set; } = string.Empty;
+
+        public static bool IsTagsetSet => File.Exists(TagsetPath);
+
         public static void LoadProject(string path)
         {
             UnloadData();
@@ -35,46 +64,42 @@ namespace IndexEngine.Data.Paths
             SetSelectedFields(fields);
         }
 
+        public static bool TryUpdateTagset(string? tagset = null)
+        {
+            Tagset = tagset ?? (IsTagsetSet ? File.ReadAllText(TagsetPath) : string.Empty);
+
+            if (TagsetIndex.GetInstance().IndexCollection.ContainsKey(Tagset))
+                return true;
+
+            try
+            {
+                File.Delete(TagsetPath);
+                Tagset = string.Empty;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static void UnloadData()
         {
-            Data.MessagesPerDay.Clear();
-            Data.UserColors.Clear();
-            Data.UserKeys.Clear();
-            Data.SelectedFields = new List<string>();
             Data.LineCount = 0;
+
+            Data.SelectedFields.Clear();
+            Data.UserKeys.Clear();
+            Data.UserColors.Clear();
+            Data.ActiveDates.Clear();
+            Data.MessagesPerDay.Clear();
 
             IndexHelper.UnloadData();
 
             foreach (PropertyInfo prop in typeof(ProjectInfo).GetProperties())
             {
                 if (prop.PropertyType.Name == "String")
-                    prop.SetValue(prop, "");
+                    prop.SetValue(prop, string.Empty);
             }
-        }
-
-        public static bool TryUpdateTagset(string tagset = null)
-        {
-            Tagset = tagset ?? (TagsetSet ? File.ReadAllText(TagsetPath) : null);
-
-            if (!TagsetIndex.GetInstance().IndexCollection.ContainsKey(Tagset))
-            {
-                try
-                {
-                    File.Delete(TagsetPath);
-                    Tagset = null;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static void SetSelectedFields(List<string> fields)
-        {
-            Data.SelectedFields = fields;
         }
 
         private static void SetPaths(Project project)
@@ -82,23 +107,23 @@ namespace IndexEngine.Data.Paths
             IndexPath = project.WorkingDirectory;
             Name = project.Name;
 
-            project.Paths.TryGetValue("Info", out string infoFolder);
-            InfoPath = Path.Combine(IndexPath, infoFolder) + @"\";
+            project.Paths.TryGetValue("Info", out string? infoFolder);
+            InfoPath = Path.Combine(IndexPath, infoFolder ?? string.Empty);
 
-            KeyPath = Path.Combine(InfoPath, Name + "-info.txt");
-            FieldsPath = Path.Combine(InfoPath, Name + "-fields.txt");
-            UsersPath = Path.Combine(InfoPath, Name + "-users.txt");
-            StatsPath = Path.Combine(InfoPath, Name + "-stats.txt");
+            KeyPath = Path.Combine(InfoPath, $"{Name}_info.txt");
+            FieldsPath = Path.Combine(InfoPath, $"{Name}_fields.txt");
+            UsersPath = Path.Combine(InfoPath, $"{Name}_users.txt");
+            StatsPath = Path.Combine(InfoPath, $"{Name}_stats.txt");
 
-            SavedTagsPath = Path.Combine(InfoPath, Name + "-savedtags.txt");
-            SavedTagsPathTemp = Path.Combine(InfoPath, Name + "-savedtagsnew.txt");
-            TagCountsPath = Path.Combine(InfoPath, Name + "-tagcounts.txt");
-            TagsetPath = Path.Combine(InfoPath, Name + "-tagset.txt");
-            SituationsPath = Path.Combine(InfoPath, Name + "-situations.txt");
-            ActiveDatesPath = Path.Combine(InfoPath, Name + "-activedates.txt");
-            OutputXmlFilePath = Path.Combine(InfoPath, "outputXml.xml");
-            OutputCsvFilePath = Path.Combine(InfoPath, "outputCsv.csv");
-            ExtractedDataPath = Path.Combine(InfoPath, "extractedData.txt");
+            SavedTagsPath = Path.Combine(InfoPath, $"{Name}_savedtags.txt");
+            SavedTagsPathTemp = Path.Combine(InfoPath, $"{Name}_savedtagsnew.txt");
+            TagCountsPath = Path.Combine(InfoPath, $"{Name}_tagcounts.txt");
+            TagsetPath = Path.Combine(InfoPath, $"{Name}_tagset.txt");
+            SituationsPath = Path.Combine(InfoPath, $"{Name}_situations.txt");
+            ActiveDatesPath = Path.Combine(InfoPath, $"{Name}_activedates.txt");
+            OutputXmlFilePath = Path.Combine(InfoPath, $"{Name}_outputXml.xml");
+            OutputCsvFilePath = Path.Combine(InfoPath, $"{Name}_outputCsv.csv");
+            ExtractedDataPath = Path.Combine(InfoPath, $"{Name}_extractedData.txt");
         }
 
         private static void SetKeys(string date, string sender, string text)
@@ -109,30 +134,9 @@ namespace IndexEngine.Data.Paths
             TextFieldKey = text;
         }
 
-        public static string Name { get; private set; }
-        public static ProjectData Data { get; private set; } = new ProjectData();
-        public static string IndexPath { get; private set; }
-        public static string InfoPath { get; private set; }
-        public static string KeyPath { get; private set; }
-        public static string FieldsPath { get; private set; }
-        public static string UsersPath { get; private set; }
-        public static string StatsPath { get; private set; }
-        public static string DateFieldKey { get; private set; }
-        public static string TextFieldKey { get; private set; }
-        public static string SenderFieldKey { get; private set; }
-        public static string IdKey { get; private set; }
-
-        public static string SituationsPath { get; private set; }
-        public static string TagCountsPath { get; private set; }
-        public static string SavedTagsPath { get; private set; }
-        public static string SavedTagsPathTemp { get; private set; }
-        public static string TagsetPath { get; private set; }
-        public static string ActiveDatesPath { get; private set; }
-        public static string OutputXmlFilePath { get; private set; }
-        public static string OutputCsvFilePath { get; private set; }
-        public static string ExtractedDataPath { get; private set; }
-
-        public static string Tagset { get; private set; }
-        public static bool TagsetSet { get { return File.Exists(TagsetPath); } }
+        private static void SetSelectedFields(List<string> fields)
+        {
+            Data.SelectedFields = fields;
+        }
     }
 }

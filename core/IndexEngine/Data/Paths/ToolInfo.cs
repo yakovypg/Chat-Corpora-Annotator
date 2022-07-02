@@ -38,10 +38,10 @@
 
             UserDictsPath = Path.Combine(RootDirectory, "user_dicts.txt");
             HistogramsPath = Path.Combine(RootDirectory, "histograms.json");
-            RecentProjectsPath = Path.Combine(RootDirectory, "recentprojects.txt");
-            TagsetColorIndexPath = Path.Combine(RootDirectory, "tagsetscolors.txt");
-            ExtractorConfigPath = Path.Combine(RootDirectory, "extractorconfig.txt");
-            ExtractorComponentSitesPath = Path.Combine(RootDirectory, "extractorcomponentsites.txt");
+            RecentProjectsPath = Path.Combine(RootDirectory, "recent_projects.txt");
+            TagsetColorIndexPath = Path.Combine(RootDirectory, "tagset_colors.txt");
+            ExtractorConfigPath = Path.Combine(RootDirectory, "extractor_config.txt");
+            ExtractorComponentSitesPath = Path.Combine(RootDirectory, "extractor_component_sites.txt");
         }
 
         public static bool TryReadRecentProjectsFile(out string[] data)
