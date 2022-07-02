@@ -79,7 +79,9 @@ namespace IndexEngine.Indexes
         public void ImportIndex(string path)
         {
             var jsonString = File.ReadAllText(path);
-            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString);
+
+            IndexCollection = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonString)
+                ?? new Dictionary<string, List<string>>();
         }
 
         public void ExportIndex(string path)

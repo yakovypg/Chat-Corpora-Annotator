@@ -47,7 +47,7 @@ namespace SuggesterBenchmark.CLI
         {
             if (benchmarks == null || benchmarks.Length == 0)
                 return;
-            
+
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -74,7 +74,7 @@ namespace SuggesterBenchmark.CLI
         {
             if (parameters == null)
                 return;
-            
+
             foreach (var parameter in parameters)
                 ApplyParameter(parameter);
         }

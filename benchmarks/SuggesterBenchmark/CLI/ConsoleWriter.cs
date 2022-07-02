@@ -33,7 +33,7 @@ namespace SuggesterBenchmark.CLI
         {
             if (summary == null || config == null)
                 return;
-            
+
             var logger = ConsoleLogger.Default;
             var analyser = config.GetAnalysers().First();
             var conclusions = analyser.Analyse(summary).ToList();

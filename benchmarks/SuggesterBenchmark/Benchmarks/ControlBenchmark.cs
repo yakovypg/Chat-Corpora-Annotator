@@ -15,7 +15,7 @@ namespace SuggesterBenchmark.Benchmarks
         {
             "select (select haswordofdict(skill), haswordofdict(job) unr inwin 5); (select haswordofdict(dev) and (byuser(odrisck) or byuser(jsonify)) inwin 3); inwin 50",
             "select (select haswordofdict(job), haswordofdict(dev) unr inwin 5); (select haswordofdict(skill), haswordofdict(dev), haswordofdict(money) inwin 10); (select haswordofdict(area) or haswordofdict(money)); (select haswordofdict(dev), haswordofdict(money) or byuser(odrisck) inwin 50) inwin 500",
-            
+
             "select haswordofdict(dev), haswordofdict(area), haswordofdict(area), haswordofdict(money)",
             "select haswordofdict(dev), haswordofdict(area), haswordofdict(area), haswordofdict(money) unr"
         };

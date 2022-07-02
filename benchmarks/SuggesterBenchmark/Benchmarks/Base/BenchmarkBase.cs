@@ -12,6 +12,9 @@ namespace SuggesterBenchmark.Benchmarks.Base
     {
         public BenchmarkBase()
         {
+            if (string.IsNullOrEmpty(BenchmarksConfig.ProjectFilePath))
+                throw new FileNotFoundException(nameof(BenchmarksConfig.ProjectFilePath));
+
             string curDir = Directory.GetCurrentDirectory();
             DirectoryInfo? workingDir = Directory.GetParent(curDir)?.Parent?.Parent?.Parent;
 
@@ -21,7 +24,8 @@ namespace SuggesterBenchmark.Benchmarks.Base
             ProjectInfo.LoadProject(BenchmarksConfig.ProjectFilePath);
             LuceneService.OpenIndex();
 
-            UserDictsIndex.GetInstance().ImportIndex(BenchmarksConfig.UserDictsFilePath);
+            if (!string.IsNullOrEmpty(BenchmarksConfig.UserDictsFilePath))
+                UserDictsIndex.GetInstance().ImportIndex(BenchmarksConfig.UserDictsFilePath);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace SuggesterBenchmark.Benchmarks
 
         [Benchmark]
         public void VisitConditionTest_0()
-        {           
+        {
             var result = _visitor.VisitCondition(_conditions[0]);
         }
 
