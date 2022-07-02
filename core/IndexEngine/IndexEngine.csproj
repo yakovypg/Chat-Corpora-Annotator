@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSharpTest.Net.Collections" Version="14.906.1403.1082" />
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00008" />
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00008" />
     <PackageReference Include="Lucene.Net.Classification" Version="4.8.0-beta00008" />
@@ -29,7 +28,6 @@
     <PackageReference Include="Lucene.Net.Suggest" Version="4.8.0-beta00008" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SoftCircuits.CsvParser" Version="3.5.1" />
-    <PackageReference Include="XAct.Wintellect.PowerCollections" Version="0.0.1" />
   </ItemGroup>
 
   <ItemGroup>

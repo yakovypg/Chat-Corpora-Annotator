@@ -4,7 +4,6 @@ using IndexEngine.Search;
 using Lucene.Net.Documents;
 using SoftCircuits.CsvParser;
 using System.Drawing;
-using Wintellect.PowerCollections;
 
 namespace IndexEngine.Indexes
 {
@@ -92,16 +91,16 @@ namespace IndexEngine.Indexes
 
         #region load info
 
-        internal static OrderedDictionary<string, string> LoadInfoFromDisk(string keyPath)
+        internal static Dictionary<string, string> LoadInfoFromDisk(string keyPath)
         {
-            OrderedDictionary<string, string> info = new OrderedDictionary<string, string>();
+            var info = new Dictionary<string, string>();
 
-            using (StreamReader reader = new StreamReader(keyPath))
+            using (var reader = new StreamReader(keyPath))
             {
-                info.Add("TextFieldKey", reader.ReadLine());
-                info.Add("SenderFieldKey", reader.ReadLine());
-                info.Add("DateFieldKey", reader.ReadLine());
-                info.Add("LineCount", reader.ReadLine());
+                info.Add("TextFieldKey", reader.ReadLine() ?? string.Empty);
+                info.Add("SenderFieldKey", reader.ReadLine() ?? string.Empty);
+                info.Add("DateFieldKey", reader.ReadLine() ?? string.Empty);
+                info.Add("LineCount", reader.ReadLine() ?? string.Empty);
 
             }
 
