@@ -5,31 +5,20 @@ namespace IndexEngine.Indexes
 {
     public class SituationIndex : INestedIndex<string, Dictionary<int, List<int>>, int, List<int>>
     {
-        private static readonly Lazy<SituationIndex> lazy = new Lazy<SituationIndex>(() => new SituationIndex());
+        private static readonly Lazy<SituationIndex> _lazy = new(() => new SituationIndex());
 
-        public static SituationIndex GetInstance()
-        {
-            return lazy.Value;
-        }
+        public int ItemCount => IndexCollection.Sum(t => t.Value.Count);
+
+        public IDictionary<string, Dictionary<int, List<int>>> IndexCollection { get; private set; } = new Dictionary<string, Dictionary<int, List<int>>>();
+        public IDictionary<int, Dictionary<string, int>> InvertedIndex { get; private set; } = new Dictionary<int, Dictionary<string, int>>();
 
         private SituationIndex()
         {
         }
 
-        public IDictionary<string, Dictionary<int, List<int>>> IndexCollection { get; private set; } = new Dictionary<string, Dictionary<int, List<int>>>();
-        public IDictionary<int, Dictionary<string, int>> InvertedIndex { get; private set; } = new Dictionary<int, Dictionary<string, int>>();
-
-        public int ItemCount
+        public static SituationIndex GetInstance()
         {
-            get
-            {
-                int count = 0;
-
-                foreach (var kvp in IndexCollection)
-                    count += kvp.Value.Count;
-
-                return count;
-            }
+            return _lazy.Value;
         }
 
         public void AddIndexEntry(string key, Dictionary<int, List<int>> value)
@@ -59,8 +48,7 @@ namespace IndexEngine.Indexes
             }
             else
             {
-                IndexCollection.Add(key, new Dictionary<int, List<int>>());
-                IndexCollection[key].Add(sid, messages);
+                IndexCollection.Add(key, new Dictionary<int, List<int>>() { { sid, messages } });
             }
 
             AddInvertedIndexEntry(key, sid, messages);
@@ -116,22 +104,24 @@ namespace IndexEngine.Indexes
             AddInvertedIndexEntry(key2, id2, firstSitMsgIds);
         }
 
-        public void DeleteIndexEntry(string key)
+        public bool DeleteIndexEntry(string key)
         {
-            IndexCollection.Remove(key);
+            if (!IndexCollection.Remove(key))
+                return false;
 
             foreach (var kvp in InvertedIndex)
             {
                 if (kvp.Value.ContainsKey(key))
-                {
                     kvp.Value.Remove(key);
-                }
             }
+
+            return true;
         }
 
-        public void DeleteInnerIndexEntry(string key, int sid)
+        public bool DeleteInnerIndexEntry(string key, int sid)
         {
-            IndexCollection[key].Remove(sid);
+            if (!IndexCollection[key].Remove(sid))
+                return false;
 
             foreach (var kvp in InvertedIndex)
             {
@@ -141,6 +131,8 @@ namespace IndexEngine.Indexes
                         kvp.Value.Remove(key);
                 }
             }
+
+            return true;
         }
 
         public void FlushIndexToDisk()

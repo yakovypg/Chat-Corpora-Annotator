@@ -1,9 +1,8 @@
-﻿using IndexEngine.Indexes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ChatCorporaAnnotator.Data.WinFormsIntegration.Services
 {
-    public interface ITagService : IUnloadable
+    public interface ITagService
     {
         bool TagsetSet { get; set; }
         List<int> TaggedIds { get; set; }

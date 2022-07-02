@@ -5,7 +5,7 @@ namespace IndexEngine.Indexes
 {
     public class UserDictsIndex : IIndex<string, List<string>>
     {
-        private static readonly Lazy<UserDictsIndex> lazy = new Lazy<UserDictsIndex>(() => new UserDictsIndex());
+        private static readonly Lazy<UserDictsIndex> lazy = new(() => new UserDictsIndex());
 
         public static UserDictsIndex GetInstance()
         {
@@ -36,8 +36,7 @@ namespace IndexEngine.Indexes
 
         public void AddIndexEntry(string key, List<string> value)
         {
-            if (!IndexCollection.ContainsKey(key))
-                IndexCollection.Add(key, value);
+            IndexCollection.Add(key, value);
         }
 
         public bool CheckDirectory()
@@ -50,10 +49,9 @@ namespace IndexEngine.Indexes
             return File.Exists(ToolInfo.UserDictsPath);
         }
 
-        public void DeleteIndexEntry(string key)
+        public bool DeleteIndexEntry(string key)
         {
-            if (IndexCollection.ContainsKey(key))
-                IndexCollection.Remove(key);
+            return IndexCollection.Remove(key);
         }
 
         public void FlushIndexToDisk()
