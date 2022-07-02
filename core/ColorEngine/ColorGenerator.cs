@@ -1,14 +1,11 @@
 ﻿using HsluvS;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 
 namespace ColorEngine
 {
     public static class ColorGenerator
     {
-        private static readonly Random random = new Random();
+        private static readonly Random random = new();
 
         private static readonly string[] ColorValues =
         {
@@ -43,42 +40,33 @@ namespace ColorEngine
 
         public static Color[] GenerateColorsFromList(int count)
         {
-            Color[] colors;
-            HashSet<Color> temp = new HashSet<Color>();
+            var colors = new HashSet<Color>();
 
-            bool flag;
-            int num;
-
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; ++i)
             {
-                flag = false;
-                num = random.Next(0, count);
+                bool flag = false;
 
                 while (!flag)
                 {
-                    flag = temp.Add(ColorTranslator.FromHtml(ColorValues[i]));
+                    flag = colors.Add(ColorTranslator.FromHtml(ColorValues[i]));
                 }
             }
 
-            colors = temp.ToArray();
-            return colors;
+            return colors.ToArray();
         }
 
         public static Color[] GenerateHSVColors(int count)
         {
-            Color[] colors;
-
             double h;
             double s;
             double v;
             double golden_ratio_conjugate = 0.618033988749895;
-            bool flag;
 
-            HashSet<Color> temp = new HashSet<Color>();
+            var colors = new HashSet<Color>();
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; ++i)
             {
-                flag = false;
+                bool flag = false;
 
                 v = random.NextDouble() * (0.99 - 0.75) + 0.75;
                 s = random.NextDouble() * (0.6 - 0.4) + 0.4;
@@ -88,24 +76,24 @@ namespace ColorEngine
                     h = random.NextDouble();
                     h += golden_ratio_conjugate;
                     h %= 1;
-                    flag = temp.Add(HsvToColor(h, s, v));
+
+                    flag = colors.Add(HsvToColor(h, s, v));
                 }
             }
 
-            colors = temp.ToArray();
-            return colors;
+            return colors.ToArray();
         }
 
         public static Color HsvToColor(double h, double s, double v)
         {
-            var hInt = (int)Math.Floor(h * 6.0);
-            var f = h * 6 - hInt;
-            var p = v * (1 - s);
-            var q = v * (1 - f * s);
-            var t = v * (1 - (1 - f) * s);
-            var r = 256.0;
-            var g = 256.0;
-            var b = 256.0;
+            int hInt = (int)Math.Floor(h * 6.0);
+            double f = h * 6 - hInt;
+            double p = v * (1 - s);
+            double q = v * (1 - f * s);
+            double t = v * (1 - (1 - f) * s);
+            double r = 256.0;
+            double g = 256.0;
+            double b = 256.0;
 
             switch (hInt)
             {
@@ -117,34 +105,30 @@ namespace ColorEngine
                 case 5: r = v; g = p; b = q; break;
             }
 
-            var c = Color.FromArgb(alpha: 255,
-                                   red: (byte)Math.Floor(r * 255.0),
-                                   green: (byte)Math.Floor(g * 255.0),
-                                   blue: (byte)Math.Floor(b * 255.0));
-
-            return c;
+            return Color.FromArgb(
+                alpha: 255,
+                red: (byte)Math.Floor(r * 255.0),
+                green: (byte)Math.Floor(g * 255.0),
+                blue: (byte)Math.Floor(b * 255.0)
+            );
         }
 
         public static Color[] GenerateHSLuvColors(int count, bool back = true)
         {
-            Color[] colors;
-            bool flag;
+            var colors = new HashSet<Color>();
 
-            HashSet<Color> temp = new HashSet<Color>();
-
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; ++i)
             {
-                flag = false;
+                bool flag = false;
 
                 while (!flag)
                 {
-                    var col = GenerateHSLuvColor(back);
-                    flag = temp.Add(col);
+                    var color = GenerateHSLuvColor(back);
+                    flag = colors.Add(color);
                 }
             }
 
-            colors = temp.ToArray();
-            return colors;
+            return colors.ToArray();
         }
 
         public static Color GenerateHSLuvColor(bool back = true)
