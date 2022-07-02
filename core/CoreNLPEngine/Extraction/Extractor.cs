@@ -6,7 +6,6 @@ using CSharpTest.Net.Collections;
 using Edu.Stanford.Nlp.Pipeline;
 using IndexEngine.Data.Paths;
 using IndexEngine.Search;
-using Newtonsoft.Json;
 using NounPhraseExtractionAlgorithm;
 
 namespace CoreNLPEngine.Extraction
