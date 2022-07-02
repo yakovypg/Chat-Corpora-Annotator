@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 
 namespace IndexEngine.Search
 {
-
     public class Rake
     {
         private readonly string _stopWordsPattern;
@@ -21,11 +20,8 @@ namespace IndexEngine.Search
 
         public Dictionary<string, double> Run(List<string> sentenceList)
         {
-            var phraseList = GenerateCandidateKeywords(sentenceList, _stopWordsPattern,
-                _minCharLength, _maxWordsLength);
-
+            var phraseList = GenerateCandidateKeywords(sentenceList, _stopWordsPattern, _minCharLength, _maxWordsLength);
             var wordScores = CalculateWordScores(phraseList);
-
             var keywordCandidates = GenerateCandidateKeywordScores(phraseList, wordScores, _minKeywordFrequency);
 
             return keywordCandidates
@@ -44,8 +40,7 @@ namespace IndexEngine.Search
                 stopWordRegexList.Add(wordRegex);
             }
 
-            var stopWordPattern = string.Join("|", stopWordRegexList).ToLowerInvariant();
-
+            string stopWordPattern = string.Join("|", stopWordRegexList).ToLowerInvariant();
             return $"({stopWordPattern})";
         }
 
@@ -53,13 +48,14 @@ namespace IndexEngine.Search
         {
             var stopWords = new List<string>();
 
-            foreach (var line in string.IsNullOrWhiteSpace(stopWordsPath)
+            var lines = string.IsNullOrWhiteSpace(stopWordsPath)
                 ? ReadAllLines()
-                : File.ReadAllLines(stopWordsPath))
-            {
-                if (line.Trim().StartsWith("#")) continue;
+                : File.ReadAllLines(stopWordsPath);
 
-                stopWords.AddRange(line.Split(' '));
+            foreach (var line in lines)
+            {
+                if (!line.Trim().StartsWith("#"))
+                    stopWords.AddRange(line.Split(' '));
             }
 
             return stopWords;
@@ -67,18 +63,21 @@ namespace IndexEngine.Search
 
         private static IEnumerable<string> ReadAllLines()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "Rake.SmartStoplist.txt";
+            string resourceName = "Rake.SmartStoplist.txt";
 
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Stream? stream = assembly.GetManifestResourceStream(resourceName);
+
+            if (stream is null)
+                throw new FileNotFoundException(resourceName);
+
+            using (stream)
             using (var reader = new StreamReader(stream))
             {
-                string line;
+                string? line;
 
                 while ((line = reader.ReadLine()) != null)
-                {
                     yield return line;
-                }
             }
         }
 
@@ -155,7 +154,7 @@ namespace IndexEngine.Search
         }
 
         /// <summary>
-        ///  Utility function to return a list of all words that are have a length greater than a specified number of characters.
+        /// Utility function to return a list of all words that are have a length greater than a specified number of characters.
         /// </summary>
         /// <param name="phrase">The text that must be split in to words.</param>
         /// <param name="minWordReturnSize">The minimum no of characters a word must have to be included.</param>
@@ -182,8 +181,7 @@ namespace IndexEngine.Search
 
         private static bool IsNumber(string word)
         {
-            float tmp;
-            return float.TryParse(word, out tmp);
+            return float.TryParse(word, out _);
         }
 
         private static IList<string> GenerateCandidateKeywords(IEnumerable<string> sentenceList, string stopWordsPattern, int minCharLength, int maxWordsLength)

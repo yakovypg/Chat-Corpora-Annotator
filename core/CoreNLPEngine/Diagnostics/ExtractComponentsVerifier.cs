@@ -22,10 +22,6 @@ namespace CoreNLPEngine.Diagnostics
 
             string[] files = Directory.GetFiles(coreNLPPath);
 
-            var b1 = Array.Exists(files, t => t.StartsWith("stanford-srparser"));
-            var b2 = Array.Exists(files, t => t.EndsWith("-models-english.jar"));
-            var b3 = Array.Exists(files, t => t.EndsWith("-models-english-kbp.jar"));
-
             return Array.Exists(files, t => t.Contains("stanford-srparser")) &&
                    Array.Exists(files, t => t.EndsWith("-models-english.jar")) &&
                    Array.Exists(files, t => t.EndsWith("-models-english-kbp.jar"));

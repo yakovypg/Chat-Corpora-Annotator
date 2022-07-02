@@ -81,7 +81,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Background="{Binding JavaInfoBackground}">
+            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Opacity="0.8" CornerRadius="5" Background="{Binding JavaInfoBackground}">
                 <TextBlock Text="Java" TextAlignment="Center" Cursor="Hand">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDown">

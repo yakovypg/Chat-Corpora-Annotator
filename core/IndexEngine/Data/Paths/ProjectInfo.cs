@@ -110,20 +110,20 @@ namespace IndexEngine.Data.Paths
             project.Paths.TryGetValue("Info", out string? infoFolder);
             InfoPath = Path.Combine(IndexPath, infoFolder ?? string.Empty);
 
-            KeyPath = Path.Combine(InfoPath, $"{Name}_info.txt");
-            FieldsPath = Path.Combine(InfoPath, $"{Name}_fields.txt");
-            UsersPath = Path.Combine(InfoPath, $"{Name}_users.txt");
-            StatsPath = Path.Combine(InfoPath, $"{Name}_stats.txt");
+            KeyPath = Path.Combine(InfoPath, $"{Name}-info.txt");
+            FieldsPath = Path.Combine(InfoPath, $"{Name}-fields.txt");
+            UsersPath = Path.Combine(InfoPath, $"{Name}-users.txt");
+            StatsPath = Path.Combine(InfoPath, $"{Name}-stats.txt");
 
-            SavedTagsPath = Path.Combine(InfoPath, $"{Name}_savedtags.txt");
-            SavedTagsPathTemp = Path.Combine(InfoPath, $"{Name}_savedtagsnew.txt");
-            TagCountsPath = Path.Combine(InfoPath, $"{Name}_tagcounts.txt");
-            TagsetPath = Path.Combine(InfoPath, $"{Name}_tagset.txt");
-            SituationsPath = Path.Combine(InfoPath, $"{Name}_situations.txt");
-            ActiveDatesPath = Path.Combine(InfoPath, $"{Name}_activedates.txt");
-            OutputXmlFilePath = Path.Combine(InfoPath, $"{Name}_outputXml.xml");
-            OutputCsvFilePath = Path.Combine(InfoPath, $"{Name}_outputCsv.csv");
-            ExtractedDataPath = Path.Combine(InfoPath, $"{Name}_extractedData.txt");
+            SavedTagsPath = Path.Combine(InfoPath, $"{Name}-savedtags.txt");
+            SavedTagsPathTemp = Path.Combine(InfoPath, $"{Name}-savedtagsnew.txt");
+            TagCountsPath = Path.Combine(InfoPath, $"{Name}-tagcounts.txt");
+            TagsetPath = Path.Combine(InfoPath, $"{Name}-tagset.txt");
+            SituationsPath = Path.Combine(InfoPath, $"{Name}-situations.txt");
+            ActiveDatesPath = Path.Combine(InfoPath, $"{Name}-activedates.txt");
+            OutputXmlFilePath = Path.Combine(InfoPath, $"{Name}-outputXml.xml");
+            OutputCsvFilePath = Path.Combine(InfoPath, $"{Name}-outputCsv.csv");
+            ExtractedDataPath = Path.Combine(InfoPath, $"{Name}-extractedData.txt");
         }
 
         private static void SetKeys(string date, string sender, string text)
