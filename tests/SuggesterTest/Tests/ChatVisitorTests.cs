@@ -12,7 +12,7 @@ namespace SuggesterTest.Tests
     [TestClass]
     public class ChatVisitorTests : TestBase
     {
-        private void SortMsgGroupList(MsgGroupList list, bool sortGroups)
+        private static void SortMsgGroupList(MsgGroupList list, bool sortGroups)
         {
             if (sortGroups)
             {
@@ -23,7 +23,7 @@ namespace SuggesterTest.Tests
             list.Sort(new MsgGroupComparer());
         }
 
-        private void CheckCondition(string query, IEnumerable<int> expectedResult)
+        private static void CheckCondition(string query, IEnumerable<int> expectedResult)
         {
             var tree = QueryParser.GetTree(query);
             var condition = tree.body().restrictions().restriction(0).condition();
@@ -44,7 +44,7 @@ namespace SuggesterTest.Tests
             Assert.IsTrue(isCorrect);
         }
 
-        private void CheckRestriction(string query, IEnumerable<int> expectedResult)
+        private static void CheckRestriction(string query, IEnumerable<int> expectedResult)
         {
             var tree = QueryParser.GetTree(query);
             var restriction = tree.body().restrictions().restriction(0);
@@ -65,7 +65,7 @@ namespace SuggesterTest.Tests
             Assert.IsTrue(isCorrect);
         }
 
-        private void CheckRestrictions(string query, List<MsgGroupList> expectedResult)
+        private static void CheckRestrictions(string query, List<MsgGroupList> expectedResult)
         {
             var tree = QueryParser.GetTree(query);
             var restrictions = tree.body().restrictions();
@@ -94,7 +94,7 @@ namespace SuggesterTest.Tests
             }
         }
 
-        private void CheckRestrictionsWithUnr(string query, MsgGroupList expectedGroups)
+        private static void CheckRestrictionsWithUnr(string query, MsgGroupList expectedGroups)
         {
             var tree = QueryParser.GetTree(query);
             var restrictions = tree.body().restrictions();
@@ -128,7 +128,7 @@ namespace SuggesterTest.Tests
             }
         }
 
-        private void CheckMergedRestrictions(string query, int inwin, MsgGroupList expected)
+        private static void CheckMergedRestrictions(string query, int inwin, MsgGroupList expected)
         {
             var tree = QueryParser.GetTree(query);
             var restrictions = tree.body().restrictions();
@@ -150,14 +150,14 @@ namespace SuggesterTest.Tests
             }
         }
 
-        private void CheckMergedQueries(string query, int inwin, List<MsgGroupList> expected)
+        private static void CheckMergedQueries(string query, int inwin, List<MsgGroupList> expected)
         {
             var tree = QueryParser.GetTree(query);
             var query_seq = tree.body().query_seq();
             var visitor = new QueryContextVisitor();
 
             var visitResult = (List<List<MsgGroupList>>)visitor.VisitQuery_seq(query_seq);
-            List<MsgGroupList> mergeResult = visitor.MergeQueries(visitResult, inwin);
+            var mergeResult = visitor.MergeQueries(visitResult, inwin);
 
             Assert.IsNotNull(mergeResult);
             Assert.AreEqual(expected.Count, mergeResult.Count);
@@ -179,7 +179,7 @@ namespace SuggesterTest.Tests
         {
             string query = "select haswordofdict(fruit)";
 
-            List<MsgGroupList> expectedResult = new List<MsgGroupList>()
+            var expectedResult = new List<MsgGroupList>()
             {
                 new MsgGroupList()
                 {
@@ -195,7 +195,7 @@ namespace SuggesterTest.Tests
         {
             string query = "select haswordofdict(fruit), haswordofdict(vegetable)";
 
-            List<MsgGroupList> expectedResult = new List<MsgGroupList>()
+            var expectedResult = new List<MsgGroupList>()
             {
                 new MsgGroupList()
                 {
