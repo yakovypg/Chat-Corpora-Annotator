@@ -2,6 +2,7 @@
 using IndexEngine.Search;
 using Lucene.Net.Documents;
 using Lucene.Net.Search;
+using CoreNLPEngine.Extraction;
 
 namespace CoreNLPEngine.Search
 {
@@ -16,7 +17,7 @@ namespace CoreNLPEngine.Search
 
     public static class Retrievers
     {
-        public static Extraction.Extractor Extractor { get; set; } = new Extraction.Extractor();
+        public static Extractor Extractor { get; set; } = new Extractor();
 
         public static readonly Dictionary<string, HashSet<int>> Cache = new();
 
@@ -25,9 +26,12 @@ namespace CoreNLPEngine.Search
             if (Cache.ContainsKey(dictName))
                 return Cache[dictName];
 
+            if (LuceneService.Parser is null || LuceneService.Searcher is null)
+                return new HashSet<int>();
+
             string queryText = string.Join(' ', words);
             Query query = LuceneService.Parser.Parse(queryText);
-            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
+            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader?.MaxDoc ?? 0);
 
             HashSet<int> results = new(docs.ScoreDocs.Length);
 
@@ -40,9 +44,12 @@ namespace CoreNLPEngine.Search
 
         public static HashSet<int> HasWordOfList(List<string> words)
         {
+            if (LuceneService.Parser is null || LuceneService.Searcher is null)
+                return new HashSet<int>();
+
             string queryText = string.Join(' ', words);
             Query query = LuceneService.Parser.Parse(queryText);
-            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
+            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader?.MaxDoc ?? 0);
 
             HashSet<int> results = new(docs.ScoreDocs.Length);
 
@@ -54,16 +61,15 @@ namespace CoreNLPEngine.Search
 
         public static List<int> HasNERTag(NERLabels tag)
         {
-            switch (tag)
+            return tag switch
             {
-                case NERLabels.ORG: return Extractor.Organisations.Keys.ToList();
-                case NERLabels.LOC: return Extractor.Locations.Keys.ToList();
-                case NERLabels.TIME: return Extractor.Times.Keys.ToList();
-                case NERLabels.URL: return Extractor.URLs.Keys.ToList();
-                case NERLabels.DATE: return Extractor.Dates.Keys.ToList();
-
-                default: return new List<int>();
-            }
+                NERLabels.ORG => Extractor.Organisations.Keys.ToList(),
+                NERLabels.LOC => Extractor.Locations.Keys.ToList(),
+                NERLabels.TIME => Extractor.Times.Keys.ToList(),
+                NERLabels.URL => Extractor.URLs.Keys.ToList(),
+                NERLabels.DATE => Extractor.Dates.Keys.ToList(),
+                _ => new List<int>(),
+            };
         }
 
         public static List<int> HasQuestion()
@@ -73,18 +79,23 @@ namespace CoreNLPEngine.Search
 
         public static HashSet<int> HasUser(string user)
         {
-            HashSet<int> results = new HashSet<int>();
-            TermQuery query = new TermQuery(new Lucene.Net.Index.Term(ProjectInfo.SenderFieldKey, user));
+            if (LuceneService.Searcher is null)
+                return new HashSet<int>();
 
-            BooleanQuery boolquery = new BooleanQuery();
-            boolquery.Add(query, Occur.MUST);
+            var results = new HashSet<int>();
+            var query = new TermQuery(new Lucene.Net.Index.Term(ProjectInfo.SenderFieldKey, user));
 
-            TopDocs docs = LuceneService.Searcher.Search(boolquery, LuceneService.DirReader.MaxDoc);
+            var boolquery = new BooleanQuery
+            {
+                { query, Occur.MUST }
+            };
+
+            TopDocs docs = LuceneService.Searcher.Search(boolquery, LuceneService.DirReader?.MaxDoc ?? 0);
 
             foreach (var doc in docs.ScoreDocs)
             {
                 Document idoc = LuceneService.Searcher.IndexReader.Document(doc.Doc);
-                results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
+                results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value() ?? -1);
             }
 
             return results;
@@ -92,14 +103,18 @@ namespace CoreNLPEngine.Search
 
         public static HashSet<int> HasUserMentioned(string user)
         {
-            HashSet<int> results = new HashSet<int>();
+            if (LuceneService.Parser is null || LuceneService.Searcher is null)
+                return new HashSet<int>();
+
+            var results = new HashSet<int>();
+
             Query query = LuceneService.Parser.Parse(user);
-            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader.MaxDoc);
+            TopDocs docs = LuceneService.Searcher.Search(query, LuceneService.DirReader?.MaxDoc ?? 0);
 
             foreach (var doc in docs.ScoreDocs)
             {
                 Document idoc = LuceneService.Searcher.IndexReader.Document(doc.Doc);
-                results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value().Value);
+                results.Add(idoc.GetField(ProjectInfo.IdKey).GetInt32Value() ?? -1);
             }
 
             return results;

@@ -130,7 +130,7 @@ namespace CoreNLPEngine.Extraction
             var coreNLPClient = CreateCoreNLPClient();
             var docSaver = new AnnotatedDocumentSaver();
 
-            for (int i = 0; i < LuceneService.DirReader.MaxDoc; i++)
+            for (int i = 0; i < LuceneService.DirReader.MaxDoc; ++i)
             {
                 if (_stopExtraction)
                 {
@@ -156,8 +156,8 @@ namespace CoreNLPEngine.Extraction
                 UpdateProgress(i + 1);
             }
 
-            var res = KeywordRanker.GetKeywords(SelectedWords);
-            Console.Write(res);
+            var keywords = KeywordRanker.GetKeywords(SelectedWords);
+            Console.Write(keywords);
 
             coreNLPClient.Dispose();
             docSaver.Dispose();
@@ -212,8 +212,11 @@ namespace CoreNLPEngine.Extraction
             return success;
         }
 
-        private void ExtractDataFromDocument(Document annDoc, int msgId)
+        private void ExtractDataFromDocument(Document? annDoc, int msgId)
         {
+            if (annDoc is null)
+                return;
+
             List<string> keyPhrases = ExtractKeyPhrases(annDoc);
             NounPhrases.Add(msgId, keyPhrases);
 
