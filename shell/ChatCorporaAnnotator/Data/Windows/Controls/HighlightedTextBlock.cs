@@ -14,7 +14,7 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
     {
         #region TextProperties
 
-        public string Text
+        public string? Text
         {
             get => GetValue(TextProperty) as string;
             set => SetValue(TextProperty, value);
@@ -26,7 +26,7 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
             set => SetValue(TextWrappingProperty, value);
         }
 
-        public Style TextStyle
+        public Style? TextStyle
         {
             get => GetValue(TextStyleProperty) as Style;
             set => SetValue(TextStyleProperty, value);
@@ -42,13 +42,13 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
             set => SetValue(IgnoreCaseProperty, value);
         }
 
-        public string HighlightedText
+        public string? HighlightedText
         {
             get => GetValue(HighlightedTextProperty) as string;
             set => SetValue(HighlightedTextProperty, value);
         }
 
-        public Brush HighlightBrush
+        public Brush? HighlightBrush
         {
             get => GetValue(HighlightBrushProperty) as Brush;
             set => SetValue(HighlightBrushProperty, value);
@@ -91,7 +91,7 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
         {
             base.OnApplyTemplate();
 
-            if (!(GetTemplateChild("PART_Content") is TextBlock textBlock))
+            if (GetTemplateChild("PART_Content") is not TextBlock textBlock)
                 return;
 
             textBlock.Padding = Padding;
@@ -105,8 +105,8 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
 
             textBlock.Inlines.Clear();
 
-            string text = Text;
-            string highlightedText = HighlightedText;
+            string text = Text ?? string.Empty;
+            string highlightedText = HighlightedText ?? string.Empty;
 
             if (IgnoreCase)
             {
@@ -127,13 +127,13 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
             {
                 if (currTextPos < highlightedTextStartPos)
                 {
-                    string firstBlockText = Text.Substring(currTextPos, highlightedTextStartPos - currTextPos);
+                    string? firstBlockText = Text?[currTextPos..highlightedTextStartPos];
                     var firstBlock = new Run(firstBlockText);
 
                     textBlock.Inlines.Add(firstBlock);
                 }
 
-                string blockText = Text.Substring(highlightedTextStartPos, highlightedText.Length);
+                string? blockText = Text?.Substring(highlightedTextStartPos, highlightedText.Length);
                 var block = new Run(blockText) { Background = HighlightBrush };
 
                 textBlock.Inlines.Add(block);
@@ -142,7 +142,7 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
 
             if (currTextPos < text.Length - 1)
             {
-                string remainingBlockText = Text.Substring(currTextPos);
+                string? remainingBlockText = Text?[currTextPos..];
                 var remainingBlock = new Run(remainingBlockText);
 
                 textBlock.Inlines.Add(remainingBlock);
@@ -162,7 +162,7 @@ namespace ChatCorporaAnnotator.Data.Windows.Controls
             var control = obj as HighlightedTextBlock;
 
             if (obj != null)
-                control.OnPropertyChanged(e.Property);
+                control?.OnPropertyChanged(e.Property);
         }
     }
 }

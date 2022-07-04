@@ -9,7 +9,7 @@ namespace ChatCorporaAnnotator.Controlling.Timers
 
         public MemoryCleaninigTimer(int interval = DEFAULT_INTERVAL, DispatcherPriority priority = DispatcherPriority.Background) : base(interval, priority)
         {
-            _timer.Tick += (object sender, EventArgs e) => CleanMemory();
+            _timer.Tick += (object? sender, EventArgs e) => CleanMemory();
         }
 
         public virtual void CleanNow()

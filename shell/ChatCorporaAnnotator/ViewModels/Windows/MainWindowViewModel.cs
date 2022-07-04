@@ -39,7 +39,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
         private TagsetEditorWindow? _tagsetEditorWindow;
         private SuggesterWindow? _suggesterWindow;
 
-        private CsvExportService _csvExportService;
+        private CsvExportService? _csvExportService;
 
         public SavingTimer ProjectStateSavingTimer { get; }
         public MemoryCleaninigTimer MemoryCleaninigTimer { get; }
@@ -491,7 +491,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
             }
 
-            if (!DialogProvider.GetCsvFilePath(out string path))
+            if (!DialogProvider.GetCsvFilePath(out string? path))
                 return;
 
             IndexFileWindowViewModel indexFileWindowVM;
@@ -659,11 +659,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanMainWindowLoadedCommandExecute(parameter))
                 return;
 
-            var window = new WindowFinder().Find(typeof(MainWindow));
+            var window = WindowFinder.Find(typeof(MainWindow));
             var chatDataGrid = UIHelper.FindChildren<DataGrid>(window).FirstOrDefault(t => t.Name == "ChatDataGrid");
             var scrollViewer = UIHelper.FindChildren<ScrollViewer>(chatDataGrid).FirstOrDefault();
 
-            scrollViewer.ScrollChanged += ChatVM.Scroller.ScrollChanged;
+            if (scrollViewer != null)
+                scrollViewer.ScrollChanged += ChatVM.Scroller.ScrollChanged;
         }
 
         public ICommand MainWindowClosingCommand { get; }
@@ -676,7 +677,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanMainWindowClosingCommandExecute(parameter))
                 return;
 
-            var args = parameter as CancelEventArgs;
+            var args = parameter as CancelEventArgs ?? new CancelEventArgs();
 
             if (IsProjectChanged)
             {

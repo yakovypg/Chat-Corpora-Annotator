@@ -7,7 +7,7 @@ using System.Windows.Controls;
 
 namespace ChatCorporaAnnotator.Data.Windows.UI
 {
-    internal class SelectedItemsOrganizer
+    internal static class SelectedItemsOrganizer
     {
         /// <summary>
         /// Changes the collection of selected items. 
@@ -17,7 +17,7 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
         /// <param name="e">The source event args.</param>
         /// <param name="ignoreItemsPredicate">The predicate that removes some elements from the list of added elements (e.AddedItems).</param>
         /// <remarks>The type of removed and added items must match with T (e.RemovedItems and e.AddedItems).</remarks>
-        public void ChangeSelectedItems<T>(IList<T> source, SelectionChangedEventArgs e, Predicate<T> ignoreItemsPredicate = null)
+        public static void ChangeSelectedItems<T>(IList<T>? source, SelectionChangedEventArgs? e, Predicate<T>? ignoreItemsPredicate = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -45,23 +45,23 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
             }
         }
 
-        public void InvertAddedItemsSelection<T>(SelectionChangedEventArgs e) where T : ISelectable
+        public static void InvertAddedItemsSelection<T>(SelectionChangedEventArgs? e) where T : ISelectable
         {
             InvertItemsSelection<T>(e?.AddedItems);
         }
 
-        public void InvertRemovedItemsSelection<T>(SelectionChangedEventArgs e) where T : ISelectable
+        public static void InvertRemovedItemsSelection<T>(SelectionChangedEventArgs? e) where T : ISelectable
         {
             InvertItemsSelection<T>(e?.RemovedItems);
         }
 
-        public void InvertItemsSelection<T>(SelectionChangedEventArgs e) where T : ISelectable
+        public static void InvertItemsSelection<T>(SelectionChangedEventArgs? e) where T : ISelectable
         {
             InvertAddedItemsSelection<T>(e);
             InvertRemovedItemsSelection<T>(e);
         }
 
-        public void InvertItemsSelection<T>(IEnumerable items) where T : ISelectable
+        public static void InvertItemsSelection<T>(IEnumerable? items) where T : ISelectable
         {
             if (items == null)
                 return;
@@ -73,13 +73,13 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
             }
         }
 
-        public void ChangeItemsSelection<T>(SelectionChangedEventArgs e) where T : ISelectable
+        public static void ChangeItemsSelection<T>(SelectionChangedEventArgs? e) where T : ISelectable
         {
             SelectAddedItems<T>(e);
             DeselectRemovedItems<T>(e);
         }
 
-        public void SelectAddedItems<T>(SelectionChangedEventArgs e) where T : ISelectable
+        public static void SelectAddedItems<T>(SelectionChangedEventArgs? e) where T : ISelectable
         {
             if (e == null)
                 return;
@@ -93,7 +93,7 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
             }
         }
 
-        public void DeselectRemovedItems<T>(SelectionChangedEventArgs e) where T : ISelectable
+        public static void DeselectRemovedItems<T>(SelectionChangedEventArgs? e) where T : ISelectable
         {
             if (e == null)
                 return;
@@ -107,8 +107,11 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
             }
         }
 
-        public void SelectAll<T>(IEnumerable<T> items) where T : ISelectable
+        public static void SelectAll<T>(IEnumerable<T>? items) where T : ISelectable
         {
+            if (items == null)
+                return;
+
             foreach (var item in items)
             {
                 if (!item.IsSelected)
@@ -116,8 +119,11 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
             }
         }
 
-        public void DeselectAll<T>(IEnumerable<T> items) where T : ISelectable
+        public static void DeselectAll<T>(IEnumerable<T>? items) where T : ISelectable
         {
+            if (items == null)
+                return;
+
             foreach (var item in items)
             {
                 if (item.IsSelected)

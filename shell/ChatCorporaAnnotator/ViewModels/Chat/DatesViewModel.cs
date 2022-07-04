@@ -43,8 +43,8 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
 
             IsAvtiveDatesLoadingInProgress = true;
 
-            var window = new WindowFinder().Find(typeof(Views.Windows.MainWindow));
-            _ = SetActiveDatesAsync(window.Dispatcher);
+            var window = WindowFinder.Find(typeof(Views.Windows.MainWindow));
+            _ = SetActiveDatesAsync(window?.Dispatcher);
         }
 
         #endregion
@@ -95,20 +95,20 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             OnPropertyChanged(nameof(ActiveDates));
         }
 
-        private IEnumerable<MessageDate> ToMessageDates(IEnumerable<ActiveDate> activeDates)
+        private static IEnumerable<MessageDate> ToMessageDates(IEnumerable<ActiveDate> activeDates)
         {
             var dateSet = new HashSet<MessageDate>();
 
             foreach (var activeDate in activeDates)
             {
-                MessageDate date = new MessageDate(activeDate);
+                var date = new MessageDate(activeDate);
                 dateSet.Add(date);
             }
 
             return dateSet;
         }
 
-        private async Task SetActiveDatesAsync(Dispatcher dispatcher)
+        private async Task SetActiveDatesAsync(Dispatcher? dispatcher)
         {
             await Task.Run(delegate
             {

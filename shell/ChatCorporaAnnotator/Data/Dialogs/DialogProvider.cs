@@ -5,7 +5,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
 {
     internal static class DialogProvider
     {
-        public static bool GetCcaFilePath(out string path)
+        public static bool GetCcaFilePath(out string? path)
         {
             int filterIndex = 0;
             string title = "Open cca file";
@@ -14,7 +14,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
-        public static bool GetCsvFilePath(out string path)
+        public static bool GetCsvFilePath(out string? path)
         {
             int filterIndex = 0;
             string title = "Open a separated-value file";
@@ -23,7 +23,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
-        public static bool GetXmlFilePath(out string path)
+        public static bool GetXmlFilePath(out string? path)
         {
             int filterIndex = 0;
             string title = "Open xml file";
@@ -32,7 +32,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
-        public static bool GetQueriesFilePath(out string path)
+        public static bool GetQueriesFilePath(out string? path)
         {
             int filterIndex = 0;
             string title = "Open queries file";
@@ -41,7 +41,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
-        public static bool GetUserDictFilePath(out string path)
+        public static bool GetUserDictFilePath(out string? path)
         {
             int filterIndex = 0;
             string title = "Open dictionary file";
@@ -50,7 +50,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return GetFilePath(out path, title, filter, filterIndex);
         }
 
-        public static bool SaveUserDictFile(out string path)
+        public static bool SaveUserDictFile(out string? path)
         {
             int filterIndex = 0;
             string title = "Save dictionary file";
@@ -59,7 +59,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return SaveFile(out path, title, filter, filterIndex);
         }
 
-        public static bool GetFilePath(out string path, string title = null, string filter = null, int filterIndex = 0)
+        public static bool GetFilePath(out string? path, string? title = null, string? filter = null, int filterIndex = 0)
         {
             var openFileDialog = new OpenFileDialog()
             {
@@ -83,7 +83,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return false;
         }
 
-        public static bool SaveFile(out string path, string title = null, string filter = null, int filterIndex = 0)
+        public static bool SaveFile(out string? path, string? title = null, string? filter = null, int filterIndex = 0)
         {
             var saveFileDialog = new SaveFileDialog()
             {
@@ -107,7 +107,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
             return false;
         }
 
-        public static bool GetFolderPath(out string path)
+        public static bool GetFolderPath(out string? path)
         {
             var folderBrowserDialog = new FolderBrowserDialog();
 
@@ -123,7 +123,7 @@ namespace ChatCorporaAnnotator.Data.Dialogs
 
         public static bool GetColor(out Color color, Color startColor)
         {
-            ColorDialog colorDialog = new ColorDialog()
+            var colorDialog = new ColorDialog()
             {
                 AnyColor = true,
                 FullOpen = true,

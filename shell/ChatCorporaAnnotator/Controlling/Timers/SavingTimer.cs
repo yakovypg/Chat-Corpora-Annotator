@@ -14,16 +14,16 @@ namespace ChatCorporaAnnotator.Controlling.Timers
         private const int DEFAULT_INTERVAL = 60 * 1;
 
         public delegate void TickHandler();
-        public event TickHandler Tick;
+        public event TickHandler? Tick;
 
         public delegate void SuccessfulIterationHandler();
-        public event SuccessfulIterationHandler SuccessfulIteration;
+        public event SuccessfulIterationHandler? SuccessfulIteration;
 
         public delegate void FailedIterationHandler(Exception ex);
-        public event FailedIterationHandler FailedIteration;
+        public event FailedIterationHandler? FailedIteration;
 
         public delegate void SavingStateChangedHandler(ProjectSavingStateEventArgs e);
-        public event SavingStateChangedHandler SavingStateChanged;
+        public event SavingStateChangedHandler? SavingStateChanged;
 
         public bool MakeDelay { get; set; } = true;
         public bool ChangeSavingStateAfterSuccessfulIteration { get; set; } = true;
@@ -46,7 +46,7 @@ namespace ChatCorporaAnnotator.Controlling.Timers
 
         public SavingTimer(int interval = DEFAULT_INTERVAL, DispatcherPriority priority = DispatcherPriority.Background) : base(interval, priority)
         {
-            _timer.Tick += (object sender, EventArgs e) => _ = SaveAsync();
+            _timer.Tick += (object? sender, EventArgs e) => _ = SaveAsync();
         }
 
         public Task SaveNow()

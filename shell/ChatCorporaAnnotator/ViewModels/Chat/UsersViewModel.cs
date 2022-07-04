@@ -79,8 +79,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanSelectAllUsersCommandExecute(parameter))
                 return;
 
-            var selectedItemsOrganizer = new SelectedItemsOrganizer();
-            selectedItemsOrganizer.SelectAll(Users);
+            SelectedItemsOrganizer.SelectAll(Users);
         }
 
         public ICommand DeselectAllUsersCommand { get; }
@@ -93,8 +92,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
             if (!CanDeselectAllUsersCommandExecute(parameter))
                 return;
 
-            var selectedItemsOrganizer = new SelectedItemsOrganizer();
-            selectedItemsOrganizer.DeselectAll(Users);
+            SelectedItemsOrganizer.DeselectAll(Users);
         }
 
         public ICommand ChangeSelectedUsersCommand { get; }
@@ -108,9 +106,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             var eventArgs = parameter as SelectionChangedEventArgs;
-            var selectedItemOrganizer = new SelectedItemsOrganizer();
-
-            selectedItemOrganizer.InvertAddedItemsSelection<ChatUser>(eventArgs);
+            SelectedItemsOrganizer.InvertAddedItemsSelection<ChatUser>(eventArgs);
         }
 
         #endregion

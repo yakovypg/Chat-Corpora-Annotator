@@ -70,13 +70,13 @@ namespace ChatCorporaAnnotator.Data.Indexing
             IEnumerable<DynamicMessage> messages = MessageContainer.Messages;
 
             return messages.IsNullOrEmpty()
-                ? new ChatMessage[0]
+                ? System.Array.Empty<ChatMessage>()
                 : messages.Select(t => new ChatMessage(t));
         }
 
         public static IEnumerable<ChatMessage> GetAllTaggedMessages()
         {
-            List<DynamicMessage> messages = new List<DynamicMessage>();
+            var messages = new List<DynamicMessage>();
 
             var indexItems = SituationIndex.GetInstance().InvertedIndex.Where(t => t.Value.Count > 0);
             var taggedMsgIds = indexItems.Select(t => t.Key).ToArray();
@@ -94,8 +94,8 @@ namespace ChatCorporaAnnotator.Data.Indexing
 
         public static IEnumerable<ChatMessage> GetMessagesByTag(string tagHeader)
         {
-            List<int> msgIds = new List<int>();
-            List<DynamicMessage> messages = new List<DynamicMessage>();
+            var msgIds = new List<int>();
+            var messages = new List<DynamicMessage>();
 
             var index = SituationIndex.GetInstance().IndexCollection;
 
@@ -125,7 +125,7 @@ namespace ChatCorporaAnnotator.Data.Indexing
 
         public static IEnumerable<ChatMessage> GetMessagesBySituation(Situation situation)
         {
-            List<DynamicMessage> messages = new List<DynamicMessage>();
+            var messages = new List<DynamicMessage>();
 
             int sitId = situation.Id;
             string sitTag = situation.Header;

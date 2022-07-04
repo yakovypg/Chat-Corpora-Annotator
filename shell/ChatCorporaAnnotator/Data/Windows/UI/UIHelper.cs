@@ -6,14 +6,14 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
 {
     internal static class UIHelper
     {
-        public static IList<T> FindChildren<T>(DependencyObject element) where T : FrameworkElement
+        public static IList<T> FindChildren<T>(DependencyObject? element) where T : FrameworkElement
         {
             var children = new List<T>();
             int childrenCount = VisualTreeHelper.GetChildrenCount(element);
 
             for (int i = 0; i < childrenCount; ++i)
             {
-                if (!(VisualTreeHelper.GetChild(element, i) is FrameworkElement child))
+                if (VisualTreeHelper.GetChild(element, i) is not FrameworkElement child)
                     continue;
 
                 if (child is T correctlyTyped)
@@ -25,7 +25,7 @@ namespace ChatCorporaAnnotator.Data.Windows.UI
             return children;
         }
 
-        public static T FindParent<T>(DependencyObject element) where T : FrameworkElement
+        public static T? FindParent<T>(DependencyObject? element) where T : FrameworkElement
         {
             var parent = VisualTreeHelper.GetParent(element) as FrameworkElement;
 

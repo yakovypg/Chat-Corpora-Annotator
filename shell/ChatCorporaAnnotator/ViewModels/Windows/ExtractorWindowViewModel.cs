@@ -194,7 +194,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanSetCoreNLPPathCommandExecute(parameter))
                 return;
 
-            if (!DialogProvider.GetFolderPath(out string path) || string.IsNullOrEmpty(path))
+            if (!DialogProvider.GetFolderPath(out string? path) || string.IsNullOrEmpty(path))
                 return;
 
             CoreNLPPath = path;
@@ -358,17 +358,17 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             _extractor = new Extractor() { ProgressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL };
             _extractor.Config.LoadConfigFromDisk(false);
 
-            var mainWindowDispatcher = new WindowFinder().Find(typeof(MainWindow)).Dispatcher;
+            var mainWindowDispatcher = WindowFinder.Find(typeof(MainWindow))?.Dispatcher;
 
             _extractor.ProgressChanged += (delta, currValue) =>
             {
-                mainWindowDispatcher.Invoke(() => ProgressBarCurrentValue = currValue);
+                mainWindowDispatcher?.Invoke(() => ProgressBarCurrentValue = currValue);
             };
             _extractor.FailedExtraction += () =>
             {
                 IsExtractionActive = false;
 
-                mainWindowDispatcher.Invoke(() =>
+                mainWindowDispatcher?.Invoke(() =>
                     new QuickMessage("Extraction was failed.").ShowInformation()
                 );
             };
@@ -377,7 +377,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 IsExtractionActive = false;
                 Retrievers.Extractor = _extractor;
 
-                mainWindowDispatcher.Invoke(() =>
+                mainWindowDispatcher?.Invoke(() =>
                     new QuickMessage("Extraction was successful.").ShowInformation()
                 );
             };

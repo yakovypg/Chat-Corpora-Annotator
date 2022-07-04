@@ -29,9 +29,7 @@ namespace ChatCorporaAnnotator.ViewModels.Chat
                 return;
 
             var eventArgs = parameter as SelectionChangedEventArgs;
-            var selectedItemsOrganizer = new SelectedItemsOrganizer();
-
-            selectedItemsOrganizer.ChangeSelectedItems(SelectedMessages, eventArgs, t => t.IsFake);
+            SelectedItemsOrganizer.ChangeSelectedItems(SelectedMessages, eventArgs, t => t.IsFake);
         }
 
         #endregion

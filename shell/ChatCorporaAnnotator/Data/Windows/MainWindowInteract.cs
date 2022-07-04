@@ -14,7 +14,7 @@ namespace ChatCorporaAnnotator.Data.Windows
 
         public MainWindowInteract()
         {
-            var window = new WindowFinder().Find(typeof(MainWindow)) as MainWindow;
+            var window = WindowFinder.Find(typeof(MainWindow)) as MainWindow;
             _mainWindow = window ?? throw new Exception("MainWindow not found.");
         }
 

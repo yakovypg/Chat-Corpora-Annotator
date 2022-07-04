@@ -16,7 +16,7 @@ namespace ChatCorporaAnnotator.Services.Csv
                 : new FileColumn[0];
         }
 
-        public bool TryGetColumns(string path, string delimiter, out FileColumn[] columns)
+        public bool TryGetColumns(string path, string delimiter, out FileColumn[]? columns)
         {
             try
             {

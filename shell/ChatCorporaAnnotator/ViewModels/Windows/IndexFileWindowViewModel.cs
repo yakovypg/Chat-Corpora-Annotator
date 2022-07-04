@@ -36,13 +36,13 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         private readonly IProject _project;
         private IPageSwitcher _pageSwitcher;
-        private DispatcherTimer _waitPageTimer;
+        private DispatcherTimer? _waitPageTimer;
 
         private bool _isFileReaded = false;
         private OperationState _fileProcessingResult = OperationState.InProcess;
 
-        public Action<IProject> FinishAction { get; set; }
-        public Action DeactivateAction { get; set; }
+        public Action<IProject>? FinishAction { get; set; }
+        public Action? DeactivateAction { get; set; }
 
         public ObservableCollection<FileColumn> FileColumns { get; private set; }
         public ObservableCollection<FileColumn> SelectedFileColumns { get; private set; }
@@ -78,29 +78,29 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #region SelectedItems
 
-        private Delimiter _selectedDelimiter;
-        public Delimiter SelectedDelimiter
+        private Delimiter? _selectedDelimiter;
+        public Delimiter? SelectedDelimiter
         {
             get => _selectedDelimiter;
             set => SetValue(ref _selectedDelimiter, value);
         }
 
-        private FileColumn _selectedDateColumn;
-        public FileColumn SelectedDateColumn
+        private FileColumn? _selectedDateColumn;
+        public FileColumn? SelectedDateColumn
         {
             get => _selectedDateColumn;
             set => SetValue(ref _selectedDateColumn, value);
         }
 
-        private FileColumn _selectedSenderColumn;
-        public FileColumn SelectedSenderColumn
+        private FileColumn? _selectedSenderColumn;
+        public FileColumn? SelectedSenderColumn
         {
             get => _selectedSenderColumn;
             set => SetValue(ref _selectedSenderColumn, value);
         }
 
-        private FileColumn _selectedTextColumn;
-        public FileColumn SelectedTextColumn
+        private FileColumn? _selectedTextColumn;
+        public FileColumn? SelectedTextColumn
         {
             get => _selectedTextColumn;
             set => SetValue(ref _selectedTextColumn, value);
@@ -267,8 +267,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanCheckAllColumnsCommandExecute(parameter))
                 return;
 
-            var selectedItemsOrganizer = new SelectedItemsOrganizer();
-            selectedItemsOrganizer.SelectAll(FileColumns);
+            SelectedItemsOrganizer.SelectAll(FileColumns);
         }
 
         public ICommand UncheckAllColumnsCommand { get; }
@@ -281,8 +280,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanUncheckAllColumnsCommandExecute(parameter))
                 return;
 
-            var selectedItemsOrganizer = new SelectedItemsOrganizer();
-            selectedItemsOrganizer.DeselectAll(FileColumns);
+            SelectedItemsOrganizer.DeselectAll(FileColumns);
         }
 
         public ICommand ChangeSelectedColumnsCommand { get; }
@@ -296,9 +294,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
 
             var eventArgs = parameter as SelectionChangedEventArgs;
-            var selectedItemOrganizer = new SelectedItemsOrganizer();
-
-            selectedItemOrganizer.SelectAddedItems<FileColumn>(eventArgs);
+            SelectedItemsOrganizer.SelectAddedItems<FileColumn>(eventArgs);
         }
 
         #endregion
@@ -315,7 +311,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             if (!CanCloseWindowCommandExecute(parameter))
                 return;
 
-            if (new WindowFinder().Find(typeof(IndexFileWindow)) is IndexFileWindow indexFileWindow)
+            if (WindowFinder.Find(typeof(IndexFileWindow)) is IndexFileWindow indexFileWindow)
                 indexFileWindow.Close();
         }
 
@@ -351,7 +347,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
         #endregion
 
-        public IndexFileWindowViewModel(MainWindowViewModel mainWindowVM, string filePath)
+        public IndexFileWindowViewModel(MainWindowViewModel mainWindowVM, string? filePath)
         {
             _mainWindowVM = mainWindowVM ?? throw new ArgumentNullException(nameof(mainWindowVM));
 
@@ -484,11 +480,11 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 var columnReader = new CsvColumnReadService();
 
                 string filePath = _project.CsvFilePath;
-                string delimiter = SelectedDelimiter.Source;
+                string? delimiter = SelectedDelimiter?.Source ?? string.Empty;
 
-                _isFileReaded = columnReader.TryGetColumns(filePath, delimiter, out FileColumn[] columns);
+                _isFileReaded = columnReader.TryGetColumns(filePath, delimiter, out FileColumn[]? columns);
 
-                if (_isFileReaded)
+                if (_isFileReaded && columns != null)
                 {
                     FileColumns = new ObservableCollection<FileColumn>(columns);
                     OnPropertyChanged(nameof(FileColumns));
@@ -512,7 +508,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 IndexFile();
             });
 
-            _waitPageTimer.Start();
+            _waitPageTimer?.Start();
             ProjectInteraction.ProjectInfo = _project.GetInfo();
 
             return EventArgs.Empty;
@@ -523,9 +519,9 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             string filePath = _project.CsvFilePath;
             string projectFilePath = _project.ConfigFilePath;
 
-            string dateColumn = SelectedDateColumn.Header;
-            string senderColumn = SelectedSenderColumn.Header;
-            string textColumn = SelectedTextColumn.Header;
+            string? dateColumn = SelectedDateColumn?.Header;
+            string? senderColumn = SelectedSenderColumn?.Header;
+            string? textColumn = SelectedTextColumn?.Header;
 
             var columns = FileColumns.Select(t => t.Header).ToArray();
             var selectedColumns = SelectedFileColumns.Select(t => t.Header).ToList();
