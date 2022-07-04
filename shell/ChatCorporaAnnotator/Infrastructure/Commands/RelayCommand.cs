@@ -14,12 +14,12 @@ namespace ChatCorporaAnnotator.Infrastructure.Commands
             _canExecute = canExecute;
         }
 
-        public override bool CanExecute(object parameter)
+        public override bool CanExecute(object? parameter)
         {
             return _canExecute?.Invoke(parameter) ?? true;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
             _execute(parameter);
         }

@@ -7,7 +7,7 @@ namespace ChatCorporaAnnotator.Infrastructure.AppEventArgs
         public int MessagesCount { get; }
 
         public string Query { get; }
-        public string[] Users { get; }
+        public string[]? Users { get; }
 
         public DateTime StartDate { get; }
         public DateTime EndDate { get; }
@@ -15,7 +15,7 @@ namespace ChatCorporaAnnotator.Infrastructure.AppEventArgs
         public bool FilteredByDate { get; }
         public bool FilteredByUser { get; }
 
-        public LuceneQueryEventArgs(string query, int messagesCount = 0, string[] users = null, DateTime[] dates = null)
+        public LuceneQueryEventArgs(string query, int messagesCount = 0, string[]? users = null, DateTime[]? dates = null)
         {
             MessagesCount = messagesCount;
 

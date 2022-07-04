@@ -6,19 +6,19 @@ namespace ChatCorporaAnnotator.Infrastructure.Commands
 {
     internal class CloseWindowCommand : Command
     {
-        private readonly Action _lastAction;
+        private readonly Action? _lastAction;
 
-        public CloseWindowCommand(Action lastAction = null)
+        public CloseWindowCommand(Action? lastAction = null)
         {
             _lastAction = lastAction;
         }
 
-        public override bool CanExecute(object parameter)
+        public override bool CanExecute(object? parameter)
         {
             return parameter is Window;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
             if (!CanExecute(parameter))
                 return;

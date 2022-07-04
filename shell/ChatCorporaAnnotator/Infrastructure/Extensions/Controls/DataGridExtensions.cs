@@ -30,7 +30,7 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions.Controls
 
         public static ScrollViewer GetScrollViewer(this DataGrid dataGrid)
         {
-            return UIHelper.FindChildren<ScrollViewer>(dataGrid).FirstOrDefault();
+            return UIHelper.FindChildren<ScrollViewer>(dataGrid).First();
         }
 
         public static void AddScrollChangedEvent(this DataGrid dataGrid, ScrollChangedEventHandler scrollEvent)

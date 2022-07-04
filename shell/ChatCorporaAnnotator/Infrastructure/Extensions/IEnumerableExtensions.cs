@@ -7,24 +7,24 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions
 {
     internal static class IEnumerableExtensions
     {
-        public static bool IsNullOrEmpty<T>(this IEnumerable<T> items)
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T>? items)
         {
-            return items is null || items.Count() == 0;
+            return items is null || !items.Any();
         }
 
-        public static IEnumerable<string> ToStringEnumerable<T>(this IEnumerable<T> items)
+        public static IEnumerable<string?>? ToStringEnumerable<T>(this IEnumerable<T>? items)
         {
-            return items?.Select(t => t.ToString());
+            return items?.Select(t => t?.ToString());
         }
 
-        public static IEnumerable<string> ToStringEnumerable<T>(this IEnumerable<T> items, Func<T, string> converter)
+        public static IEnumerable<string?>? ToStringEnumerable<T>(this IEnumerable<T> items, Func<T, string> converter)
         {
             return items?.Select(t => converter(t));
         }
 
         public static List<T> ToGenericList<T>(this IEnumerable items)
         {
-            List<T> outputList = new List<T>();
+            var outputList = new List<T>();
 
             if (items == null)
                 return outputList;
@@ -53,7 +53,7 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions
         {
             return !items.IsNullOrEmpty()
                 ? GetPermutations(items, items.Count())
-                : new T[0][];
+                : Array.Empty<T[]>();
         }
 
         private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> items, int length)

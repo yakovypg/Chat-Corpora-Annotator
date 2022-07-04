@@ -13,14 +13,14 @@ namespace ChatCorporaAnnotator.Infrastructure.Behaviors.Static
             typeof(DataGridColumnsBehavior),
             new UIPropertyMetadata(null, BindableColumnsPropertyChanged));
 
-        private static DataGrid _source;
+        private static DataGrid? _source;
 
         private static void BindableColumnsPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            if (!(source is DataGrid dataGrid))
+            if (source is not DataGrid dataGrid)
                 return;
 
-            if (!(e.NewValue is ObservableCollection<DataGridColumn> columns))
+            if (e.NewValue is not ObservableCollection<DataGridColumn> columns)
                 return;
 
             _source = dataGrid;
@@ -34,12 +34,12 @@ namespace ChatCorporaAnnotator.Infrastructure.Behaviors.Static
             element.SetValue(BindableColumnsProperty, value);
         }
 
-        public static ObservableCollection<DataGridColumn> GetBindableColumns(DependencyObject element)
+        public static ObservableCollection<DataGridColumn>? GetBindableColumns(DependencyObject element)
         {
             return element.GetValue(BindableColumnsProperty) as ObservableCollection<DataGridColumn>;
         }
 
-        private static void ChangeCollection(object sender, NotifyCollectionChangedEventArgs e)
+        private static void ChangeCollection(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (_source == null)
                 return;
@@ -63,43 +63,44 @@ namespace ChatCorporaAnnotator.Infrastructure.Behaviors.Static
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
-                    ReplaceColumn(e.NewStartingIndex, e.NewItems[0] as DataGridColumn);
+                    ReplaceColumn(e.NewStartingIndex, e.NewItems?[0] as DataGridColumn);
                     break;
             }
         }
 
-        private static void AddColumns(IList columns)
+        private static void AddColumns(IList? columns)
         {
             if (columns == null)
                 return;
 
             foreach (DataGridColumn column in columns)
-                _source.Columns.Add(column);
+                _source?.Columns.Add(column);
         }
 
-        private static void RemoveColumns(IList columns)
+        private static void RemoveColumns(IList? columns)
         {
             if (columns == null)
                 return;
 
             foreach (DataGridColumn column in columns)
-                _source.Columns.Remove(column);
+                _source?.Columns.Remove(column);
         }
 
-        private static void ResetColumns(IList columns)
+        private static void ResetColumns(IList? columns)
         {
-            _source.Columns.Clear();
+            _source?.Columns.Clear();
             AddColumns(columns);
         }
 
         private static void MoveColumn(int oldIndex, int newIndex)
         {
-            _source.Columns.Move(oldIndex, newIndex);
+            _source?.Columns.Move(oldIndex, newIndex);
         }
 
-        private static void ReplaceColumn(int index, DataGridColumn newColumn)
+        private static void ReplaceColumn(int index, DataGridColumn? newColumn)
         {
-            _source.Columns[index] = newColumn;
+            if (_source is not null)
+                _source.Columns[index] = newColumn;
         }
     }
 }

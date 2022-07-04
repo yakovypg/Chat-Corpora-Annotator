@@ -17,13 +17,8 @@ namespace ChatCorporaAnnotator.Infrastructure.Extensions
 
             if (index1 > index2)
             {
-                int tmpInt = index1;
-                index1 = index2;
-                index2 = tmpInt;
-
-                T tmpT = item1;
-                item1 = item2;
-                item2 = tmpT;
+                (index2, index1) = (index1, index2);
+                (item2, item1) = (item1, item2);
             }
 
             list.RemoveAt(index2);

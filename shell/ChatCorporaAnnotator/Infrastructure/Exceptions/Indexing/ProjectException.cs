@@ -5,9 +5,9 @@ namespace ChatCorporaAnnotator.Infrastructure.Exceptions.Indexing
 {
     internal class ProjectException : ApplicationException
     {
-        public IProject Project { get; }
+        public IProject? Project { get; }
 
-        public ProjectException(string message = null, IProject project = null, Exception innerException = null)
+        public ProjectException(string? message = null, IProject? project = null, Exception? innerException = null)
             : base(message, innerException)
         {
             Project = project;
