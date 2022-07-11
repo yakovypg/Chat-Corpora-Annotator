@@ -356,9 +356,6 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
 
             var project = new Project(filePath);
 
-            if (ProjectInteraction.ProjectInfo != null)
-                throw new OneProjectOnlyException("The project has already been uploaded.", project, null);
-
             _project = project;
             _project.Initialize();
 

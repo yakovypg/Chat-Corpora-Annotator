@@ -491,6 +491,12 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
                 return;
             }
 
+            if (ProjectInteraction.ProjectInfo != null)
+            {
+                var msgRes = new QuickMessage("You need to restart the program to index the new file.").ShowWarning();       
+                return;
+            }
+
             if (!DialogProvider.GetCsvFilePath(out string? path))
                 return;
 
@@ -559,6 +565,7 @@ namespace ChatCorporaAnnotator.ViewModels.Windows
             string path = parameter as string;
 
             CloseSuggesterWindowCommand.Execute(null);
+            CloseTagsetEditorWindowCommand.Execute(null);
 
             try
             {

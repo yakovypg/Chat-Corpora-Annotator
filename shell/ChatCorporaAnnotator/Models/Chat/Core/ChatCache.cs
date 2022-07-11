@@ -136,12 +136,17 @@ namespace ChatCorporaAnnotator.Models.Chat.Core
             SetMessages(_currentPackage);
         }
 
-        public void Reset()
+        public void Clear()
         {
             _savedPackage.Clear();
             _previousPackage.Clear();
             _currentPackage.Clear();
             _nextPackage.Clear();
+        }
+
+        public void Reset()
+        {
+            Clear();
 
             IndexInteraction.ResetMessageReadIndex();
 
