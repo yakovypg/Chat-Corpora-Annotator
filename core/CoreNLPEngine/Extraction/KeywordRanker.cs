@@ -1,5 +1,4 @@
 ﻿using Numpy;
-using Wintellect.PowerCollections;
 
 namespace CoreNLPEngine.Extraction
 {
@@ -11,7 +10,7 @@ namespace CoreNLPEngine.Extraction
 
         private static int VocabIndex { get; set; } = 0;
 
-        private static OrderedDictionary<string, double> NodeWeight { get; } = new(); // save keywords and its weight
+        private static Dictionary<string, double> NodeWeight { get; } = new(); // save keywords and its weight
         private static Dictionary<string, int> Vocabulary { get; } = new();
 
         private static void BuildVocabularyFromNouns(List<List<string>> nouns)

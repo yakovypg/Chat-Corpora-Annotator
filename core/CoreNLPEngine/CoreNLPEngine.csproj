@@ -9,7 +9,6 @@
   <ItemGroup>
     <PackageReference Include="CSharpTest.Net.Collections" Version="14.906.1403.1082" />
     <PackageReference Include="Numpy" Version="3.7.1.28" />
-    <PackageReference Include="XAct.Wintellect.PowerCollections" Version="0.0.1" />
   </ItemGroup>
 
   <ItemGroup>
