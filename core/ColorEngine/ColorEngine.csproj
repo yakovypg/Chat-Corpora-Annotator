@@ -7,8 +7,4 @@
     <Configurations>Debug;Release;ContinuousIntegration</Configurations>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="HsluvS" Version="1.0.1" />
-  </ItemGroup>
-
 </Project>

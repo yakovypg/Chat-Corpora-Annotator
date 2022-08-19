@@ -1,5 +1,4 @@
-﻿using HsluvS;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace ColorEngine
 {
@@ -150,14 +149,8 @@ namespace ColorEngine
 
             h = random.NextDouble() * (359.0 - 1.0) + 1.0;
 
-            (double, double, double) hsl = (h, s, l);
-            (double coefR, double coefG, double coefB) = Hsluv.HslToRgb(hsl);
-
-            byte r = Convert.ToByte(coefR * 255);
-            byte g = Convert.ToByte(coefG * 255);
-            byte b = Convert.ToByte(coefB * 255);
-
-            return Color.FromArgb(r, g, b);
+            Rgb rgb = ColorTransformer.HsluvToRgb(new Hsluv(h, s, l));
+            return rgb.GetColor();
         }
     }
 }
