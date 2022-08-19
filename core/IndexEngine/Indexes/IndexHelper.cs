@@ -1,5 +1,6 @@
 ﻿using IndexEngine.Containers;
 using IndexEngine.Data.Paths;
+using IndexEngine.Parsers;
 using IndexEngine.Search;
 using Lucene.Net.Documents;
 using SoftCircuits.CsvParser;
@@ -363,7 +364,7 @@ namespace IndexEngine.Indexes
                     count++;
 
                     string dateStr = row?[_lookup[0]] ?? string.Empty;
-                    date = DateTime.Parse(dateStr);
+                    date = new DateTimeParser().Parse(dateStr);
 
                     var shortDate = new DateTime(date.Year, date.Month, date.Day);
                     activeDates.Add(new ActiveDate(shortDate, indexingValue));
